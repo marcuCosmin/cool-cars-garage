@@ -1,1 +1,64 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary: #000000;
+    --color-secondary: #d1d5dc;
+    --color-error: #dc2626;
+}
+
+@layer base {
+    html, body {
+        @apply text-primary dark:bg-[#1c1c1d] dark:text-secondary;
+    }
+
+    h1 {
+        @apply text-3xl font-bold;
+    }
+
+    hr {
+        @apply w-full h-px text-secondary
+    }
+
+    input {
+        @apply p-2 border rounded-sm text-primary dark:text-secondary;
+        @apply focus:outline-none focus:ring focus:ring-primary focus:border-primary dark:focus:ring-secondary dark:focus:border-secondary;
+    }
+
+    button {
+       @apply p-2 font-semibold bg-primary text-secondary rounded-sm w-full dark:bg-secondary dark:text-primary;
+       @apply focus:outline-none focus:ring focus:ring-primary focus:border-primary dark:focus:ring-secondary dark:focus:border-secondary; 
+    }
+
+    label {
+        @apply flex flex-col gap-2 w-full;
+    }
+}
+
+@layer components {
+    .loader {
+        @apply border-8 w-16 h-16 border-primary border-t-transparent rounded-full animate-spin dark:border-secondary dark:border-t-transparent;
+    }
+}
+
+@Layer utilities {
+    .invalid-input {
+        @apply border-error;
+        @apply focus:ring-error focus:border-error;
+    }
+
+    .form-error {
+        @apply text-error text-xs;
+    }
+
+    .fixed-center {
+        @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+    }
+
+    .border {
+        @apply border border-secondary dark:border-primary;
+    }
+
+    .overlay {
+        @apply flex absolute top-0 left-0 w-full h-full backdrop-blur-xs justify-center items-center;
+    }
+}

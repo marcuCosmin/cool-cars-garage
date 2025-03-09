@@ -3,6 +3,7 @@ import { Suspense, lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 
 import { useFirebaseAuth } from "./firebase/auth"
+import { Loader } from "./components/Loader"
 
 const Home = lazy(() =>
   import("./routes/Home").then(module => ({ default: module.Home }))
@@ -18,10 +19,14 @@ const NotFound = lazy(() =>
 )
 
 export const App = () => {
-  const { uid } = useFirebaseAuth()
+  const { uid, loading } = useFirebaseAuth()
+
+  if (loading) {
+    return <Loader enableOverlay text="Loading user data" />
+  }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
       <BrowserRouter>
         <Routes>
           {!uid ? (

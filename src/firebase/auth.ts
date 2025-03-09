@@ -1,9 +1,9 @@
 import { useEffect } from "react"
 
 import { useReduxDispatch, useReduxSelector } from "../redux/config"
-import { setUser, clearUser } from "../redux/userSlice"
+import { setUser, clearUser, setUserLoading } from "../redux/userSlice"
 
-import { onIdTokenChanged } from "firebase/auth"
+import { onIdTokenChanged, signInWithEmailAndPassword } from "firebase/auth"
 import { firebaseAuth } from "./config"
 import { getFirestoreDoc } from "./utils"
 
@@ -22,6 +22,8 @@ export const useFirebaseAuth = () => {
           return
         }
 
+        dispatch(setUserLoading(true))
+
         const { uid, phoneNumber, email, emailVerified, displayName } = user
 
         const { role } = await getFirestoreDoc<User>({
@@ -32,6 +34,7 @@ export const useFirebaseAuth = () => {
         dispatch(
           setUser({ uid, phoneNumber, email, emailVerified, displayName, role })
         )
+        dispatch(setUserLoading(false))
       }
     )
 
@@ -39,4 +42,22 @@ export const useFirebaseAuth = () => {
   }, [])
 
   return user
+}
+
+type SignInUserProps = {
+  email: string
+  password: string
+}
+
+export const signInUser = async ({ email, password }: SignInUserProps) => {
+  try {
+    await signInWithEmailAndPassword(firebaseAuth, email, password)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      // TODO: More descriptive error messages with a switch case
+      return error.message
+    }
+
+    return "An unknown error occurred"
+  }
 }
