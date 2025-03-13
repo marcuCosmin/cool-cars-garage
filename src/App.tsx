@@ -11,6 +11,9 @@ const Home = lazy(() =>
 const Login = lazy(() =>
   import("./routes/Login").then(module => ({ default: module.Login }))
 )
+const Users = lazy(() =>
+  import("./routes/Users").then(module => ({ default: module.Users }))
+)
 const Layout = lazy(() =>
   import("./routes/Layout").then(module => ({ default: module.Layout }))
 )
@@ -19,7 +22,9 @@ const NotFound = lazy(() =>
 )
 
 export const App = () => {
-  const { uid, loading } = useFirebaseAuth()
+  const { uid, role, loading } = useFirebaseAuth()
+
+  const isAdmin = role === "admin"
 
   if (loading) {
     return <Loader enableOverlay text="Loading user data" />
@@ -34,6 +39,7 @@ export const App = () => {
           ) : (
             <Route element={<Layout />}>
               <Route index path="/" element={<Home />} />
+              {isAdmin && <Route path="/users" element={<Users />} />}
             </Route>
           )}
           <Route path="*" element={<NotFound />} />
