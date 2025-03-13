@@ -21,11 +21,11 @@ const NotFound = lazy(() =>
 )
 
 export const App = () => {
-  const { uid, role, loading } = useFirebaseAuth()
+  const { user, metadata } = useFirebaseAuth()
 
-  const isAdmin = role === "admin"
+  const isAdmin = metadata.role === "admin"
 
-  if (loading) {
+  if (metadata.loading) {
     return <Loader enableOverlay text="Loading user data" />
   }
 
@@ -33,7 +33,7 @@ export const App = () => {
     <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
       <BrowserRouter>
         <Routes>
-          {!uid ? (
+          {!user.uid ? (
             <Route index element={<Login />} />
           ) : (
             <Route element={<Layout />}>

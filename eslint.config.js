@@ -16,7 +16,10 @@ export default tseslint.config(
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
     },
     plugins: {
       "react-hooks": reactHooks,
@@ -40,6 +43,7 @@ export default tseslint.config(
       "no-unneeded-ternary": "error",
       "no-nested-ternary": "error",
       "no-empty-function": "error",
+      "no-unused-vars": "off",
       "no-else-return": "error",
       "no-console": "error",
       "func-style": ["error", "expression"],

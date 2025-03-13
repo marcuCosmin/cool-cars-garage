@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 
 import { useReduxDispatch, useReduxSelector } from "../redux/config"
-import { setUser, clearUser, setUserLoading } from "../redux/userSlice"
+import { setUser, clearUser, setUserMetadata } from "../redux/userSlice"
 
 import {
   onIdTokenChanged,
@@ -11,7 +11,7 @@ import {
 import { firebaseAuth } from "./config"
 import { getFirestoreDoc } from "./utils"
 
-import type { User } from "../models"
+import type { UserMetadata } from "../models"
 
 export const useFirebaseAuth = () => {
   const user = useReduxSelector(state => state.userReducer)
@@ -23,22 +23,21 @@ export const useFirebaseAuth = () => {
       async user => {
         if (!user) {
           dispatch(clearUser())
+          dispatch(setUserMetadata({ loading: false }))
           return
         }
 
-        dispatch(setUserLoading(true))
+        dispatch(setUserMetadata({ loading: true }))
 
-        const { uid, phoneNumber, email, emailVerified, displayName } = user
+        const { uid } = user
 
-        const { role } = await getFirestoreDoc<User>({
+        const { role } = await getFirestoreDoc<UserMetadata>({
           collection: "users",
           document: uid
         })
 
-        dispatch(
-          setUser({ uid, phoneNumber, email, emailVerified, displayName, role })
-        )
-        dispatch(setUserLoading(false))
+        dispatch(setUser(user))
+        dispatch(setUserMetadata({ loading: false, role }))
       }
     )
 

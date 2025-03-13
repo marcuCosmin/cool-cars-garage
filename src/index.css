@@ -15,8 +15,12 @@
         @apply text-3xl font-bold;
     }
 
+    h2 {
+        @apply text-lg font-bold;
+    }
+
     hr {
-        @apply w-full h-px text-secondary
+        @apply w-full h-px text-primary dark:text-secondary
     }
 
     input {

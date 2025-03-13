@@ -1,38 +1,74 @@
 import { createSlice } from "@reduxjs/toolkit"
 
 import type { PayloadAction } from "@reduxjs/toolkit"
+import type { IdTokenResult, User as FirebaseUser } from "firebase/auth"
+import type { UserMetadata } from "../models"
 
-import type { User } from "../models"
-
-type UserState = User & {
+type UserStateMetadata = UserMetadata & {
   loading: boolean
 }
 
+type UserState = {
+  user: FirebaseUser
+  metadata: UserStateMetadata
+}
+
 const initialState: UserState = {
-  uid: "",
-  email: "",
-  displayName: "",
-  emailVerified: false,
-  phoneNumber: "",
-  role: "user",
-  loading: false
+  user: {
+    uid: "",
+    email: "",
+    displayName: "",
+    emailVerified: false,
+    phoneNumber: "",
+    isAnonymous: false,
+    photoURL: "",
+    metadata: {
+      creationTime: "",
+      lastSignInTime: ""
+    },
+    providerData: [],
+    tenantId: null,
+    refreshToken: "",
+    providerId: "",
+    toJSON: () => ({}),
+    //eslint-disable-next-line no-empty-function
+    reload: async () => {},
+    //eslint-disable-next-line no-empty-function
+    delete: async () => {},
+    //eslint-disable-next-line require-await
+    getIdToken: async () => "",
+    //eslint-disable-next-line require-await
+    getIdTokenResult: async () => {
+      return {} as IdTokenResult
+    }
+  },
+  metadata: {
+    loading: true,
+    role: "user"
+  }
 }
 
 export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User>) => ({
+    setUser: (state, action: PayloadAction<FirebaseUser>) => ({
       ...state,
-      ...action.payload
+      user: action.payload
     }),
-    setUserLoading: (state, action: PayloadAction<boolean>) => ({
+    setUserMetadata: (
+      state,
+      action: PayloadAction<Partial<UserStateMetadata>>
+    ) => ({
       ...state,
-      loading: action.payload
+      metadata: {
+        ...state.metadata,
+        ...action.payload
+      }
     }),
     clearUser: () => initialState
   }
 })
 
-export const { setUser, setUserLoading, clearUser } = userSlice.actions
+export const { setUser, setUserMetadata, clearUser } = userSlice.actions
 export const { reducer: userReducer } = userSlice
