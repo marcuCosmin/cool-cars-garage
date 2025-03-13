@@ -54,6 +54,14 @@
     .loader-md {
         @apply w-16 h-16 border-8
     }
+
+    .Toastify__toast {
+        @apply !bg-secondary !text-primary dark:!bg-primary dark:!text-secondary font-bold;
+    }
+
+    .Toastify__toast-icon svg {
+        @apply fill-primary dark:fill-secondary;
+    }
 }
 
 @Layer utilities {

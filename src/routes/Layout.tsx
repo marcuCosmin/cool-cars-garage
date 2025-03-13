@@ -1,5 +1,6 @@
 import { useActionState } from "react"
 import { NavLink, Outlet } from "react-router"
+import { toast } from "react-toastify"
 
 import { signOutUser } from "../firebase/auth"
 import { Loader } from "../components/Loader"
@@ -7,17 +8,15 @@ import { Loader } from "../components/Loader"
 const logOutAction = async () => {
   const error = await signOutUser()
 
-  if (error) {
-    return error
+  if (!error) {
+    return
   }
+
+  toast.error(error)
 }
 
 export const Layout = () => {
-  //TODO: Do something with the error
-  const [logOutError, onSignOutClick, isLoading] = useActionState(
-    logOutAction,
-    null
-  )
+  const [, onSignOutClick, isLoading] = useActionState(logOutAction, undefined)
 
   return (
     <>
