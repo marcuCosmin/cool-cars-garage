@@ -1,21 +1,24 @@
 import { useActionState } from "react"
-import { NavLink, Outlet } from "react-router"
+import { NavLink, Outlet, useNavigate } from "react-router"
 import { toast } from "react-toastify"
 
 import { signOutUser } from "../firebase/auth"
-import { Loader } from "../components/Loader"
-
-const logOutAction = async () => {
-  const error = await signOutUser()
-
-  if (!error) {
-    return
-  }
-
-  toast.error(error)
-}
+import { Loader } from "../components/basic/Loader"
 
 export const Layout = () => {
+  const navigate = useNavigate()
+
+  const logOutAction = async () => {
+    const error = await signOutUser()
+
+    if (!error) {
+      navigate("/")
+      return
+    }
+
+    toast.error(error)
+  }
+
   const [, onSignOutClick, isLoading] = useActionState(logOutAction, undefined)
 
   return (

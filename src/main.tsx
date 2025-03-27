@@ -2,6 +2,8 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { ToastContainer } from "react-toastify"
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+
 import { Provider as ReduxProvider } from "react-redux"
 import { store } from "./redux/config.ts"
 
@@ -18,10 +20,14 @@ if (!rootElement) {
 
 const root = createRoot(rootElement)
 
+const queryClient = new QueryClient()
+
 root.render(
   <StrictMode>
     <ReduxProvider store={store}>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
       <ToastContainer
         limit={1}
         position="bottom-right"

@@ -1,13 +1,13 @@
 import { useState } from "react"
+import { toast } from "react-toastify"
 import { Trash2, User as UserIcon } from "lucide-react"
 
-import { useReduxSelector } from "../../redux/config"
+import { useReduxSelector } from "../../../redux/config"
 
 import { UserField } from "./UserField"
+import { Loader } from "../../basic/Loader"
 
-import { deleteUser, type User } from "../../api/users"
-import { toast } from "react-toastify"
-import { Loader } from "../Loader"
+import { deleteUser, type User } from "../../../api/users"
 
 type UserCardProps = User & {
   onUserDelete: () => void
@@ -16,7 +16,7 @@ type UserCardProps = User & {
 export const UserCard = ({
   email,
   displayName = "Test Displayname",
-  phoneNumber = "+40721731675",
+  phoneNumber,
   creationTime,
   lastSignInTime,
   uid,

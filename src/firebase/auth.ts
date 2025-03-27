@@ -31,13 +31,18 @@ export const useFirebaseAuth = () => {
 
         const { uid } = user
 
-        const { role } = await getFirestoreDoc<UserMetadata>({
+        const userMetadata = await getFirestoreDoc<UserMetadata>({
           collection: "users",
           document: uid
         })
 
         dispatch(setUser(user))
-        dispatch(setUserMetadata({ loading: false, role }))
+        dispatch(
+          setUserMetadata({
+            loading: false,
+            role: userMetadata?.role || "user"
+          })
+        )
       }
     )
 

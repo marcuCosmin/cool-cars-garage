@@ -2,13 +2,17 @@ import { Suspense, lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 
 import { useFirebaseAuth } from "./firebase/auth"
-import { Loader } from "./components/Loader"
+import { Loader } from "./components/basic/Loader"
+import { ErrorBoundary } from "react-error-boundary"
 
 const Home = lazy(() =>
   import("./routes/Home").then(module => ({ default: module.Home }))
 )
-const Login = lazy(() =>
-  import("./routes/Login").then(module => ({ default: module.Login }))
+const SignIn = lazy(() =>
+  import("./routes/SignIn").then(module => ({ default: module.SignIn }))
+)
+const SignUp = lazy(() =>
+  import("./routes/SignUp").then(module => ({ default: module.SignUp }))
 )
 const Users = lazy(() =>
   import("./routes/Users").then(module => ({ default: module.Users }))
@@ -30,20 +34,25 @@ export const App = () => {
   }
 
   return (
-    <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
-      <BrowserRouter>
-        <Routes>
-          {!user.uid ? (
-            <Route index element={<Login />} />
-          ) : (
-            <Route element={<Layout />}>
-              <Route index path="/" element={<Home />} />
-              {isAdmin && <Route path="/users" element={<Users />} />}
-            </Route>
-          )}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </Suspense>
+    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+      <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
+        <BrowserRouter>
+          <Routes>
+            {!user.uid ? (
+              <>
+                <Route index element={<SignIn />} />
+                <Route path="/sign-up" element={<SignUp />} />
+              </>
+            ) : (
+              <Route element={<Layout />}>
+                <Route index path="/" element={<Home />} />
+                {isAdmin && <Route path="/users" element={<Users />} />}
+              </Route>
+            )}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </Suspense>
+    </ErrorBoundary>
   )
 }

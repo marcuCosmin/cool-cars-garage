@@ -15,17 +15,25 @@ export const getFirestoreDoc = async <T extends DocumentData>({
   const snapshot = await getDoc(path)
 
   if (!snapshot.exists()) {
-    throw new Error(
+    // eslint-disable-next-line no-console
+    console.warn(
       `Attempted to get non-existent document: ${document} from collection: ${collection}`
     )
+
+    // this is a react query constraint, we have to return null instead of undefined
+    return null
   }
 
   const data = snapshot.data()
 
   if (!data) {
-    throw new Error(
+    // eslint-disable-next-line no-console
+    console.warn(
       `Document ${document} from collection ${collection} exists, but it has no data`
     )
+
+    // this is a react query constraint, we have to return null instead of undefined
+    return null
   }
 
   return data as T
