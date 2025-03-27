@@ -1,12 +1,6 @@
-import {
-  PhoneAuthProvider,
-  RecaptchaVerifier,
-  updateEmail,
-  updatePhoneNumber
-} from "firebase/auth"
+import { PhoneAuthProvider, RecaptchaVerifier } from "firebase/auth"
 import { Form } from "../basic/Form"
 import { Input } from "../basic/Input"
-import { useReduxSelector } from "../../redux/config"
 import { firebaseAuth } from "../../firebase/config"
 
 const ukNumberRegex =
@@ -50,6 +44,7 @@ export const VerifyPhoneNumberForm = () => {
     <div>
       <Form<ActionState>
         defaultActionState={defaultActionState}
+        //@ts-expect-error this is temporary until the action is implemented
         action={savePhoneNumberAction}
         title="Cool Cars Garage"
         submitLabel="Sign up"
