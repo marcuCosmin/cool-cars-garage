@@ -1,9 +1,10 @@
 import { Suspense, lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
+import { ErrorBoundary } from "react-error-boundary"
 
 import { useFirebaseAuth } from "./firebase/auth"
+
 import { Loader } from "./components/basic/Loader"
-import { ErrorBoundary } from "react-error-boundary"
 
 const Home = lazy(() =>
   import("./routes/Home").then(module => ({ default: module.Home }))
@@ -23,15 +24,32 @@ const Layout = lazy(() =>
 const NotFound = lazy(() =>
   import("./routes/NotFound").then(module => ({ default: module.NotFound }))
 )
+const PhoneVerificationForm = lazy(() =>
+  import("./components/core/PhoneVerificationForm/PhoneVerificationForm").then(
+    module => ({
+      default: module.PhoneVerificationForm
+    })
+  )
+)
 
 export const App = () => {
   const { user, metadata } = useFirebaseAuth()
 
   const isAdmin = metadata.role === "admin"
+  const displayPhoneVerificationForm = isAdmin && !user.phoneNumber
 
   if (metadata.loading) {
     return <Loader enableOverlay text="Loading user data" />
   }
+
+  const mainRenderedRoutes = displayPhoneVerificationForm ? (
+    <Route index element={<PhoneVerificationForm />} />
+  ) : (
+    <Route element={<Layout />}>
+      <Route index path="/" element={<Home />} />
+      {isAdmin && <Route path="/users" element={<Users />} />}
+    </Route>
+  )
 
   return (
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
@@ -44,10 +62,7 @@ export const App = () => {
                 <Route path="/sign-up" element={<SignUp />} />
               </>
             ) : (
-              <Route element={<Layout />}>
-                <Route index path="/" element={<Home />} />
-                {isAdmin && <Route path="/users" element={<Users />} />}
-              </Route>
+              mainRenderedRoutes
             )}
             <Route path="*" element={<NotFound />} />
           </Routes>

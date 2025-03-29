@@ -6,11 +6,15 @@ type CreateValidator = {
   min?: number
   max?: number
   required?: boolean
+  regex?: {
+    pattern: RegExp
+    error: string
+  }
   customValidation?: Validator
 }
 
 const createValidator =
-  ({ min, max, required, customValidation }: CreateValidator) =>
+  ({ min, max, required, regex, customValidation }: CreateValidator) =>
   (value: string) => {
     if (required && !value.trim()) {
       return "This field is required"
@@ -22,6 +26,10 @@ const createValidator =
 
     if (max && value.length > max) {
       return `Must be at most ${max} characters long`
+    }
+
+    if (regex && !regex.pattern.test(value)) {
+      return regex.error
     }
 
     if (!customValidation) {
@@ -56,4 +64,13 @@ export const getNameError = createValidator({
   required: true,
   min: 1,
   max: 15
+})
+
+export const getPhoneNumberError = createValidator({
+  required: true,
+  regex: {
+    pattern:
+      /^(?:\+44\s?7\d{8}|\+44\s?\d{2,4}\s?\d{3,4}\s?\d{3,4}|7\d{8}|\d{2,4}\s?\d{3,4}\s?\d{3,4})$/,
+    error: "Invalid phone number"
+  }
 })

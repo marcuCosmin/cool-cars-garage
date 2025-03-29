@@ -9,7 +9,7 @@ import {
   getPasswordError
 } from "../../utils/validations"
 
-import { Fields, Form } from "../basic/Form"
+import { Form, type Fields } from "../basic/Form"
 
 import type { Invitation } from "../../models"
 
