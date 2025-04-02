@@ -52,9 +52,21 @@ export const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<Partial<FirebaseUser>>) => ({
+    setUser: (state, action: PayloadAction<FirebaseUser>) => ({
       ...state,
-      user: { ...state.user, ...action.payload }
+      user: action.payload
+    }),
+    updateUser: (
+      state,
+      action: PayloadAction<
+        Partial<Pick<FirebaseUser, "email" | "displayName" | "phoneNumber">>
+      >
+    ) => ({
+      ...state,
+      user: {
+        ...state.user,
+        ...action.payload
+      }
     }),
     setUserMetadata: (
       state,
@@ -70,5 +82,6 @@ export const userSlice = createSlice({
   }
 })
 
-export const { setUser, setUserMetadata, clearUser } = userSlice.actions
+export const { setUser, setUserMetadata, clearUser, updateUser } =
+  userSlice.actions
 export const { reducer: userReducer } = userSlice

@@ -33,6 +33,11 @@
         @apply focus:outline-none focus:ring focus:ring-primary focus:border-primary dark:focus:ring-secondary dark:focus:border-secondary;
     }
 
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      @apply appearance-none m-0;
+    }
+
     button {
        @apply !ring-0 p-2 font-semibold bg-primary text-secondary rounded-sm w-full dark:bg-secondary dark:text-primary cursor-pointer;
        @apply focus:outline-none focus:ring focus:ring-primary dark:focus:ring-secondary; 

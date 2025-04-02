@@ -1,8 +1,9 @@
 import { usersUrl } from "./config"
 
+import { signInUser } from "../firebase/auth"
+
 import type { User as FirebaseUser } from "firebase/auth"
 import type { UserMetadata } from "../models"
-import { signInUser } from "../firebase/auth"
 
 export type User = Pick<
   FirebaseUser,
@@ -115,5 +116,84 @@ export const createUser = async (body: CreateUserArgs) => {
     }
 
     return "Failed to create user: Unknown error occurred"
+  }
+}
+
+export type SMSVerification = {
+  validity: number
+  verificationId: string
+}
+
+type SendSMSVerificationCode = (args: {
+  phoneNumber: string
+  idToken: string
+}) => Promise<
+  Partial<SMSVerification> & {
+    error?: string
+  }
+>
+
+export const sendSMSVerificationCode: SendSMSVerificationCode = async ({
+  phoneNumber,
+  idToken
+}) => {
+  try {
+    const response = await fetch(`${usersUrl}/send-verification-sms`, {
+      method: "POST",
+      body: JSON.stringify({ phoneNumber }),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
+      }
+    })
+    const { error, ...verification } = (await response.json()) as Awaited<
+      ReturnType<SendSMSVerificationCode>
+    >
+
+    if (error) {
+      return { error }
+    }
+
+    return verification
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error: error.message }
+    }
+
+    return { error: "Failed to send SMS code" }
+  }
+}
+
+type UpdateUserData = {
+  idToken: string
+  phoneNumber: string
+  verificationId: string
+  code: string
+}
+
+export const updateUserPhoneNumber = async ({
+  idToken,
+  ...body
+}: UpdateUserData) => {
+  try {
+    const response = await fetch(`${usersUrl}/update-phone-number`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
+      }
+    })
+    const { error } = await response.json()
+
+    if (error) {
+      return error as string
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      return error.message
+    }
+
+    return "Failed to send update user data"
   }
 }

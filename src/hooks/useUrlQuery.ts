@@ -1,13 +1,35 @@
-import { useLocation } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 
-type UseUrlQueryParams = () => Record<string, string | undefined>
+type AddParamArgs = {
+  key: string
+  value: string
+}
 
-export const useUrlQueryParams: UseUrlQueryParams = () => {
+export const useUrlQueryParams = () => {
+  const naivgate = useNavigate()
   const { search } = useLocation()
 
   const urlSearchParams = new URLSearchParams(search)
 
-  const urlQueryParams = Object.fromEntries(urlSearchParams)
+  const updateUrl = () => {
+    const search = urlSearchParams.toString()
+    naivgate({ search })
+  }
 
-  return urlQueryParams
+  const addParam = ({ key, value }: AddParamArgs) => {
+    urlSearchParams.append(key, value)
+
+    updateUrl()
+  }
+  const removeParam = (key: string) => {
+    urlSearchParams.delete(key)
+    updateUrl()
+  }
+
+  const params = Object.fromEntries(urlSearchParams) as Record<
+    string,
+    string | undefined
+  >
+
+  return { params, addParam, removeParam }
 }

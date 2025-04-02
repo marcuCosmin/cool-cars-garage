@@ -38,7 +38,7 @@ const splitFieldsProps = <T extends Record<string, string>>(
     actionFields: {} as ActionField<T>,
     formFields: {} as Omit<Fields<T>, "validator">
   }
-  //use reduce to split fields into two arrays
+
   return Object.entries(fields).reduce((acc, [field, fieldProps]) => {
     const { validator, ...formFieldProps } = fieldProps
 
@@ -51,6 +51,7 @@ const splitFieldsProps = <T extends Record<string, string>>(
     return acc
   }, reducerInitial)
 }
+
 export const Form = <T extends Record<string, string>>({
   title,
   submitLabel,

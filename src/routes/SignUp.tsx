@@ -4,7 +4,8 @@ import { SignUp as SignUpCore } from "../components/core/SignUp"
 import { useUrlQueryParams } from "../hooks/useUrlQuery"
 
 export const SignUp = () => {
-  const { invitationId } = useUrlQueryParams()
+  const { params } = useUrlQueryParams()
+  const { invitationId } = params
 
   if (!invitationId) {
     return <NotFound />

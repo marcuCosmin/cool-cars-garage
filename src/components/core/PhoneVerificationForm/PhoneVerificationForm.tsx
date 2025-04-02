@@ -3,12 +3,28 @@ import { useState } from "react"
 import { SendSMSCodeForm } from "./SendSMSCodeForm"
 import { VerifySMSCode } from "./VerifySMSCode"
 
-export const PhoneVerificationForm = () => {
-  const [verificationId, setVerificationId] = useState("")
+import { type SMSVerification } from "../../../api/users"
 
-  if (!verificationId) {
-    return <SendSMSCodeForm setVerificationId={setVerificationId} />
+export const PhoneVerificationForm = () => {
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [verification, setVerification] = useState<
+    SMSVerification | undefined
+  >()
+
+  if (!verification) {
+    return (
+      <SendSMSCodeForm
+        setVerification={setVerification}
+        setPhoneNumber={setPhoneNumber}
+      />
+    )
   }
 
-  return <VerifySMSCode verificationId={verificationId} />
+  return (
+    <VerifySMSCode
+      setVerification={setVerification}
+      verification={verification}
+      phoneNumber={phoneNumber as string}
+    />
+  )
 }

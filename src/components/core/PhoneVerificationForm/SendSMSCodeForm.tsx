@@ -1,6 +1,11 @@
-import { getPhoneNumberVerificationId } from "../../../firebase/phoneNumber"
+import { sendSMSVerificationCode } from "../../../api/users"
+import { useReduxSelector } from "../../../redux/config"
 
 import { Form, type Fields } from "../../basic/Form"
+
+import { type SMSVerification } from "../../../api/users"
+
+import { getPhoneNumberError } from "../../../utils/validations"
 
 const defaultActionState = {
   phoneNumber: ""
@@ -12,31 +17,39 @@ const fields: Fields<ActionState> = {
   phoneNumber: {
     label: "Phone number",
     type: "text",
-    adornment: "+44"
-    // validator: getPhoneNumberError
+    adornment: "+44",
+    validator: getPhoneNumberError
   }
 }
 
 type SendSMSCodeFormProps = {
-  setVerificationId: (verificationId: string) => void
+  setVerification: (code: SMSVerification) => void
+  setPhoneNumber: (phoneNumber: string) => void
 }
 
 export const SendSMSCodeForm = ({
-  setVerificationId
+  setVerification,
+  setPhoneNumber
 }: SendSMSCodeFormProps) => {
+  const { user } = useReduxSelector(state => state.userReducer)
+
   const savePhoneNumberAction = async ({ phoneNumber }: ActionState) => {
-    // const phoneNumberWithPrefix = `+44${phoneNumber}`
-    const phoneNumberWithPrefix = `${phoneNumber}`
+    const phoneNumberWithPrefix = `+44${phoneNumber}`
 
-    const { verificationId, error } = await getPhoneNumberVerificationId(
-      phoneNumberWithPrefix
-    )
+    const idToken = await user.getIdToken()
 
-    if (!verificationId || error) {
+    const { verificationId, validity, error } = await sendSMSVerificationCode({
+      phoneNumber: phoneNumberWithPrefix,
+      idToken
+    })
+
+    if (error) {
       return error as string
     }
 
-    setVerificationId(verificationId)
+    setPhoneNumber(phoneNumberWithPrefix)
+
+    setVerification({ validity, verificationId } as SMSVerification)
   }
 
   return (
@@ -47,8 +60,6 @@ export const SendSMSCodeForm = ({
       action={savePhoneNumberAction}
       submitLabel="Send verification code"
       fields={fields}
-    >
-      <div id="recaptcha-container" />
-    </Form>
+    />
   )
 }

@@ -13,7 +13,7 @@ type CreateValidator = {
   customValidation?: Validator
 }
 
-const createValidator =
+export const createValidator =
   ({ min, max, required, regex, customValidation }: CreateValidator) =>
   (value: string) => {
     if (required && !value.trim()) {
