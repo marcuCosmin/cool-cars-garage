@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { toast } from "react-toastify"
 import { Trash2, User as UserIcon } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 
 import { useReduxSelector } from "../../../redux/config"
 
@@ -9,10 +10,6 @@ import { Loader } from "../../basic/Loader"
 
 import { deleteUser, type User } from "../../../api/users"
 
-type UserCardProps = User & {
-  onUserDelete: () => void
-}
-
 export const UserCard = ({
   email,
   displayName = "Test Displayname",
@@ -20,12 +17,12 @@ export const UserCard = ({
   creationTime,
   lastSignInTime,
   uid,
-  role,
-  onUserDelete
-}: UserCardProps) => {
+  role
+}: User) => {
   const { user } = useReduxSelector(state => state.userReducer)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
+  const queryClient = useQueryClient()
 
   const onDeleteClick = () => setShowDeleteConfirmation(true)
   const onDeleteCancel = () => setShowDeleteConfirmation(false)
@@ -37,8 +34,13 @@ export const UserCard = ({
       const error = await deleteUser({ idToken, uid })
 
       if (!error) {
+        queryClient.invalidateQueries({ queryKey: ["users"] })
+        const currentUsers = queryClient.getQueryData<User[]>(["users"]) || []
+
+        const newUsers = currentUsers.filter(user => user.uid !== uid)
+        queryClient.setQueryData<User[]>(["users"], newUsers)
+
         setShowDeleteConfirmation(false)
-        onUserDelete()
         toast.success("User deleted successfully")
         return
       }

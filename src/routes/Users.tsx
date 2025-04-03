@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
 import { UserPlus } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+
 import { useReduxSelector } from "../redux/config"
 
 import { Loader } from "../components/basic/Loader"
@@ -7,30 +8,24 @@ import { UserCard } from "../components/core/UserCard/UserCard"
 import { InviteUserForm } from "../components/core/InviteUserForm"
 import { ActionModal } from "../components/core/ActionModal"
 
-import { fetchUsers, type User } from "../api/users"
+import { fetchUsers } from "../api/users"
 
 export const Users = () => {
   const { user } = useReduxSelector(state => state.userReducer)
-  const [loading, setLoading] = useState(true)
-  const [users, setUsers] = useState<User[]>([])
 
-  const onUserDelete = (uid: string) => {
-    const newUsers = users.filter(user => user.uid !== uid)
+  const queryFn = async () => {
+    const idToken = await user.getIdToken()
+    const data = await fetchUsers(idToken)
 
-    setUsers(newUsers)
+    return data.users
   }
 
-  useEffect(() => {
-    ;(async () => {
-      const idToken = await user.getIdToken()
-      const data = await fetchUsers(idToken)
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn
+  })
 
-      setUsers(data.users)
-      setLoading(false)
-    })()
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return <Loader text="Loading users data" />
   }
 
@@ -50,11 +45,7 @@ export const Users = () => {
 
       <ul className="flex flex-wrap gap-4 w-full max-w-4xl p-5">
         {users.map(user => (
-          <UserCard
-            key={user.uid}
-            {...user}
-            onUserDelete={() => onUserDelete(user.uid)}
-          />
+          <UserCard key={user.uid} {...user} />
         ))}
       </ul>
     </div>
