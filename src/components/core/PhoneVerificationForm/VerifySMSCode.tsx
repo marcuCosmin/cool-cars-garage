@@ -3,7 +3,8 @@ import { toast } from "react-toastify"
 
 import { Info } from "lucide-react"
 
-import { Form, type Fields } from "../../basic/Form/Form"
+import { Form } from "../../basic/Form/Form"
+import type { Fields } from "../../basic/Form/models"
 
 import { useReduxDispatch, useReduxSelector } from "../../../redux/config"
 import { updateUser } from "../../../redux/userSlice"
@@ -18,11 +19,9 @@ import { secondsToUIFormat } from "../../../utils/secondsToUIFormat"
 
 import { type SMSVerification } from "../../../api/users"
 
-const defaultActionState = {
-  code: ""
+type FormFields = {
+  code: string
 }
-
-type ActionState = typeof defaultActionState
 
 type VerifySMSCodeProps = {
   phoneNumber: string
@@ -48,7 +47,7 @@ export const VerifySMSCode = ({
 
   const { user } = useReduxSelector(state => state.userReducer)
 
-  const fields: Fields<ActionState> = {
+  const fields: Fields<FormFields> = {
     code: {
       label: "SMS code",
       type: "number",
@@ -64,7 +63,7 @@ export const VerifySMSCode = ({
     }
   }
 
-  const savePhoneNumberAction = async ({ code }: ActionState) => {
+  const savePhoneNumberAction = async ({ code }: FormFields) => {
     const idToken = await user.getIdToken()
 
     const error = await updateUserPhoneNumber({
@@ -102,10 +101,9 @@ export const VerifySMSCode = ({
   }
 
   return (
-    <Form<ActionState>
+    <Form<FormFields>
       containerClassName="fixed non-relative-center"
       title="Verify SMS code"
-      defaultActionState={defaultActionState}
       action={savePhoneNumberAction}
       submitLabel="Verify"
       fields={fields}
