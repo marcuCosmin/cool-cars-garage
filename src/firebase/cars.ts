@@ -1,9 +1,28 @@
 import { toast } from "react-toastify"
 
-import { doc, setDoc } from "firebase/firestore"
+import { collection, doc, getDocs, setDoc } from "firebase/firestore"
 import { firestore } from "./config"
 
 import type { Car } from "../models"
+
+export const getAllCars = async () => {
+  const carsSnapshot = await getDocs(collection(firestore, "cars"))
+
+  if (carsSnapshot.empty) {
+    return []
+  }
+
+  const cars = carsSnapshot.docs.map(doc => {
+    const data = doc.data() as Omit<Car, "registrationNumber">
+
+    return {
+      ...data,
+      registrationNumber: doc.id
+    }
+  })
+
+  return cars
+}
 
 export const createCar = async ({ registrationNumber, ...car }: Car) => {
   const docRef = doc(firestore, "cars", registrationNumber)

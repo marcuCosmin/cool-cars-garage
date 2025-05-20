@@ -1,7 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit"
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction
+} from "@reduxjs/toolkit"
 
-import type { PayloadAction } from "@reduxjs/toolkit"
+import { getFirestoreDoc } from "../firebase/utils"
 import type { IdTokenResult, User as FirebaseUser } from "firebase/auth"
+
 import type { UserMetadata } from "../models"
 
 type UserStateMetadata = UserMetadata & {
@@ -48,6 +53,18 @@ const initialState: UserState = {
   }
 }
 
+export const fetchUserMetadata = createAsyncThunk(
+  "user/fetchMetadata",
+  async (uid: string) => {
+    const userMetadata = await getFirestoreDoc<UserMetadata>({
+      collection: "users",
+      document: uid
+    })
+
+    return userMetadata || { role: "user" as UserMetadata["role"] }
+  }
+)
+
 export const userSlice = createSlice({
   name: "user",
   initialState,
@@ -78,7 +95,24 @@ export const userSlice = createSlice({
         ...action.payload
       }
     }),
-    clearUser: () => initialState
+    clearUser: () => ({
+      ...initialState,
+      metadata: { ...initialState.metadata, loading: false }
+    })
+  },
+  extraReducers: builder => {
+    builder.addCase(fetchUserMetadata.fulfilled, (state, action) => {
+      state.metadata = {
+        loading: false,
+        ...action.payload
+      }
+    })
+    builder.addCase(fetchUserMetadata.pending, state => {
+      state.metadata = {
+        ...state.metadata,
+        loading: true
+      }
+    })
   }
 })
 

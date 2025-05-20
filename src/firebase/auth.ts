@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 
 import { useReduxDispatch, useReduxSelector } from "../redux/config"
-import { setUser, clearUser, setUserMetadata } from "../redux/userSlice"
+import { setUser, clearUser, fetchUserMetadata } from "../redux/userSlice"
 
 import {
   onIdTokenChanged,
@@ -9,9 +9,6 @@ import {
   signOut
 } from "firebase/auth"
 import { firebaseAuth } from "./config"
-import { getFirestoreDoc } from "./utils"
-
-import type { UserMetadata } from "../models"
 
 export const useFirebaseAuth = () => {
   const user = useReduxSelector(state => state.userReducer)
@@ -21,29 +18,15 @@ export const useFirebaseAuth = () => {
     const unsubscribeIdTokenListener = onIdTokenChanged(
       firebaseAuth,
       async user => {
-        console.log("User state changed", user)
         if (!user) {
           dispatch(clearUser())
-          dispatch(setUserMetadata({ loading: false }))
           return
         }
 
-        dispatch(setUserMetadata({ loading: true }))
-
         const { uid } = user
 
-        const userMetadata = await getFirestoreDoc<UserMetadata>({
-          collection: "users",
-          document: uid
-        })
-
+        await dispatch(fetchUserMetadata(uid))
         dispatch(setUser(user))
-        dispatch(
-          setUserMetadata({
-            loading: false,
-            role: userMetadata?.role || "user"
-          })
-        )
       }
     )
 
