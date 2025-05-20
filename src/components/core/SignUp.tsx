@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { getFirestoreDoc } from "../../firebase/utils"
 
 import { SignForm } from "../../components/core/SignForm"
-import { Loader } from "../../components/basic/Loader"
+import { Loader } from "../basic/Loader"
 
 import type { Invitation } from "../../models"
 

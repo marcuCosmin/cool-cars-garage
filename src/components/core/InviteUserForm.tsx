@@ -1,20 +1,17 @@
 import { toast } from "react-toastify"
 import { useReduxSelector } from "../../redux/config"
 
-import { Form } from "../basic/Form"
+import { Form } from "../basic/Form/Form"
 
 import { inviteUser } from "../../api/users"
 
 import { getEmailError } from "../../utils/validations"
 
-const defaultActionState = {
-  email: "",
-  role: ""
-}
+import type { Fields, FormAction } from "../basic/Form/models"
 
-type ActionState = typeof defaultActionState
+type FormFields = { email: string; role: string }
 
-const fields = {
+const fields: Fields<FormFields> = {
   email: {
     label: "Email",
     validator: getEmailError,
@@ -23,21 +20,15 @@ const fields = {
   role: {
     label: "Role",
     type: "toggle",
-    firstOption: {
-      label: "User",
-      value: "user"
-    },
-    secondOption: {
-      label: "Admin",
-      value: "admin"
-    }
+    firstOption: "User",
+    secondOption: "Admin"
   }
 }
 
 export const InviteUserForm = () => {
   const { user } = useReduxSelector(state => state.userReducer)
 
-  const inviteAction = async ({ email, role }: ActionState) => {
+  const inviteAction: FormAction<FormFields> = async ({ email, role }) => {
     const idToken = await user.getIdToken()
     const error = await inviteUser({ idToken, email, role })
 
@@ -49,10 +40,8 @@ export const InviteUserForm = () => {
   }
 
   return (
-    <Form<ActionState>
-      containerClassName="p-0 border-0 bg-transparent dark:bg-transparent max-w-auto"
+    <Form<FormFields>
       title="Invite user"
-      defaultActionState={defaultActionState}
       action={inviteAction}
       submitLabel="Invite"
       fields={fields}

@@ -29,7 +29,7 @@
     }
 
     input {
-        @apply w-full p-2 border rounded-sm text-primary dark:text-secondary;
+        @apply w-full p-2 border rounded-sm text-primary dark:text-secondary h-[40px] disabled:opacity-50;
         @apply focus:outline-none focus:ring focus:ring-primary focus:border-primary dark:focus:ring-secondary dark:focus:border-secondary;
     }
 
@@ -82,8 +82,63 @@
     }
 
     .ReactModal__Content {
-        @apply flex justify-center items-center max-w-md m-auto w-[95%] h-fit sm:min-w-xs !bg-transparent !top-0 !left-0 !right-0 !bottom-0;
+        @apply flex justify-center items-center max-w-lg m-auto w-[95%] h-full sm:min-w-xs !bg-transparent !top-0 !left-0 !right-0 !bottom-0;
     }
+
+    .action-modal form {
+        @apply p-0 border-0 bg-transparent dark:bg-transparent max-w-[auto];
+    }
+
+    .react-calendar__navigation {
+        @apply bg-primary dark:bg-secondary flex items-center justify-center rounded-t-lg p-2;
+
+        button {
+            @apply p-0 hover:opacity-90 transition-opacity;
+        }
+
+        .react-calendar__navigation__label {
+            @apply flex-none w-fit font-bold text-lg;
+        }
+
+        .react-calendar__navigation__arrow {
+            @apply flex items-center justify-center pb-1.5 w-7 h-7 text-2xl
+        }
+    }
+
+    .react-calendar__month-view__weekdays {
+        @apply bg-primary dark:bg-secondary text-secondary dark:text-primary;
+    }
+
+    .react-calendar__month-view__weekdays__weekday {
+        @apply font-bold text-center border-t border-b border-r last:border-r-0 border-primary;
+
+        abbr {
+            @apply no-underline;
+        }
+    }
+
+    .react-calendar__month-view__days {
+        button {
+            @apply p-2 bg-transparent text-primary dark:text-secondary border rounded-none last:rounded-br-lg nth-[7n+1]:nth-last-[-n+7]:rounded-bl-lg;
+        }
+
+        .react-calendar__tile--now, .react-calendar__tile--active {
+            @apply bg-primary dark:bg-secondary text-secondary dark:text-primary border-primary dark:border-secondary;
+        }
+
+        .react-calendar__tile--active {
+            @apply !opacity-100;
+        }
+
+        .react-calendar__tile--now {
+            @apply opacity-70;
+        }
+    }
+
+    .react-tiny-popover-container {
+        @apply max-w-sm bg-secondary dark:bg-primary shadow dark:shadow-white rounded-lg;
+    }
+
 }
 
 @Layer utilities {

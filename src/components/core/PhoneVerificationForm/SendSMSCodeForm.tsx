@@ -1,23 +1,24 @@
-import { sendSMSVerificationCode } from "../../../api/users"
 import { useReduxSelector } from "../../../redux/config"
 
-import { Form, type Fields } from "../../basic/Form"
+import { Form } from "../../basic/Form/Form"
+import type { Fields } from "../../basic/Form/models"
 
-import { type SMSVerification } from "../../../api/users"
+import {
+  sendSMSVerificationCode,
+  type SMSVerification
+} from "../../../api/users"
 
 import { getPhoneNumberError } from "../../../utils/validations"
 
-const defaultActionState = {
-  phoneNumber: ""
+type FormFields = {
+  phoneNumber: string
 }
 
-type ActionState = typeof defaultActionState
-
-const fields: Fields<ActionState> = {
+const fields: Fields<FormFields> = {
   phoneNumber: {
     label: "Phone number",
     type: "text",
-    adornment: "+44",
+    startAdornment: "+44",
     validator: getPhoneNumberError
   }
 }
@@ -33,7 +34,7 @@ export const SendSMSCodeForm = ({
 }: SendSMSCodeFormProps) => {
   const { user } = useReduxSelector(state => state.userReducer)
 
-  const savePhoneNumberAction = async ({ phoneNumber }: ActionState) => {
+  const savePhoneNumberAction = async ({ phoneNumber }: FormFields) => {
     const phoneNumberWithPrefix = `+44${phoneNumber}`
 
     const idToken = await user.getIdToken()
@@ -53,10 +54,9 @@ export const SendSMSCodeForm = ({
   }
 
   return (
-    <Form<ActionState>
+    <Form<FormFields>
       containerClassName="fixed non-relative-center"
       title="Verify phone number"
-      defaultActionState={defaultActionState}
       action={savePhoneNumberAction}
       submitLabel="Send verification code"
       fields={fields}

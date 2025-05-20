@@ -3,7 +3,7 @@ import { toast } from "react-toastify"
 
 import { Info } from "lucide-react"
 
-import { Form, type Fields } from "../../basic/Form"
+import { Form, type Fields } from "../../basic/Form/Form"
 
 import { useReduxDispatch, useReduxSelector } from "../../../redux/config"
 import { updateUser } from "../../../redux/userSlice"

@@ -21,7 +21,11 @@ export const ActionModal = ({ children, buttonContent }: ActionModalProps) => {
       >
         {buttonContent}
       </button>
-      <Modal isOpen={isOpen} onRequestClose={onRequestClose}>
+      <Modal
+        className="action-modal"
+        isOpen={isOpen}
+        onRequestClose={onRequestClose}
+      >
         {children}
       </Modal>
     </div>

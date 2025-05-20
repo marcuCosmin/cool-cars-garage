@@ -21,6 +21,7 @@ export const useFirebaseAuth = () => {
     const unsubscribeIdTokenListener = onIdTokenChanged(
       firebaseAuth,
       async user => {
+        console.log("User state changed", user)
         if (!user) {
           dispatch(clearUser())
           dispatch(setUserMetadata({ loading: false }))

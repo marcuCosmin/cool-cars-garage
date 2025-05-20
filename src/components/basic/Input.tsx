@@ -1,39 +1,81 @@
-import type { InputHTMLAttributes, ReactNode } from "react"
+import {
+  type InputHTMLAttributes,
+  type ReactNode,
+  type ChangeEvent,
+  type MouseEventHandler
+} from "react"
 
 import { mergeClassNames } from "../../utils/mergeClassNames"
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label?: string
-  error?: string
-  adornment?: ReactNode
-}
+import type { FormFieldComponentProps } from "./Form/models"
+
+export type InputProps = Partial<FormFieldComponentProps<string>> &
+  Omit<
+    InputHTMLAttributes<HTMLInputElement>,
+    "value" | "onChange" | "onClick"
+  > & {
+    onClick?: MouseEventHandler<HTMLDivElement | HTMLInputElement>
+    startAdornment?: ReactNode
+    endAdornment?: ReactNode
+    containerClassName?: string
+  }
 
 export const Input = ({
   label,
   error,
   className,
-  adornment,
-  readOnly,
+  startAdornment,
+  endAdornment,
+  containerClassName: additionalContainerClassName,
+  value,
+  onFocus,
+  onClick,
   ...props
 }: InputProps) => {
+  const onChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    const newValue = target.value
+
+    props.onChange?.(newValue)
+  }
+
   const containerClassName = mergeClassNames(
-    readOnly && "opacity-50",
-    !label && "w-full"
+    !label && "w-full",
+    additionalContainerClassName
   )
+
+  const hasAdornment = !!(startAdornment || endAdornment)
 
   const inputClassName = mergeClassNames(
-    error && "invalid-input",
-    className,
-    adornment && "border-none ring-0"
+    !hasAdornment && error && "invalid-input",
+    !hasAdornment && className,
+    hasAdornment && "border-none p-0 ring-0 cursor-[inherit]"
   )
 
-  const renderedInput = adornment ? (
-    <div className="flex items-center gap-2 border rounded-sm pl-2 focus-within:ring-1 focus-within:ring-primary  dark:focus-within:ring-secondary">
-      {adornment}
-      <input readOnly={readOnly} className={inputClassName} {...props} />
+  const inputProps = {
+    ...props,
+    className: inputClassName,
+    value,
+    onChange,
+    onFocus
+  }
+
+  const renderedInputOnClick = label && onClick ? onClick : undefined
+
+  const renderedInput = hasAdornment ? (
+    <div
+      className={mergeClassNames(
+        "flex items-center border rounded-sm px-2 focus-within:ring-1 focus-within:ring-primary  dark:focus-within:ring-secondary",
+        error && "invalid-input",
+        className
+      )}
+      onClick={renderedInputOnClick}
+    >
+      {startAdornment}
+      <input {...inputProps} />
+      {endAdornment}
     </div>
   ) : (
-    <input readOnly={readOnly} className={inputClassName} {...props} />
+    <input {...inputProps} onClick={renderedInputOnClick} />
   )
 
   const renderedContent = (
@@ -48,7 +90,7 @@ export const Input = ({
   }
 
   return (
-    <label className={containerClassName}>
+    <label onClick={e => e.preventDefault()} className={containerClassName}>
       <span>{label}</span>
       {renderedContent}
     </label>

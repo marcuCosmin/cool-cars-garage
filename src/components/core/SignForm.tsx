@@ -9,7 +9,8 @@ import {
   getPasswordError
 } from "../../utils/validations"
 
-import { Form, type Fields } from "../basic/Form"
+import { Form } from "../basic/Form/Form"
+import type { Fields, FormAction } from "../basic/Form/models"
 
 import type { Invitation } from "../../models"
 
@@ -18,7 +19,7 @@ export type SignFormProps = {
   invitation?: Invitation
 }
 
-type ActionState = {
+type FormFields = {
   email: string
   password: string
   firstName?: string
@@ -35,7 +36,6 @@ type Config = {
     }
     authAction: typeof createUser | typeof signInUser
     emailDisabled: boolean
-    defaultActionState: ActionState
   }
 }
 
@@ -43,11 +43,7 @@ const config: Config = {
   "sign-in": {
     submitLabel: "Sign in",
     authAction: signInUser,
-    emailDisabled: false,
-    defaultActionState: {
-      email: "",
-      password: ""
-    }
+    emailDisabled: false
   },
   "sign-up": {
     submitLabel: "Sign up",
@@ -57,13 +53,7 @@ const config: Config = {
       label: "Already have an account?"
     },
     authAction: createUser,
-    emailDisabled: true,
-    defaultActionState: {
-      email: "",
-      password: "",
-      firstName: "",
-      lastName: ""
-    }
+    emailDisabled: true
   }
 }
 
@@ -77,7 +67,7 @@ const getFormFields = ({
   formType,
   invitation
 }: GetFormFieldsArgs) => {
-  const fields: Fields<ActionState> = {
+  const fields: Fields<FormFields> = {
     email: {
       label: "Email",
       validator: getEmailError,
@@ -110,17 +100,16 @@ const getFormFields = ({
 }
 
 export const SignForm = ({ formType, invitation }: SignFormProps) => {
-  const { submitLabel, url, emailDisabled, defaultActionState, authAction } =
-    config[formType]
+  const { submitLabel, url, emailDisabled, authAction } = config[formType]
 
   const navigate = useNavigate()
 
-  const action = async ({
+  const action: FormAction<FormFields> = async ({
     email,
     password,
     firstName,
     lastName
-  }: ActionState) => {
+  }) => {
     if (formType === "sign-in") {
       return (authAction as typeof signInUser)({ email, password })
     }
@@ -141,11 +130,10 @@ export const SignForm = ({ formType, invitation }: SignFormProps) => {
   const fields = getFormFields({ emailDisabled, formType, invitation })
 
   return (
-    <Form<ActionState>
+    <Form<FormFields>
       containerClassName="fixed non-relative-center"
       title="Cool Cars Garage"
       submitLabel={submitLabel}
-      defaultActionState={defaultActionState}
       action={action}
       fields={fields}
     >
