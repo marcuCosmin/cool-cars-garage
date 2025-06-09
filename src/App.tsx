@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { useFirebaseAuth } from "./firebase/auth"
 
 import { Loader } from "./components/basic/Loader"
+import { Modal } from "./components/core/Modal"
 
 const Home = lazy(() =>
   import("./routes/Home").then(module => ({ default: module.Home }))
@@ -68,6 +69,7 @@ export const App = () => {
           </Routes>
         </BrowserRouter>
       </Suspense>
+      <Modal />
     </ErrorBoundary>
   )
 }

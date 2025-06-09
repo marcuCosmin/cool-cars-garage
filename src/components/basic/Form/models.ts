@@ -1,10 +1,10 @@
 import type { InputProps } from "../Input"
-import type { ToggleProps } from "../Toggle"
 import type { SelectProps } from "../Select"
-import type { Validator, FieldValue } from "../../../utils/validations"
+import type { Validator } from "../../../utils/validations"
+import type { FieldValue } from "../../../models"
 
 type FieldComponentsProps = Partial<
-  Omit<InputProps & ToggleProps & SelectProps, "value" | "onChange">
+  Omit<InputProps & SelectProps, "value" | "onChange">
 >
 
 type FieldProps<T extends DefaultFields> = Omit<

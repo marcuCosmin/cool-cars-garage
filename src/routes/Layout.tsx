@@ -23,7 +23,7 @@ export const Layout = () => {
 
   return (
     <>
-      <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-secondary dark:bg-primary font-bold">
+      <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-secondary dark:bg-primary font-bold z-[9000]">
         <NavLink className="logo" to="/" end />
 
         <div className="flex gap-5 m-auto">

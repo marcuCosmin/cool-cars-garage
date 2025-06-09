@@ -6,9 +6,11 @@ import {
 import { configureStore } from "@reduxjs/toolkit"
 
 import { userReducer } from "./userSlice"
+import { carsReducer } from "./carsSlice"
+import { modalReducer } from "./modalSlice"
 
 export const store = configureStore({
-  reducer: { userReducer }
+  reducer: { userReducer, carsReducer, modalReducer }
 })
 
 type State = ReturnType<typeof store.getState>

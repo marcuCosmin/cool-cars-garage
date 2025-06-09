@@ -1,15 +1,10 @@
-import { useRef, useState, type FocusEvent } from "react"
-
-import { ChevronDown } from "lucide-react"
-
-import { Input } from "./Input"
-
-import { mergeClassNames } from "../../utils/mergeClassNames"
+import ReactSelect, { MultiValue, type SingleValue } from "react-select"
 
 import type { FormFieldComponentProps } from "./Form/models"
 
-export type SelectProps = FormFieldComponentProps<string> & {
+export type SelectProps = FormFieldComponentProps<string | string[]> & {
   options: string[]
+  isMulti?: boolean
 }
 
 export const Select = ({
@@ -17,72 +12,36 @@ export const Select = ({
   value,
   onChange,
   onFocus,
-  ...props
+  label,
+  isMulti,
+  error
 }: SelectProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const isSearchable = options.length > 10
 
-  const listRef = useRef<HTMLUListElement>(null)
-
-  const inputContainerClassName = mergeClassNames(isOpen && "rounded-b-none")
-  const inputClassName = "cursor-pointer relative z-[99999]"
-
-  const onClick = () => setIsOpen(!isOpen)
-
-  const onBlur = ({ relatedTarget }: FocusEvent) => {
-    if (listRef.current?.contains(relatedTarget) || !isOpen) {
+  const handleChange = (option: SingleValue<string> | MultiValue<string>) => {
+    if (!option) {
+      onChange(isMulti ? [] : "")
       return
     }
 
-    setIsOpen(false)
-  }
-
-  const onOptionClick = (option: string) => {
-    onChange(option)
-    setIsOpen(false)
+    onChange(option as string | string[])
   }
 
   return (
-    <div className="relative w-full" onBlur={onBlur}>
-      <Input
-        {...props}
+    <div>
+      {label && <div className="mb-2">{label}</div>}
+      <ReactSelect
+        isMulti={isMulti}
+        isSearchable={isSearchable}
         onFocus={onFocus}
-        readOnly
-        containerClassName={inputContainerClassName}
-        className={inputClassName}
-        type="text"
-        onClick={onClick}
+        placeholder={null}
+        onChange={handleChange}
         value={value}
-        endAdornment={<ChevronDown className="cursor-pointer" height={24} />}
+        options={options}
+        classNamePrefix="react-select"
+        className="react-select"
       />
-
-      {isOpen && (
-        <ul
-          ref={listRef}
-          className="absolute left-0 top-[70px] z-[9000] border rounded-sm rounded-t-none w-full border-t-0 bg-secondary dark:bg-primary"
-        >
-          {options.map((option, index) => {
-            const isFirstOption = index === 0
-            const isLastOption = index === options.length - 1
-            const className = mergeClassNames(
-              "px-2 py-1 cursor-pointer",
-              (isFirstOption || isLastOption) && "p-2"
-            )
-
-            const onClick = () => onOptionClick(option)
-
-            return (
-              <li
-                tabIndex={0}
-                key={option}
-                className={className}
-                onClick={onClick}
-              >
-                {option}
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      {error && <span className="form-error">{error}</span>}
     </div>
   )
 }

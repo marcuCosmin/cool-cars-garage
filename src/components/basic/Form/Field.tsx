@@ -8,7 +8,7 @@ import type {
   FieldStateProps,
   FormFieldComponentProps
 } from "./models"
-import type { FieldValue } from "../../../utils/validations"
+import type { FieldValue } from "../../../models"
 
 type FieldProps<T extends DefaultFields> = Omit<
   FieldStateProps<T>,

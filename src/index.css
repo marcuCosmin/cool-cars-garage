@@ -9,7 +9,7 @@
 
 @layer base {
     html, body {
-        @apply text-primary dark:bg-[#1c1c1d] dark:text-secondary m-0 w-full h-full;
+        @apply text-primary dark:text-secondary dark:bg-[#1c1c1d] dark:text-secondary m-0 w-full h-full;
     }
 
     #root {
@@ -137,6 +137,52 @@
 
     .react-tiny-popover-container {
         @apply max-w-sm bg-secondary dark:bg-primary shadow dark:shadow-white rounded-lg;
+    }
+
+    .react-select {
+        .react-select__control {
+            @apply !cursor-pointer h-[40px] !border !border-primary dark:!border-secondary hover:border !shadow-none !bg-transparent;
+        }
+
+        .react-select__control--is-focused {
+            @apply ring ring-primary dark:ring-secondary border-primary dark:border-secondary;
+        }
+
+        .react-select__input {
+            @apply border-none ring-0 h-full;
+        }
+
+        .react-select__single-value {
+            @apply !text-primary dark:!text-secondary;
+        }
+
+        .react-select__indicator-separator {
+            @apply hidden;
+        }
+
+        .react-select__indicator {
+            @apply !text-primary dark:!text-secondary;
+        }
+
+        .react-select__menu {
+            @apply border !shadow-lg shadow-secondary dark:shadow-primary !bg-secondary dark:!bg-primary;
+
+            .react-select__menu-list {
+                @apply !p-0;
+            }
+        }
+
+        .react-select__option {
+            @apply !cursor-pointer;
+        }
+
+        .react-select__option--is-focused {
+            @apply !bg-primary/50 dark:!bg-secondary/50;
+        }
+
+        .react-select__option--is-selected {
+            @apply !bg-primary dark:!bg-secondary !text-secondary dark:!text-primary;
+        }
     }
 
 }

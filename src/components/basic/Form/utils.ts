@@ -1,4 +1,4 @@
-import type { FieldValue } from "../../../utils/validations"
+import type { FieldValue } from "../../../models"
 import type { FieldsState, FormAction, DefaultFields, Fields } from "./models"
 
 type Action<T extends DefaultFields> = (

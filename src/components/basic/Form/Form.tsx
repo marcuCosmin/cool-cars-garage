@@ -6,9 +6,9 @@ import { Field } from "./Field"
 import { createFormAction, fieldsReducer, getFieldsInitialState } from "./utils"
 
 import { mergeClassNames } from "../../../utils/mergeClassNames"
-import type { FieldValue } from "../../../utils/validations"
 
 import type { Fields, FormAction, DefaultFields } from "./models"
+import type { FieldValue } from "../../../models"
 
 type FormProps<T extends Record<string, FieldValue>> = {
   containerClassName?: string

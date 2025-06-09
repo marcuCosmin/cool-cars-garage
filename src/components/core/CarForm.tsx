@@ -1,12 +1,17 @@
+import cloneDeep from "lodash.clonedeep"
+
 import { Form } from "../basic/Form/Form"
 import type { Fields } from "../basic/Form/models"
 
 import { createCar } from "../../firebase/cars"
 
+import { useReduxSelector } from "../../redux/config"
+
 import { createValidator, getRequiredError } from "../../utils/validations"
+
 import type { Car } from "../../models"
 
-const fields: Fields<Car> = {
+const defaultFields: Fields<Car> = {
   council: {
     label: "Council",
     type: "select",
@@ -43,8 +48,6 @@ const fields: Fields<Car> = {
   wheelChairLift: {
     label: "Wheelchair Lift",
     type: "toggle",
-    firstOption: "No",
-    secondOption: "Yes",
     displayCondition: ({ council }) => council === "PSV"
   },
   wheelChairLiftCheck: {
@@ -117,11 +120,31 @@ const fields: Fields<Car> = {
   }
 }
 
-export const AddCarForm = () => {
+export const CarForm = () => {
+  const { cars, metadata } = useReduxSelector(state => state.carsReducer)
+  const { editedCarId } = metadata
+  const car = editedCarId ? cars[editedCarId] : null
+
+  const isEdit = !!car
+  const title = isEdit ? "Edit Car" : "Add Car"
+  const submitLabel = isEdit ? "Update" : "Add"
+
+  const fields = cloneDeep(defaultFields) as Fields<Car>
+
+  if (car) {
+    Object.keys(car).forEach(key => {
+      const fieldValue = car[key as keyof Omit<Car, "registrationNumber">]
+
+      if (fields[key as keyof Fields<Car>]) {
+        fields[key as keyof Fields<Car>]!.defaultValue = fieldValue
+      }
+    })
+  }
+
   return (
     <Form<Car>
-      title="Add Car"
-      submitLabel="Add"
+      title={title}
+      submitLabel={submitLabel}
       fields={fields}
       action={createCar}
     />

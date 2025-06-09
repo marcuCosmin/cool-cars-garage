@@ -10,6 +10,8 @@ export type Invitation = {
   id: string
 }
 
+export type FieldValue = string | number | boolean
+
 export type Car = {
   mot: number
   roadTax: number

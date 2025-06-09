@@ -1,6 +1,7 @@
 import { validate as validateEmail } from "email-validator"
 
-export type FieldValue = string | number
+import type { FieldValue } from "../models"
+
 export type Validator = (value?: FieldValue) => string
 
 type CreateValidator = {
