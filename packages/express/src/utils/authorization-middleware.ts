@@ -14,11 +14,30 @@ const getUserMetadata = async (uid: string) => {
   return userDoc.data() as UserMetadata
 }
 
+const excludedPaths = {
+  "/": ["ALL"],
+  "/mail": ["ALL"],
+  "/users": ["POST"]
+}
+
 export const authorizationMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const excludedPathConfig =
+    excludedPaths[req.path as keyof typeof excludedPaths]
+
+  if (excludedPathConfig?.[0] === "ALL") {
+    next()
+    return
+  }
+
+  if (excludedPathConfig?.includes(req.method)) {
+    next()
+    return
+  }
+
   try {
     const authorizationHeader = req.headers.authorization
     const idToken = authorizationHeader?.split("Bearer ")[1]
