@@ -1,0 +1,29 @@
+name: Run Notifications Job
+
+on:
+  schedule:
+    - cron: "0 11 * * *"
+
+jobs:
+  run-notifications:
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: development
+      FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.15.0"
+
+      - name: Build Project
+        run: npm install && npm run build
+
+      - name: Test
+        run: ls . && ls dist
+
+      - name: Run notifications script
+        run: node ./dist/jobs/notifications.js

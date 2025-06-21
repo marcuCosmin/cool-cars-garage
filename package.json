@@ -1,53 +1,33 @@
 {
   "name": "cool-cars-garage",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "workspaces": [
+    "packages/react",
+    "packages/express"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build:react": "npm run build --workspace=cool-cars-garage-react",
+    "build:express": "npm run build --workspace=cool-cars-garage-express",
+    "dev": "concurrently \"npm run dev --workspace=cool-cars-garage-react\" \"npm run dev --workspace=cool-cars-garage-express\"",
+    "lint": "eslint packages"
   },
+  "keywords": [],
+  "author": "Cosmin Marcu",
+  "license": "ISC",
   "dependencies": {
-    "@reduxjs/toolkit": "^2.6.0",
-    "@tanstack/react-query": "^5.69.0",
-    "clsx": "^2.1.1",
-    "email-validator": "^2.0.4",
-    "firebase": "^11.4.0",
-    "lodash.clonedeep": "^4.5.0",
-    "lucide-react": "^0.479.0",
-    "react": "^19.0.0",
-    "react-bootstrap-icons": "^1.11.6",
-    "react-calendar": "^5.1.0",
-    "react-dom": "^19.0.0",
-    "react-error-boundary": "^5.0.0",
-    "react-modal": "^3.16.3",
-    "react-redux": "^9.2.0",
-    "react-router": "^7.3.0",
-    "react-select": "^5.10.1",
-    "react-tiny-popover": "^8.1.6",
-    "react-toastify": "^11.0.5",
-    "tailwind-merge": "^3.0.2",
-    "tailwindcss": "^4.0.11"
+    "concurrently": "^9.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@tailwindcss/vite": "^4.0.11",
-    "@types/lodash.clonedeep": "^4.5.9",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "@types/react-modal": "^3.16.3",
-    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^15.15.0",
     "prettier": "^3.5.3",
-    "typescript": "~5.7.2",
-    "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0"
-  }
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1"
+  },
+  "description": ""
 }

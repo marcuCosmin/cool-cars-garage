@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint"
 import importPlugin from "eslint-plugin-import"
 
 export default tseslint.config(
-  { ignores: ["dist", "vite.config.ts"] },
+  { ignores: ["dist", "packages/react/vite.config.ts"] },
   {
     extends: [
       ...tseslint.configs.recommended,
@@ -52,6 +52,7 @@ export default tseslint.config(
       "camelcase": "error",
       "import/no-default-export": "error",
       "import/default": "off",
+      "no-case-declarations": "off",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true }

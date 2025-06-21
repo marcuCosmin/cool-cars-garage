@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@plugin "tailwind-scrollbar";
+
+@theme {
+    --color-primary: #000000;
+    --color-secondary: #d1d5dc;
+    --color-error: #dc2626;
+    --breakpoint-sm: 475px;
+}
+
+@layer base {
+    html, body {
+        @apply text-primary dark:text-secondary dark:bg-[#1c1c1d] dark:text-secondary m-0 w-full h-full overflow-hidden;
+    }
+
+    #root {
+        @apply w-full h-full;
+    }
+
+    h1 {
+        @apply text-3xl font-bold;
+    }
+
+    h2 {
+        @apply text-lg font-bold;
+    }
+
+    hr {
+        @apply w-full h-px text-primary dark:text-secondary
+    }
+
+    input {
+        @apply w-full p-2 border rounded-sm text-primary dark:text-secondary h-[40px] disabled:opacity-50;
+        @apply focus:outline-none focus:ring focus:ring-primary focus:border-primary dark:focus:ring-secondary dark:focus:border-secondary;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      @apply appearance-none m-0;
+    }
+
+    button {
+       @apply !ring-0 p-2 font-semibold bg-primary text-secondary rounded-sm w-full dark:bg-secondary dark:text-primary cursor-pointer;
+       @apply focus:outline-none focus:ring focus:ring-primary dark:focus:ring-secondary; 
+    }
+
+    label {
+        @apply flex flex-col gap-2 w-full;
+    }
+
+    a {
+        @apply text-primary dark:text-secondary opacity-70 hover:underline;
+    }
+
+    a.active {
+        @apply  opacity-100;
+    }
+}
+
+@layer components {
+    .loader {
+        @apply border-primary border-t-transparent rounded-full animate-spin dark:border-secondary dark:border-t-transparent;
+    }
+
+    .loader-sm {
+        @apply w-8 h-8 border-4
+    }
+
+    .loader-md {
+        @apply w-16 h-16 border-8
+    }
+
+    .Toastify__toast {
+        @apply !bg-secondary !text-primary dark:!bg-primary dark:!text-secondary font-bold;
+    }
+
+    .Toastify__toast-icon svg {
+        @apply fill-primary dark:fill-secondary;
+    }
+
+    .ReactModal__Overlay {
+        @apply !bg-transparent backdrop-blur-sm;
+    }
+
+    .ReactModal__Content {
+        @apply flex justify-center items-center max-w-2xl m-auto w-[95%] h-fit max-h-[70vh] sm:min-w-xs !bg-secondary dark:!bg-primary !top-0 !left-0 !right-0 !bottom-0;
+    }
+
+    .react-calendar__navigation {
+        @apply bg-primary dark:bg-secondary flex items-center justify-center rounded-t-lg p-2;
+
+        button {
+            @apply p-0 hover:opacity-90 transition-opacity;
+        }
+
+        .react-calendar__navigation__label {
+            @apply flex-none w-fit font-bold text-lg;
+        }
+
+        .react-calendar__navigation__arrow {
+            @apply flex items-center justify-center pb-1.5 w-7 h-7 text-2xl
+        }
+    }
+
+    .react-calendar__month-view__weekdays {
+        @apply bg-primary dark:bg-secondary text-secondary dark:text-primary;
+    }
+
+    .react-calendar__month-view__weekdays__weekday {
+        @apply font-bold text-center border-t border-b border-r last:border-r-0 border-primary;
+
+        abbr {
+            @apply no-underline;
+        }
+    }
+
+    .react-calendar__month-view__days {
+        button {
+            @apply p-2 bg-transparent text-primary dark:text-secondary border rounded-none last:rounded-br-lg nth-[7n+1]:nth-last-[-n+7]:rounded-bl-lg;
+        }
+
+        .react-calendar__tile--now, .react-calendar__tile--active {
+            @apply bg-primary dark:bg-secondary text-secondary dark:text-primary border-primary dark:border-secondary;
+        }
+
+        .react-calendar__tile--active {
+            @apply !opacity-100;
+        }
+
+        .react-calendar__tile--now {
+            @apply opacity-70;
+        }
+    }
+
+    .react-tiny-popover-container {
+        @apply max-w-sm bg-secondary dark:bg-primary shadow dark:shadow-white rounded-lg;
+    }
+
+    .react-select, .react-multi-select {
+        .react-select__control {
+            @apply !cursor-pointer h-[40px] !border !border-primary dark:!border-secondary hover:border !shadow-none !bg-transparent;
+        }
+
+        .react-select__control--is-focused {
+            @apply ring ring-primary dark:ring-secondary border-primary dark:border-secondary;
+        }
+
+        .react-select__input {
+            @apply border-none ring-0 h-full;
+        }
+
+        .react-select__value-container {
+            @apply h-full;
+        }
+
+        .react-select__single-value {
+            @apply !text-primary dark:!text-secondary mb-[5px];
+        }
+
+        .react-select__indicator-separator {
+            @apply hidden;
+        }
+
+        .react-select__indicator {
+            @apply !text-primary dark:!text-secondary;
+        }
+
+        .react-select__menu {
+            @apply border !shadow-lg shadow-secondary dark:shadow-primary !bg-secondary dark:!bg-primary;
+
+            .react-select__menu-list {
+                @apply !p-0;
+            }
+        }
+
+        .react-select__option {
+            @apply !cursor-pointer;
+        }
+
+        .react-select__option--is-focused {
+            @apply !bg-primary/50 dark:!bg-secondary/50 !text-secondary dark:!text-primary;
+        }
+
+        .react-select__option--is-selected {
+            @apply !bg-primary dark:!bg-secondary !text-secondary dark:!text-primary;
+        }
+    }
+
+    .react-multi-select {
+        .react-select__control {
+            @apply h-auto;        
+        }
+
+        .react-select__multi-value {
+            @apply !bg-primary dark:!bg-secondary !rounded;
+
+            .react-select__multi-value__label {
+                @apply !text-secondary dark:!text-primary;
+            }
+
+            .react-select__multi-value__remove {
+                @apply !text-secondary dark:!text-primary !bg-transparent hover:!text-white dark:hover:!text-primary/50;
+            }
+        }
+    }
+}
+
+@Layer utilities {
+    .link-button {
+        @apply text-primary dark:text-secondary opacity-70 hover:underline p-0 w-auto bg-transparent;
+    }
+
+    .logo {
+        @apply w-10 h-10 bg-no-repeat bg-contain bg-[url(/cool-cars-garage.svg)] dark:bg-[url(/cool-cars-garage-dark.svg)] opacity-100;
+    }
+
+    .invalid-input {
+        @apply border-error;
+        @apply focus:ring-error focus:border-error;
+    }
+
+    .form-error {
+        @apply text-error text-xs;
+    }
+
+    .non-relative-center {
+        @apply top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+    }
+
+    .overlay {
+        @apply flex absolute top-0 left-0 w-full h-full backdrop-blur-xs justify-center items-center z-[9999];
+    }
+
+    .scrollbar {
+        @apply scrollbar scrollbar-track-transparent scrollbar-thumb-primary/50 dark:scrollbar-thumb-secondary/50; 
+    }
+}
