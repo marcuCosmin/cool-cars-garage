@@ -3,11 +3,11 @@ on:
     branches:
       - main
     paths:
-      - 'packages/react/**'
+      - "packages/react/**"
 name: Deploy
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy React
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -3,7 +3,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/express/**'
+      - "packages/express/**"
 name: Deploy
 jobs:
   deploy:
