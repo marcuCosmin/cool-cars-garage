@@ -8,24 +8,21 @@ import { firestore } from "../../../firebase/config"
 import { checkpointsConfig } from "@/shared/consts"
 import type { Car } from "@/shared/models"
 
+const durationMap = {
+  d: "days",
+  w: "weeks",
+  m: "months",
+  y: "years"
+} as const
+
 const getNewDueDate = (timestamp: Timestamp, interval: string): Timestamp => {
-  const match = interval.match(/^(\d+)([dwmy])$/)
+  const splitInterval = interval.split(" ")
 
-  if (!match) {
-    throw new Error("Invalid time format")
-  }
-
-  const [_, num, unit] = match
-  const durationMap = {
-    d: "days",
-    w: "weeks",
-    m: "months",
-    y: "years"
-  } as const
+  const [value, unit] = splitInterval
 
   const durationKey = durationMap[unit as keyof typeof durationMap]
   const newTimestampSeconds = DateTime.fromSeconds(timestamp.seconds)
-    .plus({ [durationKey]: Number(num) })
+    .plus({ [durationKey]: Number(value) })
     .toSeconds()
 
   return new Timestamp(newTimestampSeconds, 0)
@@ -81,7 +78,9 @@ export const updateCheckPointDate = async (
     }
 
     const { interval } = checkpointConfig
-    const checkpointDate = car?.[checkpoint as keyof Car]
+    const checkpointDate = car?.[checkpoint as keyof Car] as
+      | Timestamp
+      | undefined
 
     if (!checkpointDate) {
       res.status(400).json({

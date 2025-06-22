@@ -9,5 +9,8 @@
       "@/shared/consts": ["../shared/src/consts"],
       "@/shared/models": ["../shared/src/models"],
     }
-  }
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
 }
