@@ -12,8 +12,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/shared/consts": ["../shared/consts"],
-      "@/shared/models": ["../shared/models"],
+      "@/shared/consts": ["../shared/src/consts"],
+      "@/shared/models": ["../shared/src/models"],
       "@/routes": ["./src/routes"],
       "@/components/*": ["./src/components/*"],
       "@/models": ["./src/models"],

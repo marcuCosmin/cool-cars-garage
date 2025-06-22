@@ -10,7 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@/shared/consts": path.resolve(__dirname, "../shared/consts"),
+      "@/shared/consts": path.resolve(__dirname, "../shared/src/consts"),
       "@/routes": "/src/routes",
       "@/components": "/src/components",
       "@/models": "/src/models",

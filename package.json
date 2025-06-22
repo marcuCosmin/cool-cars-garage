@@ -4,8 +4,7 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/react",
-    "packages/express"
+    "packages/*"
   ],
   "scripts": {
     "build:react": "npm run build --workspace=cool-cars-garage-react",

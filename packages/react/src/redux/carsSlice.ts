@@ -4,7 +4,7 @@ import { deleteFirestoreDoc, getFirestoreDocs } from "../firebase/utils"
 
 import { getCarDueDatesConfig } from "../utils/date"
 
-import type { Car } from "../models"
+import type { Car } from "@/shared/models"
 
 type CarState = Record<string, Omit<Car, "registrationNumber">>
 
