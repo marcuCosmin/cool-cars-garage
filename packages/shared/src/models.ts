@@ -14,7 +14,7 @@ export type Car = {
   registrationNumber: string
   council: string
   makeAndModel: string
-  driver: string
+  drivers: string
   type: string
   route: string
 }
