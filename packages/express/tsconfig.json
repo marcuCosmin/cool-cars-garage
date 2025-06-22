@@ -1,13 +1,12 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "es2016",
     "module": "commonjs",
-    "allowJs": false,
     "outDir": "./dist",
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "skipLibCheck": true
+    "paths": {
+      "@/shared/models": ["../shared/models"],
+    }
   }
 }

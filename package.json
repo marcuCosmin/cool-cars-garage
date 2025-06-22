@@ -2,6 +2,7 @@
   "name": "cool-cars-garage",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "workspaces": [
     "packages/react",
     "packages/express"
@@ -10,21 +11,22 @@
     "build:react": "npm run build --workspace=cool-cars-garage-react",
     "build:express": "npm run build --workspace=cool-cars-garage-express",
     "dev": "concurrently \"npm run dev --workspace=cool-cars-garage-react\" \"npm run dev --workspace=cool-cars-garage-express\"",
-    "lint": "eslint packages"
+    "lint": "npm run lint --workspaces"
   },
   "keywords": [],
   "author": "Cosmin Marcu",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "luxon": "^3.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/luxon": "^3.6.2",
+    "concurrently": "^9.1.2",
     "eslint": "^9.21.0",
     "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-import-resolver-typescript": "^4.4.3",
     "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.26.1"

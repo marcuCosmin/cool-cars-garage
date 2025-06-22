@@ -2,7 +2,7 @@ import { useState } from "react"
 import Calendar from "react-calendar"
 import { Popover } from "react-tiny-popover"
 
-import { Timestamp } from "firebase/firestore"
+import { DateTime } from "luxon"
 
 import { mergeClassNames } from "../../utils/mergeClassNames"
 
@@ -18,23 +18,22 @@ export const DatePicker = ({
   onChange,
   error,
   onFocus
-}: FormFieldComponentProps<Timestamp>) => {
+}: FormFieldComponentProps<string>) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false)
 
   const onPopupClose = () => setIsPopupOpen(false)
   const onClick = () => setIsPopupOpen(!isPopupOpen)
   const handleDateChange = (newValue: Value) => {
     if (newValue instanceof Date) {
-      const newTimestamp = new Timestamp(newValue.getTime(), 0)
-      onChange(newTimestamp)
+      const newDate = newValue.toISOString()
+      onChange(newDate)
       return
     }
 
     onChange()
   }
 
-  const date = value ? value.toDate() : null
-  const displayedValue = date instanceof Date ? date.toDateString() : ""
+  const displayedValue = value ? DateTime.fromISO(value).toLocaleString() : ""
   const buttonClassName = mergeClassNames(
     "p-2 bg-transparent text-start font-normal text-nowrap border rounded-sm text-primary dark:text-secondary h-[40px]",
     error && "invalid-input"
@@ -45,7 +44,7 @@ export const DatePicker = ({
       <Popover
         positions={["bottom"]}
         content={
-          <Calendar view="month" value={date} onChange={handleDateChange} />
+          <Calendar view="month" value={value} onChange={handleDateChange} />
         }
         isOpen={isPopupOpen}
         onClickOutside={onPopupClose}

@@ -5,7 +5,7 @@ import { DateTime } from "luxon"
 import { Timestamp } from "firebase-admin/firestore"
 import { firestore } from "../../../firebase/config"
 
-import type { Car } from "../../../models"
+import type { Car } from "@/shared/models"
 
 const checkpointsCommonConfig = {
   mot: {
@@ -151,7 +151,7 @@ export const updateCheckPointDate = async (
     }
 
     const { interval } = checkpointConfig
-    const checkpointDate = car?.[checkpoint]
+    const checkpointDate = car?.[checkpoint as keyof Car]
 
     if (!checkpointDate) {
       res.status(400).json({

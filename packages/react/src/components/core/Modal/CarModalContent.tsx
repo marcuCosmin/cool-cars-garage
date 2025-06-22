@@ -1,15 +1,15 @@
 import cloneDeep from "lodash.clonedeep"
 
-import { Form } from "../../basic/Form/Form"
+import { Form } from "@/components/basic/Form/Form"
 import type { Fields } from "../../basic/Form/models"
 
 import { setCar } from "../../../firebase/cars"
 
-import { useReduxSelector } from "../../../redux/config"
+import { useReduxSelector } from "@/redux/config"
 
 import { createValidator, getRequiredError } from "../../../utils/validations"
 
-import type { Car } from "../../../models"
+import type { Car } from "@/shared/models"
 
 const defaultFields: Fields<Car> = {
   council: {
@@ -102,7 +102,7 @@ const defaultFields: Fields<Car> = {
     type: "text",
     validator: getRequiredError
   },
-  driver: {
+  drivers: {
     label: "Driver",
     type: "text",
     validator: getRequiredError

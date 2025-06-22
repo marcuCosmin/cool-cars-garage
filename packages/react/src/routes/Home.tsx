@@ -5,6 +5,7 @@ import { useReduxDispatch, useReduxSelector } from "../redux/config"
 import { openModal } from "../redux/modalSlice"
 import { deleteCar, fetchAllCars, setEditedCarId } from "../redux/carsSlice"
 import { type FiltersConfig } from "../components/core/DataView/model"
+import { test } from "@/shared/consts"
 
 const filtersConfig: FiltersConfig = {
   "Council": {
