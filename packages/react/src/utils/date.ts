@@ -1,5 +1,5 @@
 import { formatDistance } from "date-fns"
-import { Car } from "../models"
+import { Car } from "@/shared/models"
 
 export const getExpirationIndicator = (timestamp: number) => {
   const now = Date.now()

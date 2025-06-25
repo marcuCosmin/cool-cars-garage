@@ -2,8 +2,6 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 import { deleteFirestoreDoc, getFirestoreDocs } from "../firebase/utils"
 
-import { getCarDueDatesConfig } from "../utils/date"
-
 import type { Car } from "@/shared/models"
 
 type CarState = Record<string, Omit<Car, "registrationNumber">>
@@ -44,7 +42,7 @@ export const deleteCar = createAsyncThunk("cars/deleteCar", (id: string) =>
 
 type UpdateCarDueDatePayload = {
   carId: string
-  dateKey: keyof ReturnType<typeof getCarDueDatesConfig>
+  dateKey: string
   dateValue: number
 }
 export const updateCarDueDate = createAsyncThunk(

@@ -15,23 +15,25 @@ const filtersConfig: FiltersConfig = {
   "MOT expires soon": {
     type: "toggle",
     filterFn: item => {
-      const expiryDate = new Date(item.expiryDate)
-      const today = new Date()
-      const daysUntilExpiry = Math.ceil(
-        (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-      )
-      return daysUntilExpiry <= 30
+      // const expiryDate = new Date(item.expiryDate)
+      // const today = new Date()
+      // const daysUntilExpiry = Math.ceil(
+      //   (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
+      // )
+      // return daysUntilExpiry <= 30
+      return !!item
     }
   },
   "Road Tax expires soon": {
     type: "toggle",
     filterFn: item => {
-      const expiryDate = new Date(item.roadTaxExpiryDate)
-      const today = new Date()
-      const daysUntilExpiry = Math.ceil(
-        (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-      )
-      return daysUntilExpiry <= 30
+      //   const expiryDate = new Date(item.roadTaxExpiryDate)
+      //   const today = new Date()
+      //   const daysUntilExpiry = Math.ceil(
+      //     (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
+      //   )
+      //   return daysUntilExpiry <= 30
+      return !!item
     }
   }
 }

@@ -19,9 +19,7 @@ const fields: Fields<FormFields> = {
   },
   role: {
     label: "Role",
-    type: "toggle",
-    firstOption: "User",
-    secondOption: "Admin"
+    type: "toggle"
   }
 }
 
