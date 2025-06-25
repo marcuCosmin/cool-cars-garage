@@ -4,7 +4,5 @@ await esbuild.build({
   entryPoints: ["./src/index.ts"],
   bundle: true,
   outdir: "./dist",
-  format: "esm",
-  platform: "node",
-  splitting: true
+  platform: "node"
 })
