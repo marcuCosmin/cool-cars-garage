@@ -4,6 +4,7 @@ on:
       - main
     paths:
       - "packages/express/**"
+      - "packages/shared/**"
 name: Deploy
 jobs:
   deploy:

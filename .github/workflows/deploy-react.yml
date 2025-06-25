@@ -4,6 +4,7 @@ on:
       - main
     paths:
       - "packages/react/**"
+      - "packages/shared/**"
 name: Deploy
 jobs:
   deploy:
