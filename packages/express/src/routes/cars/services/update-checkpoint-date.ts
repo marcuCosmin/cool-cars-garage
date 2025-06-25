@@ -96,6 +96,8 @@ export const updateCheckPointDate = async (
       [checkpoint]: newDueDate
     })
 
+    console.log("Street dreams are made of this")
+
     res.status(200).json({
       message: `Checkpoint ${checkpoint} update successfully for car with id: ${carId}`
     })
