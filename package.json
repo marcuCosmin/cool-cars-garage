@@ -15,9 +15,6 @@
   "keywords": [],
   "author": "Cosmin Marcu",
   "license": "ISC",
-  "dependencies": {
-    "luxon": "^3.6.1"
-  },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/luxon": "^3.6.2",

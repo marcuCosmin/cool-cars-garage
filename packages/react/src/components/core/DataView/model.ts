@@ -1,12 +1,9 @@
 import type { FieldValue } from "../../../models"
 
-export type Data = Record<
-  string,
-  Record<string, FieldValue> & {
-    title: string
-    subtitle: string
-  }
->
+export type DefaultDataItem = Record<string, FieldValue> & {
+  title: string
+  subtitle: string
+}
 
 export type OnFilterChange = (props: {
   label: string
@@ -20,15 +17,18 @@ type SelectFilterProps = {
   field: string
 }
 
-type ToggleFilterProps = {
+type ToggleFilterProps<DataItem extends DefaultDataItem> = {
   type: "toggle"
-  filterFn: (item: Record<string, FieldValue>) => boolean
+  filterFn: (item: DataItem) => boolean
   value: boolean
 }
 
-export type FiltersConfig = Record<
+export type FiltersConfig<DataItem extends DefaultDataItem> = Record<
   string,
-  Omit<SelectFilterProps, "value"> | Omit<ToggleFilterProps, "value">
+  Omit<SelectFilterProps, "value"> | Omit<ToggleFilterProps<DataItem>, "value">
 >
 
-export type FiltersState = Record<string, SelectFilterProps | ToggleFilterProps>
+export type FiltersState<DataItem extends DefaultDataItem> = Record<
+  string,
+  SelectFilterProps | ToggleFilterProps<DataItem>
+>

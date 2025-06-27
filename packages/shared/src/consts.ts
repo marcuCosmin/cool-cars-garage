@@ -1,70 +1,149 @@
-const checkpointsCommonConfig = {
+import { type Duration } from "date-fns"
+
+import type { CarChecks, CarCheckField } from "./models"
+
+type CheckpointConfig = {
+  interval: Duration | "manual"
+  timeBeforeNotificationsStart: Duration
+  notificationCooldown: Duration
+}
+
+type CheckpointsCommonConfigKey = keyof Pick<
+  CarChecks,
+  "mot" | "roadTax" | "insurance"
+>
+
+type CheckpointsCommongConfig = Record<
+  CheckpointsCommonConfigKey,
+  CheckpointConfig
+>
+
+const checkpointsCommonConfig: CheckpointsCommongConfig = {
   mot: {
-    interval: "364d",
-    timeBeforeNotificationsStart: "30d",
-    notificationCooldown: "1w"
+    interval: {
+      days: 364
+    },
+    timeBeforeNotificationsStart: {
+      days: 30
+    },
+    notificationCooldown: {
+      weeks: 1
+    }
   },
   roadTax: {
-    interval: "364d",
-    timeBeforeNotificationsStart: "7d",
-    notificationCooldown: "1d"
+    interval: {
+      days: 364
+    },
+    timeBeforeNotificationsStart: {
+      weeks: 1
+    },
+    notificationCooldown: {
+      days: 1
+    }
   },
   insurance: {
     interval: "manual",
-    timeBeforeNotificationsStart: "30d",
-    notificationCooldown: "1w"
+    timeBeforeNotificationsStart: {
+      days: 30
+    },
+    notificationCooldown: {
+      weeks: 1
+    }
   }
 }
 
-export const checkpointsConfig = {
+export const checkpointsConfig: Record<
+  string,
+  CheckpointsCommongConfig & Partial<Record<CarCheckField, CheckpointConfig>>
+> = {
   Cornwall: {
     ...checkpointsCommonConfig,
     cornwallMot: {
-      interval: "6m",
-      timeBeforeNotificationsStart: "3w",
-      notificationCooldown: "7w"
+      interval: {
+        months: 6
+      },
+      timeBeforeNotificationsStart: {
+        weeks: 3
+      },
+      notificationCooldown: {
+        weeks: 1
+      }
     },
-    expireDate: {
+    plateNumberExpiryDate: {
       interval: "manual",
-      timeBeforeNotificationsStart: "30d",
-      notificationCooldown: "1w"
+      timeBeforeNotificationsStart: {
+        days: 30
+      },
+      notificationCooldown: {
+        weeks: 1
+      }
     }
   },
   Wolverhampton: {
     ...checkpointsCommonConfig,
-    expireDate: {
+    plateNumberExpiryDate: {
       interval: "manual",
-      timeBeforeNotificationsStart: "35d",
-      notificationCooldown: "1d"
+      timeBeforeNotificationsStart: {
+        days: 35
+      },
+      notificationCooldown: {
+        days: 1
+      }
     }
   },
   Portsmouth: {
     ...checkpointsCommonConfig,
-    expireDate: {
+    plateNumberExpiryDate: {
       interval: "manual",
-      timeBeforeNotificationsStart: "20d",
-      notificationCooldown: "1w"
+      timeBeforeNotificationsStart: {
+        days: 20
+      },
+      notificationCooldown: {
+        weeks: 1
+      }
     }
   },
   PSV: {
     ...checkpointsCommonConfig,
     safetyChecks: {
-      interval: "10w",
-      timeBeforeNotificationsStart: "1w",
-      notificationCooldown: "1d"
+      interval: {
+        weeks: 10
+      },
+      timeBeforeNotificationsStart: {
+        weeks: 1
+      },
+      notificationCooldown: {
+        days: 1
+      }
     },
     tachograph: {
-      interval: "2y",
-      timeBeforeNotificationsStart: "30d",
-      notificationCooldown: "1w"
+      interval: {
+        years: 2
+      },
+      timeBeforeNotificationsStart: {
+        days: 30
+      },
+      notificationCooldown: {
+        weeks: 1
+      }
     },
     wheelChairLiftCheck: {
-      interval: "6m",
-      timeBeforeNotificationsStart: "3w",
-      notificationCooldown: "1w"
+      interval: {
+        months: 6
+      },
+      timeBeforeNotificationsStart: {
+        weeks: 3
+      },
+      notificationCooldown: {
+        weeks: 1
+      }
     }
   },
   Other: {
     ...checkpointsCommonConfig
   }
+}
+
+export const checkpointsNotificationsGracePeriod = {
+  weeks: 1
 }

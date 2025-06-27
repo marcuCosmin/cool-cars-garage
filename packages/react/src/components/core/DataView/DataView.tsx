@@ -8,23 +8,28 @@ import { Filters } from "./Filters"
 import { dataToArray, filtersConfigToState } from "./utils"
 import { parseSearchString } from "../../../utils/string"
 
-import type { FiltersConfig, Data, FiltersState, OnFilterChange } from "./model"
+import type {
+  FiltersConfig,
+  DefaultDataItem,
+  FiltersState,
+  OnFilterChange
+} from "./model"
 
-type DataViewProps = {
-  initialData: Data
-  filtersConfig: FiltersConfig
+type DataViewProps<DataItem extends DefaultDataItem> = {
+  initialData: Record<string, DataItem>
+  filtersConfig: FiltersConfig<DataItem>
   onAddButtonClick: () => void
   onItemEdit: (id: string) => void
   onItemDelete: (id: string) => Promise<string | undefined> | string | undefined
 }
 
-export const DataView = ({
+export const DataView = <DataItem extends DefaultDataItem>({
   filtersConfig,
   initialData,
   onItemDelete,
   onAddButtonClick,
   onItemEdit
-}: DataViewProps) => {
+}: DataViewProps<DataItem>) => {
   const [data, setData] = useState(dataToArray(initialData))
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
@@ -35,7 +40,7 @@ export const DataView = ({
     setFilters({
       ...filters,
       [label]: { ...filter, value }
-    } as FiltersState)
+    } as FiltersState<DataItem>)
   }
 
   const onSearchChange = (searchQuery: string = "") =>

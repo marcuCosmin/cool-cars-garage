@@ -8,11 +8,13 @@ import { fieldValueToString } from "./utils"
 
 import { keyToLabel } from "../../../utils/string"
 
+import type { FieldValue } from "@/models"
+
 type DataCardProps = {
   title: string
   subtitle: string
   onDelete: () => Promise<string | undefined> | string | undefined
-  fieldsData: Record<string, string>
+  fieldsData: Record<string, FieldValue>
   onEdit?: () => void
 }
 

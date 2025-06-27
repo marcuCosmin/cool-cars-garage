@@ -1,17 +1,19 @@
 import { Timestamp } from "firebase/firestore"
 
-import type { Data, FiltersConfig, FiltersState } from "./model"
+import type { FiltersConfig, FiltersState, DefaultDataItem } from "./model"
 import type { FieldValue } from "../../../models"
 
-export const dataToArray = (data: Data) =>
+export const dataToArray = <DataItem extends DefaultDataItem>(
+  data: Record<string, DataItem>
+) =>
   Object.entries(data).map(([key, value]) => ({
     ...value,
     id: key
   }))
 
-export const filtersConfigToState = (
-  filtersConfig: FiltersConfig
-): FiltersState =>
+export const filtersConfigToState = <DataItem extends DefaultDataItem>(
+  filtersConfig: FiltersConfig<DataItem>
+): FiltersState<DataItem> =>
   Object.entries(filtersConfig).reduce((acc, [label, filterProps]) => {
     const { type } = filterProps
 

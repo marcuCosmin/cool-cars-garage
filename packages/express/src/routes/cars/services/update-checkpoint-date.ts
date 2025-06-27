@@ -1,36 +1,17 @@
 import { type Request, type Response } from "express"
 
-import { DateTime } from "luxon"
+import { add } from "date-fns"
 
 import { Timestamp } from "firebase-admin/firestore"
 import { firestore } from "../../../firebase/config"
 
-import { checkpointsConfig } from "@/shared/consts"
-import type { Car } from "@/shared/models"
-
-const durationMap = {
-  d: "days",
-  w: "weeks",
-  m: "months",
-  y: "years"
-} as const
-
-const getNewDueDate = (timestamp: Timestamp, interval: string): Timestamp => {
-  const splitInterval = interval.split(" ")
-
-  const [value, unit] = splitInterval
-
-  const durationKey = durationMap[unit as keyof typeof durationMap]
-  const newTimestampSeconds = DateTime.fromSeconds(timestamp.seconds)
-    .plus({ [durationKey]: Number(value) })
-    .toSeconds()
-
-  return new Timestamp(newTimestampSeconds, 0)
-}
+import { getCheckpointConfig } from "@/shared/utils"
+import type { Car, CarCheckField } from "@/shared/models"
 
 type ReqBody = {
   carId: string
-  checkpoint: string
+  checkedField: CarCheckField
+  newTimestamp?: Timestamp
 }
 
 export const updateCheckPointDate = async (
@@ -38,7 +19,7 @@ export const updateCheckPointDate = async (
   res: Response
 ) => {
   try {
-    const { carId, checkpoint } = req.body
+    const { carId, checkedField, newTimestamp } = req.body
 
     const carRef = firestore.collection("cars").doc(carId)
     const carDoc = await carRef.get()
@@ -53,53 +34,55 @@ export const updateCheckPointDate = async (
 
     const car = carDoc.data() as Car
 
-    const { council } = car as Car
+    const { council } = car
 
-    const councilConfig =
-      checkpointsConfig[council as keyof typeof checkpointsConfig]
+    const { interval } = getCheckpointConfig({
+      council,
+      checkedField
+    })
 
-    if (!councilConfig) {
-      res.status(400).json({
-        error: "The provided car ID is not associated with a valid council"
+    if (interval === "manual") {
+      if (!newTimestamp) {
+        res.status(400).json({
+          error:
+            "A new date must be provided when the interval is set to 'manual'"
+        })
+
+        return
+      }
+
+      await carRef.update({
+        [checkedField]: newTimestamp
+      })
+
+      res.status(200).json({
+        message: `Checkpoint ${checkedField} update successfully for car with id: ${carId}`
       })
 
       return
     }
 
-    const checkpointConfig =
-      councilConfig[checkpoint as keyof typeof councilConfig]
+    const currentExpiryDate = car[checkedField] as Timestamp | undefined
 
-    if (!checkpointConfig) {
+    if (!currentExpiryDate) {
       res.status(400).json({
-        error: "The provided checkpoint is not valid for the specified council"
+        error: `The car does not have a date set for the checkpoint: ${checkedField}`
       })
 
       return
     }
 
-    const { interval } = checkpointConfig
-    const checkpointDate = car?.[checkpoint as keyof Car] as
-      | Timestamp
-      | undefined
-
-    if (!checkpointDate) {
-      res.status(400).json({
-        error: `The car does not have a date set for the checkpoint: ${checkpoint}`
-      })
-
-      return
-    }
-
-    const newDueDate = getNewDueDate(checkpointDate, interval)
+    const newExpiryDate = add(currentExpiryDate.toDate(), interval)
+    const newExpiryTimestamp = Timestamp.fromDate(newExpiryDate)
 
     await carRef.update({
-      [checkpoint]: newDueDate
+      [checkedField]: newExpiryTimestamp
     })
 
     console.log("Street dreams are made of this")
 
     res.status(200).json({
-      message: `Checkpoint ${checkpoint} update successfully for car with id: ${carId}`
+      message: `Checkpoint ${checkedField} update successfully for car with id: ${carId}`
     })
   } catch (error) {
     if (error instanceof Error) {

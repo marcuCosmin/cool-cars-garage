@@ -1,12 +1,40 @@
 import { useEffect } from "react"
 import { DataView } from "../components/core/DataView/DataView"
 
+import { Timestamp } from "firebase-admin/firestore"
+
 import { useReduxDispatch, useReduxSelector } from "../redux/config"
 import { openModal } from "../redux/modalSlice"
 import { deleteCar, fetchAllCars, setEditedCarId } from "../redux/carsSlice"
 import { type FiltersConfig } from "../components/core/DataView/model"
 
-const filtersConfig: FiltersConfig = {
+import { getCheckpointNotificationsDates } from "@/shared/utils"
+import type { Car, CarCheckField } from "@/shared/models"
+
+const getCheckpointFilter =
+  (checkedField: CarCheckField) =>
+  ({ council, ...car }: DataItem) => {
+    const checkpoint = car[checkedField] as Timestamp | undefined
+
+    if (!checkpoint) {
+      return false
+    }
+
+    const expiryDate = checkpoint.toDate()
+
+    const { notificationsStartDate } = getCheckpointNotificationsDates({
+      council,
+      checkedField,
+      expiryDate
+    })
+
+    const today = new Date()
+    const hasNotificationsActive = today >= notificationsStartDate
+
+    return hasNotificationsActive
+  }
+
+const filtersConfig: FiltersConfig<DataItem> = {
   "Council": {
     field: "council",
     type: "select",
@@ -14,35 +42,25 @@ const filtersConfig: FiltersConfig = {
   },
   "MOT expires soon": {
     type: "toggle",
-    filterFn: item => {
-      // const expiryDate = new Date(item.expiryDate)
-      // const today = new Date()
-      // const daysUntilExpiry = Math.ceil(
-      //   (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-      // )
-      // return daysUntilExpiry <= 30
-      return !!item
-    }
+    filterFn: getCheckpointFilter("mot")
   },
   "Road Tax expires soon": {
     type: "toggle",
-    filterFn: item => {
-      //   const expiryDate = new Date(item.roadTaxExpiryDate)
-      //   const today = new Date()
-      //   const daysUntilExpiry = Math.ceil(
-      //     (expiryDate.getTime() - today.getTime()) / (1000 * 3600 * 24)
-      //   )
-      //   return daysUntilExpiry <= 30
-      return !!item
-    }
+    filterFn: getCheckpointFilter("roadTax")
   }
+}
+
+type DataItem = Omit<Car, "makeAndModel" | "registrationNumber"> & {
+  id: string
+  title: string
+  subtitle: string
 }
 
 export const Home = () => {
   const { cars, metadata } = useReduxSelector(state => state.carsReducer)
   const dispatch = useReduxDispatch()
 
-  const initialData = Object.entries(cars).reduce(
+  const initialData: Record<string, DataItem> = Object.entries(cars).reduce(
     (acc, [id, { makeAndModel, ...car }]) => ({
       ...acc,
       [id]: {
@@ -78,7 +96,7 @@ export const Home = () => {
   }
 
   return (
-    <DataView
+    <DataView<DataItem>
       filtersConfig={filtersConfig}
       initialData={initialData}
       onAddButtonClick={onAddButtonClick}
