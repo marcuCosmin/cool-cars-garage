@@ -17,7 +17,8 @@ const getUserMetadata = async (uid: string) => {
 const excludedPaths = {
   "/": ["ALL"],
   "/mail": ["ALL"],
-  "/users": ["POST"]
+  "/users": ["POST"],
+  "/reports/incidents": ["ALL"]
 }
 
 export const authorizationMiddleware = async (

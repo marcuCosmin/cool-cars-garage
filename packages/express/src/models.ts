@@ -4,8 +4,20 @@ export type UserMetadata = {
   role: "admin" | "user"
 }
 
-export type Request = ExpressRequest & {
-  uid?: string
+type ParsedQueryString = {
+  [key: string]:
+    | undefined
+    | string
+    | ParsedQueryString
+    | (string | ParsedQueryString)[]
 }
 
-export type Car = any
+export type Request<
+  Params = Record<string, string>,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = ParsedQueryString,
+  Locals extends Record<string, unknown> = Record<string, unknown>
+> = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
+  uid?: string
+}
