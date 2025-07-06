@@ -32,6 +32,11 @@ const PhoneVerificationForm = lazy(() =>
     })
   )
 )
+const Reports = lazy(() =>
+  import("./routes/Reports").then(module => ({
+    default: module.Reports
+  }))
+)
 
 export const App = () => {
   const { user, metadata } = useFirebaseAuth()
@@ -49,6 +54,7 @@ export const App = () => {
     <Route element={<Layout />}>
       <Route index path="/" element={<Home />} />
       {isAdmin && <Route path="/users" element={<Users />} />}
+      <Route path="/vehicles-checks" element={<Reports />} />
     </Route>
   )
 

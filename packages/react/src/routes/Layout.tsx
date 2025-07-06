@@ -33,6 +33,9 @@ export const Layout = () => {
           <NavLink to="/users" end>
             Users
           </NavLink>
+          <NavLink to="/reports" end>
+            Reports
+          </NavLink>
         </div>
 
         <button
