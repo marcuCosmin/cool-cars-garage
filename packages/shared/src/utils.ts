@@ -1,5 +1,7 @@
 import { add, sub, type Duration } from "date-fns"
 
+import { Timestamp } from "firebase-admin/firestore"
+
 import {
   checkpointsConfig,
   checkpointsNotificationsGracePeriod
@@ -100,4 +102,12 @@ export const getCheckpointNotificationsDates = ({
     notificationsStartDate,
     notificationsDates
   }
+}
+
+export const getCurrentTimestamp = () => {
+  const currentTime = new Date().getTime()
+
+  const timestamp = new Timestamp(currentTime / 1000, 0)
+
+  return timestamp
 }

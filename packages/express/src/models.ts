@@ -13,10 +13,10 @@ type ParsedQueryString = {
 }
 
 export type Request<
-  Params = Record<string, string>,
+  Params = Record<string, string> | undefined,
   ResBody = unknown,
   ReqBody = unknown,
-  ReqQuery = ParsedQueryString,
+  ReqQuery = ParsedQueryString | undefined,
   Locals extends Record<string, unknown> = Record<string, unknown>
 > = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
   uid?: string

@@ -1,7 +1,8 @@
 import { type Response } from "express"
 
-import { Timestamp } from "firebase-admin/firestore"
 import { firestore } from "../../../firebase/config"
+
+import { getCurrentTimestamp } from "@/shared/utils"
 
 import type { Request } from "../../../models"
 
@@ -10,15 +11,15 @@ type ReqBody = {
   description: string
 }
 
-export const handleIncidentCreation = async (
+export const handleIncidentSubmission = async (
   req: Request<undefined, undefined, ReqBody>,
   res: Response
 ) => {
   try {
-    const { uid } = req
+    const uid = req.uid as string
     const { carId, description } = req.body
 
-    if (!carId || !description) {
+    if (!carId || !description?.trim()) {
       res.status(400).json({
         error: "Invalid request body"
       })
@@ -26,24 +27,40 @@ export const handleIncidentCreation = async (
       return
     }
 
+    if (description.length > 500) {
+      res.status(400).json({
+        error: "The incident description must be less than 500 characters"
+      })
+
+      return
+    }
+
     const incidentsRef = firestore
-      .collection("daily-checks")
-      .doc("questions")
+      .collection("cars")
+      .doc(carId)
       .collection("incidents")
 
-    const currentTime = new Date()
-    const creationDate = new Timestamp(currentTime.getTime() / 1000, 0)
+    const creationDate = getCurrentTimestamp()
 
-    await incidentsRef.add({
-      carId,
+    const createdIncident = await incidentsRef.add({
       description,
       driverId: uid,
+      creationDate,
+      status: "pending"
+    })
+
+    const notificationsRef = firestore
+      .collection("users")
+      .doc(uid)
+      .collection("notifications")
+
+    await notificationsRef.add({
+      carId,
+      message: `You have reported an incident for car ${carId}. Incident id: ${createdIncident.id}.`,
       creationDate
     })
 
     // Send wapp message to Marius
-
-    // Send app notification to the driver
 
     res.status(200).json({
       message: "Incident reported successfully"

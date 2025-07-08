@@ -3,7 +3,7 @@ import { firebaseAuth } from "../../firebase/config"
 
 import type { Request } from "../../models"
 
-export const reportsAuthorizationMiddleware = async (
+export const genericUserAuthorizationMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction

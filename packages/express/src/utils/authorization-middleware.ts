@@ -1,7 +1,7 @@
 import { type Response, type NextFunction } from "express"
 import { firebaseAuth, firestore } from "../firebase/config"
 
-import type { UserMetadata, Request } from "../models"
+import type { Request, UserMetadata } from "../models"
 
 const getUserMetadata = async (uid: string) => {
   const userRef = firestore.collection("users").doc(uid)
@@ -18,7 +18,8 @@ const excludedPaths = {
   "/": ["ALL"],
   "/mail": ["ALL"],
   "/users": ["POST"],
-  "/reports/incidents": ["ALL"]
+  "/cars/incidents": ["ALL"],
+  "/cars/checks": ["ALL"]
 }
 
 export const authorizationMiddleware = async (
