@@ -69,7 +69,7 @@ const defaultFields: Fields<Car> = {
       council === "Cornwall" ||
       council === "Portsmouth"
   },
-  expireDate: {
+  plateNumberExpiryDate: {
     label: "Expire Date",
     type: "date",
     validator: getRequiredError,

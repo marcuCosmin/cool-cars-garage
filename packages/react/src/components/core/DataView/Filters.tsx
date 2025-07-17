@@ -1,14 +1,17 @@
 import { Select } from "../../basic/Select"
 import { Toggle } from "../../basic/Toggle"
 
-import type { FiltersState, OnFilterChange } from "./model"
+import type { DefaultDataItem, FiltersState, OnFilterChange } from "./model"
 
-type FiltersProps = {
-  filters: FiltersState
+type FiltersProps<DataItem extends DefaultDataItem> = {
+  filters: FiltersState<DataItem>
   onFilterChange: OnFilterChange
 }
 
-export const Filters = ({ filters, onFilterChange }: FiltersProps) => {
+export const Filters = <DataItem extends DefaultDataItem>({
+  filters,
+  onFilterChange
+}: FiltersProps<DataItem>) => {
   return (
     <>
       {Object.entries(filters).map(([label, filterProps]) => {
