@@ -2,7 +2,7 @@ import { type Response } from "express"
 
 import { firestore } from "../../../firebase/config"
 
-import { getCurrentTimestamp } from "@/shared/utils"
+import { getCurrentTimestamp } from "../../../utils/get-current-timestamp"
 
 import type { Request } from "../../../models"
 
