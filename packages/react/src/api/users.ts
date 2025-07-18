@@ -197,3 +197,25 @@ export const updateUserPhoneNumber = async ({
     return "Failed to send update user data"
   }
 }
+
+export const getAuthToken = async (idToken: string) => {
+  try {
+    const response = await fetch(`${usersUrl}/generate-auth-token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
+      }
+    })
+
+    const { authToken } = await response.json()
+
+    return authToken
+  } catch (error) {
+    if (error instanceof Error) {
+      return error.message
+    }
+
+    return "Failed to generate custom token"
+  }
+}

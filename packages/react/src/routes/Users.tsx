@@ -8,10 +8,17 @@ import { UserCard } from "../components/core/UserCard/UserCard"
 import { InviteUserForm } from "../components/core/InviteUserForm"
 import { ActionModal } from "../components/core/ActionModal"
 
-import { fetchUsers } from "../api/users"
+import { fetchUsers, getAuthToken } from "../api/users"
 
 export const Users = () => {
   const { user } = useReduxSelector(state => state.userReducer)
+
+  const onButtonClick = async () => {
+    const idToken = await user.getIdToken()
+    const authToken = await getAuthToken(idToken)
+
+    window.location.href = `coolcarsreports://?authToken=${authToken}`
+  }
 
   const queryFn = async () => {
     const idToken = await user.getIdToken()
@@ -48,6 +55,10 @@ export const Users = () => {
           <UserCard key={user.uid} {...user} />
         ))}
       </ul>
+
+      <button type="button" onClick={onButtonClick}>
+        Auth
+      </button>
     </div>
   )
 }

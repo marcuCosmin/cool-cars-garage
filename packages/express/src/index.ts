@@ -1,5 +1,4 @@
 import express from "express"
-import cors from "cors"
 
 import { usersRouter } from "./routes/users"
 import { mailRouter } from "./routes/mail"
@@ -9,12 +8,11 @@ import { authorizationMiddleware } from "./utils/authorization-middleware"
 
 const app = express()
 const port = process.env.PORT
-const allowedOrigin = process.env.ALLOWED_ORIGIN
 
 app.use(express.json())
 app.use(authorizationMiddleware)
 
-app.use("/users", cors({ origin: allowedOrigin }), usersRouter)
+app.use("/users", usersRouter)
 app.use("/cars", carsRouter)
 app.use("/mail", mailRouter)
 
