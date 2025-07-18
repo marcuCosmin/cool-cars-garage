@@ -17,7 +17,7 @@ export const Users = () => {
     const idToken = await user.getIdToken()
     const authToken = await getAuthToken(idToken)
 
-    window.location.href = `coolcarsreports://?authToken=${authToken}`
+    window.location.href = `coolcarsreports://auth?authToken=${authToken}`
   }
 
   const queryFn = async () => {
