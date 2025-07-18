@@ -34,9 +34,9 @@ export const handleAuthTokenGeneration = async (
       return
     }
 
-    const customToken = await firebaseAuth.createCustomToken(uid)
+    const authToken = await firebaseAuth.createCustomToken(uid)
 
-    res.status(200).json({ customToken })
+    res.status(200).json({ authToken })
   } catch (error) {
     if (error instanceof Error) {
       res.status(500).json({
