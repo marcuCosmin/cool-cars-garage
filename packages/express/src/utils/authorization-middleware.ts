@@ -35,7 +35,7 @@ export const authorizationMiddleware = async (
     return
   }
 
-  if (excludedPathConfig?.includes(req.method)) {
+  if (excludedPathConfig?.includes(req.method) || req.method === "OPTIONS") {
     next()
     return
   }

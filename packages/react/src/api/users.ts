@@ -201,10 +201,8 @@ export const updateUserPhoneNumber = async ({
 export const getAuthToken = async (idToken: string) => {
   try {
     const response = await fetch(`${usersUrl}/generate-auth-token`, {
-      method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${idToken}`
+        Authorization: `Bearer ${idToken}`
       }
     })
 
