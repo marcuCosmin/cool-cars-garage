@@ -60,7 +60,7 @@ export const handleCheckSubmission = async (
     if (answersWithFaults.length) {
       const faultsBatch = firestore.batch()
       const faultsRef = carRef.collection("faults")
-      const userNotificationRef = carRef
+      const userNotificationRef = firestore
         .collection("users")
         .doc(uid)
         .collection("notifications")
@@ -93,6 +93,7 @@ export const handleCheckSubmission = async (
       message: "Check reported successfully"
     })
   } catch (error) {
+    console.log("Error in handleCheckSubmission:", error)
     if (error instanceof Error) {
       res.status(500).json({
         error: error.message

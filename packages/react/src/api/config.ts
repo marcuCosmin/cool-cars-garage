@@ -1,7 +1,3 @@
-const isProduction = process.env.NODE_ENV === "production"
-
-const baseApiUrl = isProduction
-  ? "https://api.cool-cars-garage.co.uk"
-  : "http://localhost:3001"
+const baseApiUrl = import.meta.env.VITE_API_URL
 
 export const usersUrl = `${baseApiUrl}/users`

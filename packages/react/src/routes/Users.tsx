@@ -17,7 +17,7 @@ export const Users = () => {
     const idToken = await user.getIdToken()
     const authToken = await getAuthToken(idToken)
 
-    window.location.href = `coolcarsreports://auth?authToken=${authToken}`
+    window.location.href = `${import.meta.env.VITE_REPORTS_AUTH_URL}?authToken=${authToken}`
   }
 
   const queryFn = async () => {

@@ -21,6 +21,9 @@ jobs:
 
       - name: Build Project
         run: npm install && npm run build:react
+        env:
+          VITE_API_URL: https://api.cool-cars-garage.co.uk
+          VITE_REPORTS_AUTH_URL: coolcarsreports://auth
 
       - name: FTP Upload
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
