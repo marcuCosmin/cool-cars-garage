@@ -5,6 +5,7 @@ import { firestore } from "../../../firebase/config"
 import { getCurrentTimestamp } from "../../../utils/get-current-timestamp"
 
 import type { Request } from "../../../models"
+import { createReportsNotification } from "../utils"
 
 type ReqBody = {
   carId: string
@@ -40,24 +41,24 @@ export const handleIncidentSubmission = async (
       .doc(carId)
       .collection("incidents")
 
-    const creationDate = getCurrentTimestamp()
+    const creationTimestamp = getCurrentTimestamp()
 
     const createdIncident = await incidentsRef.add({
       description,
       driverId: uid,
-      creationDate,
+      creationTimestamp,
       status: "pending"
     })
 
-    const notificationsRef = firestore
-      .collection("users")
-      .doc(uid)
-      .collection("notifications")
-
-    await notificationsRef.add({
+    await createReportsNotification({
       carId,
-      message: `You have reported an incident for car ${carId}. Incident id: ${createdIncident.id}.`,
-      creationDate
+      uid,
+      viewed: true,
+      type: "incident",
+      reference: {
+        id: createdIncident.id,
+        path: "incident"
+      }
     })
 
     // Send wapp message to Marius

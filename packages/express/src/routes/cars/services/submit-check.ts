@@ -4,6 +4,8 @@ import { firestore } from "../../../firebase/config"
 
 import { getCurrentTimestamp } from "../../../utils/get-current-timestamp"
 
+import { createReportsNotification } from "../utils"
+
 import type { Request } from "../../../models"
 
 type Answer = {
@@ -47,23 +49,21 @@ export const handleCheckSubmission = async (
     const carRef = firestore.collection("cars").doc(carId)
 
     const checkRef = carRef.collection("checks")
-    const creationDate = getCurrentTimestamp()
+    const creationTimestamp = getCurrentTimestamp()
 
     const createdCheck = await checkRef.add({
       interior,
       exterior,
       odoReading,
       driverId: uid,
-      creationDate
+      creationTimestamp
     })
+
+    const faultsIds: string[] = []
 
     if (answersWithFaults.length) {
       const faultsBatch = firestore.batch()
       const faultsRef = carRef.collection("faults")
-      const userNotificationRef = firestore
-        .collection("users")
-        .doc(uid)
-        .collection("notifications")
 
       answersWithFaults.forEach(answer => {
         const fault = {
@@ -71,20 +71,42 @@ export const handleCheckSubmission = async (
           driverId: uid,
           status: "pending",
           checkId: createdCheck.id,
-          creationDate,
+          creationTimestamp,
           carId
         }
 
         const faultRef = faultsRef.doc()
-        faultsBatch.set(faultRef, fault)
-        faultsBatch.create(userNotificationRef.doc(), {
-          creationDate,
-          viewed: false,
-          message: `Your reported a fault for car ${carId}. Fault id: ${faultRef.id}.`
-        })
+        faultsIds.push(faultRef.id)
+
+        faultsBatch.create(faultRef, fault)
       })
 
       await faultsBatch.commit()
+    }
+
+    await createReportsNotification({
+      carId,
+      uid,
+      viewed: true,
+      type: "check",
+      reference: {
+        id: createdCheck.id,
+        path: "check"
+      }
+    })
+
+    if (faultsIds.length) {
+      await createReportsNotification({
+        carId,
+        uid,
+        viewed: true,
+        reference: {
+          id: createdCheck.id,
+          path: "check"
+        },
+        type: "fault",
+        bulkCount: faultsIds.length
+      })
     }
 
     // Send wapp message to Marius
