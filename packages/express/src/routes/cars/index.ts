@@ -5,8 +5,6 @@ import { updateCheckPointDate } from "./services/update-checkpoint-date"
 import { handleIncidentSubmission } from "./services/submit-incident"
 import { handleCheckSubmission } from "./services/submit-check"
 
-import { genericUserAuthorizationMiddleware } from "./utils"
-
 export const carsRouter = Router()
 
 carsRouter.options("/", cors({ origin: process.env.ALLOWED_ORIGIN }))
@@ -17,17 +15,7 @@ carsRouter.patch(
 )
 
 carsRouter.options("/incidents", cors())
-carsRouter.post(
-  "/incidents",
-  cors(),
-  genericUserAuthorizationMiddleware,
-  handleIncidentSubmission
-)
+carsRouter.post("/incidents", cors(), handleIncidentSubmission)
 
 carsRouter.options("/checks", cors())
-carsRouter.post(
-  "/checks",
-  cors(),
-  genericUserAuthorizationMiddleware,
-  handleCheckSubmission
-)
+carsRouter.post("/checks", cors(), handleCheckSubmission)

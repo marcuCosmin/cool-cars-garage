@@ -25,7 +25,7 @@ export const ReportsAuth = () => {
       </p>
       <div>
         <p>If you don't have the app installed, you can download it below:</p>
-        <div className="flex justify-between mt-4">
+        <div className="flex justify-around mt-4">
           <a className="flex items-center gap-2">
             <Icon iconName="Android2" size={40} /> Android
           </a>

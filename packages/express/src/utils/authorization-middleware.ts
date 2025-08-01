@@ -14,12 +14,12 @@ const getUserMetadata = async (uid: string) => {
   return userDoc.data() as UserMetadata
 }
 
-const excludedPaths = {
-  "/": ["ALL"],
-  "/mail": ["ALL"],
-  "/users": ["POST"],
-  "/cars/incidents": ["ALL"],
-  "/cars/checks": ["ALL"]
+const publicPathsConfig = {
+  "/": ["GET"],
+  "/mail": ["POST"],
+  "/users/generate-auth-token": ["GET"],
+  "/cars/incidents": ["POST"],
+  "/cars/checks": ["POST"]
 }
 
 export const authorizationMiddleware = async (
@@ -27,15 +27,10 @@ export const authorizationMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const excludedPathConfig =
-    excludedPaths[req.path as keyof typeof excludedPaths]
+  const publicPathConfig =
+    publicPathsConfig[req.path as keyof typeof publicPathsConfig]
 
-  if (excludedPathConfig?.[0] === "ALL") {
-    next()
-    return
-  }
-
-  if (excludedPathConfig?.includes(req.method) || req.method === "OPTIONS") {
+  if (publicPathConfig?.[0] === "ALL" || req.method === "OPTIONS") {
     next()
     return
   }
@@ -56,9 +51,14 @@ export const authorizationMiddleware = async (
 
     const userMetadata = await getUserMetadata(uid)
 
-    const isAdmin = userMetadata?.role === "admin"
+    const isPublicRequest = publicPathConfig
+      ? publicPathConfig.includes(req.method)
+      : false
+    const isAuthorizedPublicRequest = isPublicRequest && !!userMetadata?.role
 
-    if (!isAdmin) {
+    const isAuthorizedProtectedRequest = userMetadata?.role === "admin"
+
+    if (!isAuthorizedProtectedRequest && !isAuthorizedPublicRequest) {
       res.status(403).json({
         error: "Unauthorized"
       })

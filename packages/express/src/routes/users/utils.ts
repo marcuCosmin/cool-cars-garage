@@ -1,6 +1,6 @@
-import { firebaseAuth, firestore } from "../../firebase/config"
-
 import axios from "axios"
+
+import { firebaseAuth, firestore } from "../../firebase/config"
 
 import type { UserMetadata } from "../../models"
 

@@ -27,10 +27,12 @@ export const handleAuthTokenGeneration = async (
   try {
     const uid = req.uid as string
 
+    console.log(uid)
+
     const authUser = await getAuthUser(uid)
 
     if (!authUser) {
-      res.status(404).json({ error: "Invalid uid" })
+      res.status(400).json({ error: "Invalid uid" })
       return
     }
 

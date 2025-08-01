@@ -11,12 +11,14 @@ import { handleAuthTokenGeneration } from "./services/generate-auth-token"
 
 export const usersRouter = Router()
 
-usersRouter.use(cors({ origin: process.env.ALLOWED_ORIGIN }))
-
-usersRouter.options("*")
-
 usersRouter.get("/", handleGetRequest)
-usersRouter.get("/generate-auth-token", handleAuthTokenGeneration)
+
+usersRouter.options("/generate-auth-token", cors({ origin: "*" }))
+usersRouter.get(
+  "/generate-auth-token",
+  cors({ origin: "*" }),
+  handleAuthTokenGeneration
+)
 
 usersRouter.delete("/", handleDeleteRequest)
 
