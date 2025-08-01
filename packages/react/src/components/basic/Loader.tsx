@@ -17,11 +17,7 @@ export const Loader = ({ enableOverlay, text, size = "md" }: LoaderProps) => {
 
     return (
       <div className={containerClassName}>
-        {text && (
-          <p className="text-primary dark:text-secondary font-semibold text-2xl">
-            {text}
-          </p>
-        )}
+        {text && <p className="text-primary font-semibold text-2xl">{text}</p>}
         <div className={loaderClassName} />
       </div>
     )

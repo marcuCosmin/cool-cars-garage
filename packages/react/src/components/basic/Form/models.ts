@@ -45,5 +45,5 @@ export type FormFieldComponentProps<T> = {
   value: T
   onChange: (value?: T) => void
   error?: string
-  onFocus?: () => void
+  onBlur?: () => void
 }

@@ -16,7 +16,7 @@ export const Select = ({
   options,
   value,
   onChange,
-  onFocus,
+  onBlur,
   label,
   isMulti,
   error
@@ -47,7 +47,7 @@ export const Select = ({
       <ReactSelect
         isMulti={isMulti}
         isSearchable={isSearchable}
-        onFocus={onFocus}
+        onBlur={onBlur}
         placeholder={null}
         onChange={handleChange}
         value={parsedValue}

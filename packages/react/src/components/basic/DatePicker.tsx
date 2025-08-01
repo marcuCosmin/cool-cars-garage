@@ -17,7 +17,7 @@ export const DatePicker = ({
   value,
   onChange,
   error,
-  onFocus
+  onBlur
 }: FormFieldComponentProps<Timestamp>) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false)
 
@@ -56,7 +56,7 @@ export const DatePicker = ({
       >
         <button
           className={buttonClassName}
-          onFocus={onFocus}
+          onFocus={onBlur}
           onClick={onClick}
           type="button"
         >

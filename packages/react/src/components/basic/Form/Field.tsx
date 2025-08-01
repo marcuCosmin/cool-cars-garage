@@ -25,15 +25,16 @@ type FieldProps<T extends DefaultFields> = Omit<
 export const Field = <T extends DefaultFields>({
   type,
   name,
+  touched,
+  value,
   onValueChange,
   onErrorChange,
   onTouchedChange,
-  touched,
   validator,
   ...props
 }: FieldProps<T>) => {
   const validate = (value?: FieldValue) => {
-    if (!touched || !validator) {
+    if (!validator) {
       return
     }
 
@@ -41,16 +42,25 @@ export const Field = <T extends DefaultFields>({
     onErrorChange(name, errorMessage)
   }
 
-  const onFocus = () => onTouchedChange(name)
+  const onBlur = () => {
+    onTouchedChange(name)
+    validate(value)
+  }
   const onChange = (value?: FieldValue) => {
     onValueChange(name, value)
+
+    if (!touched) {
+      return
+    }
+
     validate(value)
   }
 
   const passedProps = {
     ...props,
+    value,
     onChange,
-    onFocus
+    onBlur
   }
 
   if (type === "date") {
@@ -67,5 +77,5 @@ export const Field = <T extends DefaultFields>({
     return <Toggle {...(passedProps as ToggleProps)} />
   }
 
-  return <Input {...(passedProps as InputProps)} />
+  return <Input {...(passedProps as InputProps)} type={type} />
 }

@@ -1,8 +1,5 @@
 import { useEffect } from "react"
 
-import { useReduxDispatch, useReduxSelector } from "../redux/config"
-import { setUser, clearUser, fetchUserMetadata } from "../redux/userSlice"
-
 import {
   onIdTokenChanged,
   signInWithEmailAndPassword,
@@ -10,8 +7,10 @@ import {
 } from "firebase/auth"
 import { firebaseAuth } from "./config"
 
+import { useReduxDispatch } from "@/redux/config"
+import { setUser, clearUser, fetchUserMetadata } from "@/redux/userSlice"
+
 export const useFirebaseAuth = () => {
-  const user = useReduxSelector(state => state.userReducer)
   const dispatch = useReduxDispatch()
 
   useEffect(() => {
@@ -32,8 +31,6 @@ export const useFirebaseAuth = () => {
 
     return unsubscribeIdTokenListener
   }, [])
-
-  return user
 }
 
 type SignInUserProps = {

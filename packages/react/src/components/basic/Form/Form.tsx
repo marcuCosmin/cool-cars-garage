@@ -63,7 +63,7 @@ export const Form = <T extends DefaultFields>({
   }
 
   const formClassName = mergeClassNames(
-    "flex flex-col gap-5 items-center border rounded-md p-5 max-w-md dark:bg-primary w-[95%] shadow-lg",
+    "flex flex-col gap-5 items-center border border-primary rounded-md p-5 max-w-md bg-white dark:bg-black w-[95%] shadow-lg",
     containerClassName
   )
 
@@ -96,7 +96,7 @@ export const Form = <T extends DefaultFields>({
 
       <hr />
 
-      <div className="w-full grid grid-cols-2 flex-col gap-x-5 gap-y-2 items-center max-h-[70vh] overflow-y-auto">
+      <div className="w-full p-2 flex flex-col gap-x-5 gap-y-2 items-center max-h-[70vh] overflow-y-auto">
         {Object.entries(fieldsState).map(([name, props]) => {
           const shouldDisplay = shouldDisplayField(name)
 

@@ -2,7 +2,7 @@ import { Timestamp } from "firebase-admin/firestore"
 
 import * as icons from "react-bootstrap-icons"
 
-export type UserRole = "admin" | "user"
+export type UserRole = "admin" | "manager" | "user"
 
 export type UserMetadata = {
   role: UserRole

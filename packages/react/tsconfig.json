@@ -20,8 +20,8 @@
       "@/models": ["./src/models"],
       "@/utils": ["./src/utils"],
       "@/redux/*": ["./src/redux/*"],
-      "@/firebase": ["./src/firebase"],
-      "@/api": ["./src/api"]
+      "@/firebase/*": ["./src/firebase/*"],
+      "@/api/*": ["./src/api/*"]
     },
   },
   "include": ["vite.config.ts", "src"]

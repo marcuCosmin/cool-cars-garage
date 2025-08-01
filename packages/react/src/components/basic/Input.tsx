@@ -28,7 +28,6 @@ export const Input = ({
   endAdornment,
   containerClassName: additionalContainerClassName,
   value,
-  onFocus,
   onClick,
   ...props
 }: InputProps) => {
@@ -55,8 +54,7 @@ export const Input = ({
     ...props,
     className: inputClassName,
     value,
-    onChange,
-    onFocus
+    onChange
   }
 
   const renderedInputOnClick = label && onClick ? onClick : undefined
@@ -64,7 +62,7 @@ export const Input = ({
   const renderedInput = hasAdornment ? (
     <div
       className={mergeClassNames(
-        "flex items-center border rounded-sm px-2 focus-within:ring-1 focus-within:ring-primary  dark:focus-within:ring-secondary",
+        "flex items-center border border-primary rounded-sm px-2 focus-within:ring-1 focus-within:ring-primary  dark:focus-within:ring-secondary",
         error && "invalid-input",
         className
       )}
