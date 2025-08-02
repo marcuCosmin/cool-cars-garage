@@ -15,10 +15,10 @@
       "@/shared/utils": ["../shared/src/utils"],
       "@/shared/consts": ["../shared/src/consts"],
       "@/shared/models": ["../shared/src/models"],
-      "@/routes": ["./src/routes"],
+      "@/routes/*": ["./src/routes/*"],
       "@/components/*": ["./src/components/*"],
       "@/models": ["./src/models"],
-      "@/utils": ["./src/utils"],
+      "@/utils/*": ["./src/utils/*"],
       "@/redux/*": ["./src/redux/*"],
       "@/firebase/*": ["./src/firebase/*"],
       "@/api/*": ["./src/api/*"]

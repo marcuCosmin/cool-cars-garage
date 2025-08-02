@@ -52,11 +52,7 @@
     }
 
     a {
-        @apply text-primary dark:text-secondary opacity-70 hover:underline;
-    }
-
-    a.active {
-        @apply  opacity-100;
+        @apply text-primary font-bold cursor-pointer hover:underline;
     }
 }
 
@@ -210,7 +206,7 @@
 
 @Layer utilities {
     .link-button {
-        @apply text-primary dark:text-secondary opacity-70 hover:underline p-0 w-auto bg-transparent;
+        @apply font-bold cursor-pointer hover:underline w-auto;
     }
 
     .logo {

@@ -1,7 +1,5 @@
 import { Timestamp } from "firebase-admin/firestore"
 
-import * as icons from "react-bootstrap-icons"
-
 export type UserRole = "admin" | "manager" | "user"
 
 export type UserMetadata = {
@@ -15,5 +13,3 @@ export type Invitation = {
 }
 
 export type FieldValue = string | number | boolean | Timestamp
-
-export type IconNames = keyof typeof icons

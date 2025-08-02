@@ -2,7 +2,9 @@ import { useMemo, type MouseEvent, type ReactNode } from "react"
 import { Tooltip } from "react-tooltip"
 import * as icons from "react-bootstrap-icons"
 
-import type { IconNames } from "../../models"
+import { mergeClassNames } from "@/utils/mergeClassNames"
+
+type IconNames = keyof typeof icons
 
 export type IconProps = {
   iconName: IconNames
@@ -25,6 +27,8 @@ export const Icon = ({
 
   const tooltipId = useMemo(() => `icon-tooltip-${iconsCount++}`, [])
 
+  const mergedClassName = mergeClassNames("outline-0", className)
+
   if (!IconComponent) {
     throw new Error(`Icon "${iconName}" not found in react-bootstrap-icons`)
   }
@@ -34,7 +38,7 @@ export const Icon = ({
       <IconComponent
         height={size}
         width={size}
-        className={className}
+        className={mergedClassName}
         data-tooltip-id={onClick ? undefined : tooltipId}
       />
       <Tooltip id={tooltipId} place="bottom">

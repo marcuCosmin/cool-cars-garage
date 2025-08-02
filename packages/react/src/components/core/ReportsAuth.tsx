@@ -4,12 +4,35 @@ import { getAuthToken } from "@/api/users"
 
 import { Icon } from "@/components/basic/Icon"
 
+const deviceLinkConfig = {
+  android: {
+    iconName: "Android2",
+    label: "Android",
+    href: "https://cool-cars-garage.co.uk/cool-cars-reports.apk"
+  },
+  ios: {
+    iconName: "Apple",
+    label: "iOS",
+    href: ""
+  }
+} as const
+
 export const ReportsAuth = () => {
   const onButtonClick = async () => {
     const idToken = await firebaseAuth.currentUser!.getIdToken()
     const authToken = await getAuthToken(idToken)
 
     window.location.href = `${import.meta.env.VITE_REPORTS_AUTH_URL}?authToken=${authToken}`
+  }
+
+  const renderDeviceLink = (device: "android" | "ios") => {
+    const { iconName, label, href } = deviceLinkConfig[device]
+
+    return (
+      <a className="flex items-center gap-2" href={href}>
+        <Icon iconName={iconName} size={40} /> {label}
+      </a>
+    )
   }
 
   return (
@@ -26,12 +49,8 @@ export const ReportsAuth = () => {
       <div>
         <p>If you don't have the app installed, you can download it below:</p>
         <div className="flex justify-around mt-4">
-          <a className="flex items-center gap-2">
-            <Icon iconName="Android2" size={40} /> Android
-          </a>
-          <a className="flex items-center gap-2">
-            <Icon iconName="Apple" size={40} /> iOS
-          </a>
+          {renderDeviceLink("android")}
+          {renderDeviceLink("ios")}
         </div>
       </div>
       <button className="mt-5" type="button" onClick={onButtonClick}>

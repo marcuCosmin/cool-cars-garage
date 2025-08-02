@@ -45,7 +45,7 @@ export const Layout = () => {
         )}
 
         <button
-          className="link-button font-bold relative"
+          className="text-white link-button relative"
           type="button"
           onClick={onSignOutClick}
         >
