@@ -1,55 +1,37 @@
-import type { FieldValue } from "../../../models"
-import type { FieldsState, FormAction, DefaultFields, Fields } from "./models"
+import type { FieldValue } from "@/models"
 
-type Action<T extends DefaultFields> = (
-  fieldsState: FieldsState<T>
-) => Promise<{
-  fieldsState: FieldsState<T>
-  formError: string | undefined
-}>
+import type { FieldsState, DefaultFields, Fields } from "./Form.models"
 
-export const createFormAction = <T extends DefaultFields>(
-  action: FormAction<T>
+export const getFormFieldsValidationResult = <T extends DefaultFields>(
+  fieldsState: FieldsState<T>
 ) => {
-  const createdAction: Action<T> = async fieldsState => {
-    let hasError = false
-    const newFieldsState: FieldsState<T> = { ...fieldsState }
-    const actionArgs: T = {} as T
+  let hasValidationError = false
+  const validatedFieldsState: FieldsState<T> = { ...fieldsState }
+  const fieldsMap: T = {} as T
 
-    Object.entries(newFieldsState).forEach(([field, fieldProps]) => {
-      const { value, validator } = fieldProps
-      const error = validator?.(value)
+  Object.entries(validatedFieldsState).forEach(([field, fieldProps]) => {
+    const { value, validator } = fieldProps
+    const error = validator?.(value)
 
-      newFieldsState[field as keyof FieldsState<T>] = {
-        ...fieldProps,
-        error,
-        touched: true
-      }
-
-      if (error) {
-        hasError = true
-        return
-      }
-
-      actionArgs[field as keyof T] = value as T[keyof T]
-    })
-
-    if (hasError) {
-      return {
-        fieldsState: newFieldsState,
-        formError: ""
-      }
+    validatedFieldsState[field as keyof FieldsState<T>] = {
+      ...fieldProps,
+      error,
+      touched: true
     }
 
-    const error = await action(actionArgs)
-
-    return {
-      fieldsState: newFieldsState,
-      formError: error as string | undefined
+    if (error) {
+      hasValidationError = true
+      return
     }
+
+    fieldsMap[field as keyof T] = value as T[keyof T]
+  })
+
+  return {
+    hasValidationError,
+    validatedFieldsState,
+    fieldsMap
   }
-
-  return createdAction
 }
 
 export const getFieldsInitialState = <T extends DefaultFields>(

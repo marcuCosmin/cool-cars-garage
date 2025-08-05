@@ -4,9 +4,9 @@ import { toast } from "react-toastify"
 import { Info } from "lucide-react"
 
 import { Form } from "../../basic/Form/Form"
-import type { Fields } from "../../basic/Form/models"
+import type { Fields } from "../../basic/Form/Form.models"
 
-import { useReduxDispatch, useReduxSelector } from "../../../redux/config"
+import { useAppDispatch, useAppSelector } from "../../../redux/config"
 import { updateUser } from "../../../redux/userSlice"
 
 import {
@@ -34,7 +34,7 @@ export const VerifySMSCode = ({
   phoneNumber,
   setVerification
 }: VerifySMSCodeProps) => {
-  const dispatch = useReduxDispatch()
+  const dispatch = useAppDispatch()
   const [remainingTime, setRemainingTime] = useState(verification.validity)
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const VerifySMSCode = ({
     return () => clearInterval(interval)
   }, [])
 
-  const { user } = useReduxSelector(state => state.userReducer)
+  const { user } = useAppSelector(state => state.userReducer)
 
   const fields: Fields<FormFields> = {
     code: {

@@ -1,13 +1,13 @@
 import ReactModal from "react-modal"
 
+import { closeModal } from "@/redux/modalSlice"
+import { useAppDispatch, useAppSelector } from "@/redux/config"
+
 import { getModalContent } from "./Modal.utils"
 
-import { useReduxDispatch, useReduxSelector } from "../../../redux/config"
-import { closeModal } from "../../../redux/modalSlice"
-
 export const Modal = () => {
-  const modalOptions = useReduxSelector(state => state.modalReducer)
-  const dispatch = useReduxDispatch()
+  const modalOptions = useAppSelector(state => state.modal)
+  const dispatch = useAppDispatch()
 
   if (modalOptions.type === "none") {
     return null

@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-import { useReduxDispatch, useReduxSelector } from "@/redux/config"
+import { useAppDispatch, useAppSelector } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 import { deleteCar, fetchAllCars, setEditedCarId } from "@/redux/carsSlice"
 
@@ -30,8 +30,8 @@ const filtersConfig: FiltersConfig<CarItemData> = {
 }
 
 export const CarsList = () => {
-  const { cars, metadata } = useReduxSelector(state => state.carsReducer)
-  const dispatch = useReduxDispatch()
+  const { cars, metadata } = useAppSelector(state => state.carsReducer)
+  const dispatch = useAppDispatch()
 
   const initialData: Record<string, CarItemData> = Object.entries(cars).reduce(
     (acc, [id, { makeAndModel, ...car }]) => ({

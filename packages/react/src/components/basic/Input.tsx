@@ -2,12 +2,14 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
   type ChangeEvent,
-  type MouseEventHandler
+  type MouseEventHandler,
+  useState
 } from "react"
+import { Eye, EyeSlash } from "react-bootstrap-icons"
 
-import { mergeClassNames } from "../../utils/mergeClassNames"
+import type { FormFieldComponentProps } from "@/components/basic/Form/Form.models"
 
-import type { FormFieldComponentProps } from "./Form/models"
+import { mergeClassNames } from "@/utils/mergeClassNames"
 
 export type InputProps = Partial<FormFieldComponentProps<string>> &
   Omit<
@@ -29,12 +31,45 @@ export const Input = ({
   containerClassName: additionalContainerClassName,
   value,
   onClick,
+  onChange,
+  type,
   ...props
 }: InputProps) => {
-  const onChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+
+  const onPasswordAdornmentClick = () =>
+    setIsPasswordVisible(!isPasswordVisible)
+
+  const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    if (!onChange) {
+      return
+    }
+
     const newValue = target.value
 
-    props.onChange?.(newValue)
+    onChange(newValue)
+  }
+
+  if (type === "password") {
+    const iconProps = {
+      className: "text-primary",
+      height: 20,
+      width: 20
+    }
+
+    endAdornment = (
+      <button
+        type="button"
+        className="p-0.5 w-fit bg-transparent hover:opacity-75"
+        onClick={onPasswordAdornmentClick}
+      >
+        {isPasswordVisible ? (
+          <EyeSlash {...iconProps} />
+        ) : (
+          <Eye {...iconProps} />
+        )}
+      </button>
+    )
   }
 
   const containerClassName = mergeClassNames(
@@ -44,17 +79,25 @@ export const Input = ({
 
   const hasAdornment = !!(startAdornment || endAdornment)
 
+  const defaultInputClassName =
+    "w-full p-2 border border-primary rounded-sm h-[40px] max-w-sm outline-none disabled:opacity-50 focus:ring focus:ring-primary focus-within:ring focus-within:ring-primary"
+
   const inputClassName = mergeClassNames(
-    !hasAdornment && error && "invalid-input",
+    !hasAdornment && defaultInputClassName,
     !hasAdornment && className,
-    hasAdornment && "border-none p-0 ring-0 cursor-[inherit]"
+    !hasAdornment && error && "invalid-input",
+    hasAdornment &&
+      "w-full outline-none border-none p-0 ring-0 cursor-[inherit]"
   )
+
+  const inputType = type === "password" && isPasswordVisible ? "text" : type
 
   const inputProps = {
     ...props,
     className: inputClassName,
     value,
-    onChange
+    type: inputType,
+    onChange: handleChange
   }
 
   const renderedInputOnClick = label && onClick ? onClick : undefined
@@ -62,7 +105,8 @@ export const Input = ({
   const renderedInput = hasAdornment ? (
     <div
       className={mergeClassNames(
-        "flex items-center border border-primary rounded-sm px-2 focus-within:ring-1 focus-within:ring-primary  dark:focus-within:ring-secondary",
+        defaultInputClassName,
+        "flex items-center cursor-text",
         error && "invalid-input",
         className
       )}

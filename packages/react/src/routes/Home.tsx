@@ -1,12 +1,12 @@
-import { useReduxSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/config"
 
 import { CarsList } from "@/components/core/CarsList/CarsList"
 import { ReportsAuth } from "@/components/core/ReportsAuth"
 
 export const Home = () => {
-  const userRole = useReduxSelector(state => state.userReducer.metadata.role)
+  const userRole = useAppSelector(state => state.user.metadata.role)
 
-  if (userRole === "user") {
+  if (userRole === "driver") {
     return <ReportsAuth />
   }
 

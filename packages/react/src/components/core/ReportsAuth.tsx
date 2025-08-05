@@ -1,17 +1,17 @@
+import { Android2, Apple } from "react-bootstrap-icons"
+
 import { firebaseAuth } from "@/firebase/config"
 
 import { getAuthToken } from "@/api/users"
 
-import { Icon } from "@/components/basic/Icon"
-
 const deviceLinkConfig = {
   android: {
-    iconName: "Android2",
+    Icon: Android2,
     label: "Android",
     href: "https://cool-cars-garage.co.uk/cool-cars-reports.apk"
   },
   ios: {
-    iconName: "Apple",
+    Icon: Apple,
     label: "iOS",
     href: ""
   }
@@ -26,11 +26,11 @@ export const ReportsAuth = () => {
   }
 
   const renderDeviceLink = (device: "android" | "ios") => {
-    const { iconName, label, href } = deviceLinkConfig[device]
+    const { Icon, label, href } = deviceLinkConfig[device]
 
     return (
       <a className="flex items-center gap-2" href={href}>
-        <Icon iconName={iconName} size={40} /> {label}
+        <Icon size={40} /> {label}
       </a>
     )
   }

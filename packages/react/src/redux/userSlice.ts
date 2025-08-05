@@ -4,118 +4,63 @@ import {
   type PayloadAction
 } from "@reduxjs/toolkit"
 
-import { getFirestoreDoc } from "../firebase/utils"
-import type { IdTokenResult, User as FirebaseUser } from "firebase/auth"
+import { getUserMetadata } from "@/firebase/utils"
+import type { User as FirebaseUser } from "firebase/auth"
 
-import type { UserMetadata } from "../models"
+import type { User } from "@/shared/models"
 
-type UserStateMetadata = UserMetadata & {
-  loading: boolean
-}
-
-type UserState = {
-  user: FirebaseUser
-  metadata: UserStateMetadata
+type UserState = User & {
+  isLoading: boolean
+  error?: string
 }
 
 const initialState: UserState = {
-  user: {
-    uid: "",
-    email: "",
-    displayName: "",
-    emailVerified: false,
-    phoneNumber: "",
-    isAnonymous: false,
-    photoURL: "",
-    metadata: {
-      creationTime: "",
-      lastSignInTime: ""
-    },
-    providerData: [],
-    tenantId: null,
-    refreshToken: "",
-    providerId: "",
-    toJSON: () => ({}),
-    //eslint-disable-next-line no-empty-function
-    reload: async () => {},
-    //eslint-disable-next-line no-empty-function
-    delete: async () => {},
-    //eslint-disable-next-line require-await
-    getIdToken: async () => "",
-    //eslint-disable-next-line require-await
-    getIdTokenResult: async () => {
-      return {} as IdTokenResult
-    }
-  },
+  uid: "",
+  email: "",
+  displayName: "",
   metadata: {
-    loading: true,
-    role: "user"
-  }
+    role: "admin"
+  },
+  isLoading: true,
+  error: ""
 }
 
 export const fetchUserMetadata = createAsyncThunk(
-  "user/fetchMetadata",
-  async (uid: string) => {
-    const userMetadata = await getFirestoreDoc<UserMetadata>({
-      collection: "users",
-      document: uid
-    })
-
-    return userMetadata || { role: "user" as UserMetadata["role"] }
-  }
+  "user/fetch-metadata",
+  getUserMetadata
 )
 
-export const userSlice = createSlice({
+const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<FirebaseUser>) => ({
-      ...state,
-      user: action.payload
-    }),
-    updateUser: (
+    initUserData: (
       state,
-      action: PayloadAction<
-        Partial<Pick<FirebaseUser, "email" | "displayName" | "phoneNumber">>
-      >
-    ) => ({
-      ...state,
-      user: {
-        ...state.user,
-        ...action.payload
-      }
-    }),
-    setUserMetadata: (
-      state,
-      action: PayloadAction<Partial<UserStateMetadata>>
-    ) => ({
-      ...state,
-      metadata: {
-        ...state.metadata,
-        ...action.payload
-      }
-    }),
+      action: PayloadAction<Pick<FirebaseUser, "uid" | "email" | "displayName">>
+    ) => {
+      const { uid, email, displayName } = action.payload
+
+      state.uid = uid
+      state.email = email!
+      state.displayName = displayName!
+    },
     clearUser: () => ({
       ...initialState,
-      metadata: { ...initialState.metadata, loading: false }
+      isLoading: false
     })
   },
   extraReducers: builder => {
     builder.addCase(fetchUserMetadata.fulfilled, (state, action) => {
-      state.metadata = {
-        loading: false,
-        ...action.payload
-      }
+      state.metadata = action.payload
+      state.isLoading = false
     })
-    builder.addCase(fetchUserMetadata.pending, state => {
-      state.metadata = {
-        ...state.metadata,
-        loading: true
-      }
+    builder.addCase(fetchUserMetadata.rejected, (state, action) => {
+      state.error = action.error.message
+
+      state.isLoading = false
     })
   }
 })
 
-export const { setUser, setUserMetadata, clearUser, updateUser } =
-  userSlice.actions
-export const { reducer: userReducer } = userSlice
+export const { initUserData, clearUser } = userSlice.actions
+export const { reducer: user } = userSlice

@@ -1,7 +1,7 @@
-import { useReduxSelector } from "../../../redux/config"
+import { useAppSelector } from "../../../redux/config"
 
 import { Form } from "../../basic/Form/Form"
-import type { Fields } from "../../basic/Form/models"
+import type { Fields } from "../../basic/Form/Form.models"
 
 import {
   sendSMSVerificationCode,
@@ -32,7 +32,7 @@ export const SendSMSCodeForm = ({
   setVerification,
   setPhoneNumber
 }: SendSMSCodeFormProps) => {
-  const { user } = useReduxSelector(state => state.userReducer)
+  const { user } = useAppSelector(state => state.userReducer)
 
   const savePhoneNumberAction = async ({ phoneNumber }: FormFields) => {
     const phoneNumberWithPrefix = `+44${phoneNumber}`

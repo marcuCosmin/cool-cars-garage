@@ -1,11 +1,11 @@
 import cloneDeep from "lodash.clonedeep"
 
 import { Form } from "@/components/basic/Form/Form"
-import type { Fields } from "../../basic/Form/models"
+import type { Fields } from "../../basic/Form/Form.models"
 
 import { setCar } from "../../../firebase/cars"
 
-import { useReduxSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/config"
 
 import { createValidator, getRequiredError } from "../../../utils/validations"
 
@@ -121,7 +121,7 @@ const defaultFields: Fields<Car> = {
 }
 
 export const CarModalContent = () => {
-  const { cars, metadata } = useReduxSelector(state => state.carsReducer)
+  const { cars, metadata } = useAppSelector(state => state.carsReducer)
   const { editedCarId } = metadata
   const car = editedCarId ? cars[editedCarId] : null
 

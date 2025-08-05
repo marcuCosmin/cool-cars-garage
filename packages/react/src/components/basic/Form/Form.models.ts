@@ -38,7 +38,7 @@ export type FieldsState<T extends DefaultFields> = {
 
 export type FormAction<T extends DefaultFields> = (
   fieldsValueMap: T
-) => Promise<string | undefined | void> | string | undefined | void
+) => Promise<void>
 
 export type FormFieldComponentProps<T> = {
   label?: string

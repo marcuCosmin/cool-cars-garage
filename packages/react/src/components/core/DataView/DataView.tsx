@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 import { PlusCircleFill, Search } from "react-bootstrap-icons"
 
-import { Input } from "../../basic/Input"
+import { Input } from "@/components/basic/Input"
+
+import { parseSearchString } from "@/utils/string"
+
 import { DataCard } from "./DataCard"
 import { Filters } from "./Filters"
 
 import { dataToArray, filtersConfigToState } from "./utils"
-import { parseSearchString } from "../../../utils/string"
 
 import type {
   FiltersConfig,
@@ -93,18 +95,14 @@ export const DataView = <DataItem extends DefaultDataItem>({
   }, [initialData, searchQuery, filters])
 
   return (
-    <div className="flex h-[calc(100vh-64px)]">
-      <div className="p-5 flex flex-col items-center gap-5 bg-secondary dark:bg-primary min-w-[350px]">
+    <div className="h-[calc(100vh-64px)]">
+      <div className="p-5 flex flex-wrap items-end gap-5">
         <button
-          className="w-fit h-fit bg-transparent border-0 p-0"
+          className="w-fit h-fit bg-transparent border-0 p-0 text-primary ring-0"
           type="button"
           onClick={onAddButtonClick}
         >
-          <PlusCircleFill
-            className="fill-primary dark:fill-secondary rounded-full"
-            width={40}
-            height={40}
-          />
+          <PlusCircleFill size={40} />
         </button>
 
         <Input
@@ -112,7 +110,9 @@ export const DataView = <DataItem extends DefaultDataItem>({
           type="text"
           value={searchQuery}
           onChange={onSearchChange}
-          endAdornment={<Search width={20} height={20} />}
+          endAdornment={
+            <Search className="fill-primary" width={20} height={20} />
+          }
         />
 
         <Filters filters={filters} onFilterChange={onFilterChange} />

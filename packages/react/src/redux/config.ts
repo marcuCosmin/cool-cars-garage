@@ -5,16 +5,16 @@ import {
 } from "react-redux"
 import { configureStore } from "@reduxjs/toolkit"
 
-import { userReducer } from "./userSlice"
+import { user } from "./userSlice"
 import { carsReducer } from "./carsSlice"
-import { modalReducer } from "./modalSlice"
+import { modal } from "./modalSlice"
 
 export const store = configureStore({
-  reducer: { userReducer, carsReducer, modalReducer }
+  reducer: { user, carsReducer, modal }
 })
 
 type State = ReturnType<typeof store.getState>
 type Dispatch = typeof store.dispatch
 
-export const useReduxDispatch: () => Dispatch = useDispatch
-export const useReduxSelector: TypedUseSelectorHook<State> = useSelector
+export const useAppDispatch: () => Dispatch = useDispatch
+export const useAppSelector: TypedUseSelectorHook<State> = useSelector

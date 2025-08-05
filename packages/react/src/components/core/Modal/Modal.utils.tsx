@@ -1,6 +1,7 @@
 import { lazy } from "react"
 
 import type { ModalOptions } from "./Modal.model"
+import { InviteUserModal } from "./InviteUserModal"
 
 const ConfirmationModalContent = lazy(() =>
   import("./ConfirmationModalContent").then(module => ({
@@ -19,5 +20,7 @@ export const getModalContent = ({ type, props }: ModalOptions) => {
       return <ConfirmationModalContent {...props} />
     case "car":
       return <CarModalContent />
+    case "invite-user":
+      return <InviteUserModal />
   }
 }

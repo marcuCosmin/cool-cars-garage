@@ -1,27 +1,59 @@
+import { useEffect } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { useFirebaseAuth } from "@/firebase/auth"
+import { onIdTokenChanged } from "firebase/auth"
+import { firebaseAuth } from "@/firebase/config"
+import { signOutUser } from "@/firebase/utils"
 
-import { useReduxSelector } from "@/redux/config"
+import { useAppDispatch, useAppSelector } from "@/redux/config"
+import { clearUser, fetchUserMetadata, initUserData } from "@/redux/userSlice"
 
-import { Router } from "./routes/Router"
+import { Router } from "@/routes/Router"
 
+import { ErrorFallback } from "@/components/core/ErrorFallback"
 import { Modal } from "@/components/core/Modal/Modal"
 
 import { Loader } from "@/components/basic/Loader"
 
 export const App = () => {
-  const isUserLoading = useReduxSelector(
-    state => state.userReducer.metadata.loading
-  )
-  useFirebaseAuth()
+  const userErrorMessage = useAppSelector(state => state.user.error)
+  const isUserLoading = useAppSelector(state => state.user.isLoading)
+  const dispatch = useAppDispatch()
+
+  const userError = userErrorMessage ? new Error(userErrorMessage) : null
+  const resetUserError = () => signOutUser()
+
+  useEffect(() => {
+    const unsubscribeIdTokenListener = onIdTokenChanged(
+      firebaseAuth,
+      async user => {
+        if (!user) {
+          dispatch(clearUser())
+          return
+        }
+
+        const { uid, email, displayName } = user
+
+        await dispatch(fetchUserMetadata(uid))
+        dispatch(initUserData({ uid, email, displayName }))
+      }
+    )
+
+    return unsubscribeIdTokenListener
+  }, [])
+
+  if (userError) {
+    return (
+      <ErrorFallback error={userError} resetErrorBoundary={resetUserError} />
+    )
+  }
 
   if (isUserLoading) {
     return <Loader enableOverlay text="Loading user data" />
   }
 
   return (
-    <ErrorBoundary fallback={<div>Something went wrong</div>}>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
       <Router />
       <Modal />
     </ErrorBoundary>

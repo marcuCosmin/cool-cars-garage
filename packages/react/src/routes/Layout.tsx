@@ -1,44 +1,53 @@
-import { useActionState } from "react"
-import { NavLink, Outlet, useNavigate } from "react-router"
-import { toast } from "react-toastify"
+import {
+  NavLink,
+  Outlet,
+  useNavigate,
+  type NavLinkRenderProps
+} from "react-router"
 
-import { signOutUser } from "@/firebase/auth"
+import { signOutUser } from "@/firebase/utils"
 
-import { useReduxSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/config"
+
+import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
 
 export const Layout = () => {
-  const userRole = useReduxSelector(state => state.userReducer.metadata.role)
+  const userRole = useAppSelector(state => state.user.metadata.role)
   const navigate = useNavigate()
 
-  const logOutAction = async () => {
-    const error = await signOutUser()
+  const { isLoading, mutate: signOutMutation } = useAppMutation({
+    mutationFn: signOutUser
+  })
 
-    if (!error) {
-      navigate("/")
+  const onLogoutClick = async () => {
+    const { error } = await signOutMutation()
+
+    if (error) {
       return
     }
 
-    toast.error(error)
+    navigate("/")
   }
 
-  const [, onSignOutClick, isLoading] = useActionState(logOutAction, undefined)
+  const navLinkClassName = ({ isActive }: NavLinkRenderProps) =>
+    `text-white ${isActive ? "underline" : "no-underline"}`
 
   return (
     <>
-      <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-secondary dark:bg-primary font-bold z-[9000]">
+      <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-primary font-bold z-[9000]">
         <NavLink className="logo" to="/" end />
 
-        {userRole !== "user" && (
+        {userRole !== "driver" && (
           <div className="flex gap-5 m-auto">
-            <NavLink to="/" end>
+            <NavLink className={navLinkClassName} to="/" end>
               Home
             </NavLink>
-            <NavLink to="/users" end>
+            <NavLink className={navLinkClassName} to="/users" end>
               Users
             </NavLink>
-            <NavLink to="/reports" end>
+            <NavLink className={navLinkClassName} to="/reports" end>
               Reports
             </NavLink>
           </div>
@@ -47,13 +56,13 @@ export const Layout = () => {
         <button
           className="text-white link-button relative"
           type="button"
-          onClick={onSignOutClick}
+          onClick={onLogoutClick}
         >
           {isLoading ? <Loader size="sm" /> : "Sign out"}
         </button>
       </nav>
 
-      <main className="h-[calc(100vh-64px)]">
+      <main className="relative h-[calc(100vh-64px)]">
         <Outlet />
       </main>
     </>

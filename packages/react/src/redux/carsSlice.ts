@@ -50,7 +50,7 @@ export const updateCarDueDate = createAsyncThunk(
   ({}: UpdateCarDueDatePayload) => {}
 )
 
-export const carsSlice = createSlice({
+const carsSlice = createSlice({
   name: "cars",
   initialState,
   reducers: {

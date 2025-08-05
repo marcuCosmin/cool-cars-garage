@@ -9,3 +9,7 @@ export type ModalOptions =
       type: "car"
       props?: undefined
     }
+  | {
+      type: "invite-user"
+      props?: undefined
+    }

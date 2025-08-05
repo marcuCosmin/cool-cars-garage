@@ -1,16 +1,24 @@
-import { useState, type ReactNode, type FormEvent, useReducer } from "react"
+import { useReducer, type ReactNode, type FormEvent } from "react"
 
-import { Loader } from "../Loader"
-import { Field } from "./Field"
+import { useAppMutation } from "@/hooks/useAppMutation"
 
-import { createFormAction, fieldsReducer, getFieldsInitialState } from "./utils"
+import { Loader } from "@/components/basic/Loader"
 
-import { mergeClassNames } from "../../../utils/mergeClassNames"
+import { mergeClassNames } from "@/utils/mergeClassNames"
 
-import type { Fields, FormAction, DefaultFields } from "./models"
-import type { FieldValue } from "../../../models"
+import type { FieldValue } from "@/models"
 
-type FormProps<T extends Record<string, FieldValue>> = {
+import { FormField } from "./FormField"
+
+import {
+  fieldsReducer,
+  getFieldsInitialState,
+  getFormFieldsValidationResult
+} from "./Form.utils"
+
+import type { Fields, FormAction, DefaultFields } from "./Form.models"
+
+type FormProps<T extends DefaultFields> = {
   containerClassName?: string
   title: ReactNode
   submitLabel: ReactNode
@@ -42,28 +50,31 @@ export const Form = <T extends DefaultFields>({
     {} as T
   )
 
-  const [formError, setFormError] = useState<string | undefined>("")
-
-  const createdAction = createFormAction<T>(action)
-
-  const [isLoading, setIsLoading] = useState(false)
+  const {
+    error: formError,
+    isLoading,
+    mutate: mutateAction
+  } = useAppMutation({
+    mutationFn: action,
+    showToast: false
+  })
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    setIsLoading(true)
+    const { fieldsMap, hasValidationError, validatedFieldsState } =
+      getFormFieldsValidationResult(fieldsState)
+    dispatchFieldsAction({ type: "SET_FIELDS", fields: validatedFieldsState })
 
-    const { fieldsState: newFieldsState, formError } =
-      await createdAction(fieldsState)
+    if (hasValidationError) {
+      return
+    }
 
-    dispatchFieldsAction({ type: "SET_FIELDS", fields: newFieldsState })
-    setFormError(formError)
-
-    setIsLoading(false)
+    await mutateAction(fieldsMap)
   }
 
   const formClassName = mergeClassNames(
-    "flex flex-col gap-5 items-center border border-primary rounded-md p-5 max-w-md bg-white dark:bg-black w-[95%] shadow-lg",
+    "flex flex-col gap-5 items-center border border-primary rounded-sm p-5 bg-white dark:bg-black sm:min-w-sm w-full",
     containerClassName
   )
 
@@ -76,18 +87,6 @@ export const Form = <T extends DefaultFields>({
   const onFieldTouchedChange = (name: string) =>
     dispatchFieldsAction({ type: "SET_FIELD_TOUCHED", name })
 
-  const shouldDisplayField = (name: string) => {
-    const field = fieldsState[name]
-
-    const { displayCondition } = field
-
-    if (displayCondition) {
-      return displayCondition(fieldsValues)
-    }
-
-    return true
-  }
-
   return (
     <form className={formClassName} onSubmit={onSubmit}>
       {isLoading && <Loader enableOverlay />}
@@ -96,17 +95,20 @@ export const Form = <T extends DefaultFields>({
 
       <hr />
 
-      <div className="w-full p-2 flex flex-col gap-x-5 gap-y-2 items-center max-h-[70vh] overflow-y-auto">
+      <div className="w-full p-2 flex flex-col gap-x-5 gap-y-2 items-center">
         {Object.entries(fieldsState).map(([name, props]) => {
-          const shouldDisplay = shouldDisplayField(name)
+          const { displayCondition, ...remainingProps } = props
+          const shouldDisplay = displayCondition
+            ? displayCondition(fieldsValues)
+            : true
 
           if (!shouldDisplay) {
             return null
           }
 
           return (
-            <Field
-              {...props}
+            <FormField
+              {...remainingProps}
               name={name}
               key={name}
               onErrorChange={onFieldErrorChange}

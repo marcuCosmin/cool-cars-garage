@@ -9,10 +9,10 @@ import type {
   DefaultFields,
   FieldStateProps,
   FormFieldComponentProps
-} from "./models"
+} from "./Form.models"
 import type { FieldValue } from "../../../models"
 
-type FieldProps<T extends DefaultFields> = Omit<
+type FormFieldProps<T extends DefaultFields> = Omit<
   FieldStateProps<T>,
   "hideCondition"
 > & {
@@ -22,7 +22,7 @@ type FieldProps<T extends DefaultFields> = Omit<
   onErrorChange: (name: string, error?: string) => void
 }
 
-export const Field = <T extends DefaultFields>({
+export const FormField = <T extends DefaultFields>({
   type,
   name,
   touched,
@@ -32,7 +32,7 @@ export const Field = <T extends DefaultFields>({
   onTouchedChange,
   validator,
   ...props
-}: FieldProps<T>) => {
+}: FormFieldProps<T>) => {
   const validate = (value?: FieldValue) => {
     if (!validator) {
       return
@@ -46,6 +46,7 @@ export const Field = <T extends DefaultFields>({
     onTouchedChange(name)
     validate(value)
   }
+
   const onChange = (value?: FieldValue) => {
     onValueChange(name, value)
 

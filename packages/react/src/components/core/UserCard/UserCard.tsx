@@ -3,7 +3,7 @@ import { toast } from "react-toastify"
 import { Trash2, User as UserIcon } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useReduxSelector } from "../../../redux/config"
+import { useAppSelector } from "../../../redux/config"
 
 import { UserField } from "./UserField"
 import { Loader } from "../../basic/Loader"
@@ -19,7 +19,7 @@ export const UserCard = ({
   uid,
   role
 }: User) => {
-  const { user } = useReduxSelector(state => state.userReducer)
+  const user = useAppSelector(state => state.user)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
   const queryClient = useQueryClient()

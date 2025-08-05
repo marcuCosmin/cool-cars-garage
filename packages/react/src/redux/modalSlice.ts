@@ -14,7 +14,7 @@ const initialState = {
   props: undefined
 } as ModalState
 
-export const modalSlice = createSlice({
+const modalSlice = createSlice({
   name: "modal",
   initialState,
   reducers: {
@@ -32,4 +32,4 @@ export const modalSlice = createSlice({
 })
 
 export const { openModal, closeModal } = modalSlice.actions
-export const { reducer: modalReducer } = modalSlice
+export const { reducer: modal } = modalSlice

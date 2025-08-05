@@ -8,12 +8,14 @@
     --color-white: #ffffff;
     --color-secondary: #d1d5dc;
     --color-error: #dc2626;
+    --text-base: 15px;
+    --height-input: 40px;
     --breakpoint-sm: 475px;
 }
 
 @layer base {
     html, body {
-        @apply text-black dark:text-white dark:bg-black m-0 w-full h-full overflow-hidden;
+        @apply text-black dark:text-white dark:bg-black m-0 w-full h-full overflow-hidden text-base;
     }
 
     #root {
@@ -32,11 +34,6 @@
         @apply w-full h-px text-primary
     }
 
-    input {
-        @apply w-full p-2 border border-primary rounded-sm h-[40px] disabled:opacity-50;
-        @apply focus:outline-none focus:ring focus:ring-primary;
-    }
-
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       @apply appearance-none m-0;
@@ -48,11 +45,11 @@
     }
 
     label {
-        @apply flex flex-col gap-2 w-full;
+        @apply flex flex-col gap-2 w-full max-w-sm;
     }
 
     a {
-        @apply text-primary font-bold cursor-pointer hover:underline;
+        @apply text-primary font-bold cursor-pointer transition-opacity hover:opacity-80;
     }
 }
 
@@ -78,135 +75,137 @@
     }
 
     .ReactModal__Overlay {
-        @apply !bg-transparent backdrop-blur-sm;
+        @apply !bg-transparent backdrop-blur-sm z-[9500];
     }
 
     .ReactModal__Content {
-        @apply flex justify-center items-center max-w-2xl m-auto w-[95%] h-fit max-h-[70vh] sm:min-w-xs !bg-secondary dark:!bg-primary !top-0 !left-0 !right-0 !bottom-0;
+        @apply flex justify-center items-center max-w-2xl m-auto w-[95%] h-fit max-h-[70vh] sm:w-fit !bg-white dark:!bg-black !overflow-visible !border-primary !top-0 !left-0 !right-0 !bottom-0;
+    }
+
+    .react-calendar  {
+        @apply border bg-primary border-primary rounded-sm shadow-none;
     }
 
     .react-calendar__navigation {
-        @apply bg-primary dark:bg-secondary flex items-center justify-center rounded-t-lg p-2;
+        @apply bg-primary flex items-center justify-center rounded-t-sm p-2;
 
         button {
-            @apply p-0 hover:opacity-90 transition-opacity;
+            @apply p-0 hover:opacity-75 border-none ring-0 transition-opacity;
         }
+    }
 
-        .react-calendar__navigation__label {
-            @apply flex-none w-fit font-bold text-lg;
-        }
+    .react-calendar__navigation__label {
+        @apply flex-none w-fit font-bold text-lg m-auto !grow-0;
+    }
 
-        .react-calendar__navigation__arrow {
-            @apply flex items-center justify-center pb-1.5 w-7 h-7 text-2xl
-        }
+    .react-calendar__navigation__arrow {
+        @apply flex items-center justify-center pb-1.5 w-8 h-8 text-3xl
     }
 
     .react-calendar__month-view__weekdays {
-        @apply bg-primary dark:bg-secondary text-secondary dark:text-primary;
+        @apply bg-white dark:bg-black text-primary p-2;
     }
 
     .react-calendar__month-view__weekdays__weekday {
-        @apply font-bold text-center border-t border-b border-r last:border-r-0 border-primary;
+        @apply font-bold text-center;
 
         abbr {
             @apply no-underline;
         }
     }
 
-    .react-calendar__month-view__days {
-        button {
-            @apply p-2 bg-transparent text-primary dark:text-secondary border rounded-none last:rounded-br-lg nth-[7n+1]:nth-last-[-n+7]:rounded-bl-lg;
-        }
+    .react-calendar__tile {
+        @apply p-2 text-black dark:text-white bg-white dark:bg-black ring-0 border border-white dark:border-black rounded-none last:rounded-br-sm !overflow-visible nth-[7n+1]:nth-last-[-n+7]:rounded-bl-sm;
+    }
 
-        .react-calendar__tile--now, .react-calendar__tile--active {
-            @apply bg-primary dark:bg-secondary text-secondary dark:text-primary border-primary dark:border-secondary;
-        }
+    .react-calendar__tile--now {
+        @apply  text-primary border-primary;
+    }
 
-        .react-calendar__tile--active {
-            @apply !opacity-100;
-        }
-
-        .react-calendar__tile--now {
-            @apply opacity-70;
-        }
+    .react-calendar__tile--active {
+        @apply bg-primary text-white border-primary;
+    }
+    
+    .react-calendar__month-view__days__day--neighboringMonth {
+        @apply opacity-75;
     }
 
     .react-tiny-popover-container {
-        @apply max-w-sm bg-secondary dark:bg-primary shadow dark:shadow-white rounded-lg;
+        @apply max-w-sm bg-white dark:bg-black rounded-sm z-[9999];
     }
 
-    .react-select, .react-multi-select {
-        .react-select__control {
-            @apply !cursor-pointer h-[40px] !border !border-primary dark:!border-secondary hover:border !shadow-none !bg-transparent;
-        }
-
-        .react-select__control--is-focused {
-            @apply ring ring-primary dark:ring-secondary border-primary dark:border-secondary;
-        }
-
-        .react-select__input {
-            @apply border-none ring-0 h-full;
-        }
-
-        .react-select__value-container {
-            @apply h-full;
-        }
-
-        .react-select__single-value {
-            @apply !text-primary dark:!text-secondary mb-[5px];
-        }
-
-        .react-select__indicator-separator {
-            @apply hidden;
-        }
-
-        .react-select__indicator {
-            @apply !text-primary dark:!text-secondary;
-        }
-
-        .react-select__menu {
-            @apply border !shadow-lg shadow-secondary dark:shadow-primary !bg-secondary dark:!bg-primary;
-
-            .react-select__menu-list {
-                @apply !p-0;
-            }
-        }
-
-        .react-select__option {
-            @apply !cursor-pointer;
-        }
-
-        .react-select__option--is-focused {
-            @apply !bg-primary/50 dark:!bg-secondary/50 !text-secondary dark:!text-primary;
-        }
-
-        .react-select__option--is-selected {
-            @apply !bg-primary dark:!bg-secondary !text-secondary dark:!text-primary;
-        }
+    .react-select__control {
+        @apply !cursor-pointer !min-h-input h-fit border rounded-sm border-primary p-2 bg-transparent;
+    }
+    
+    .react-select__control--is-focused {
+        @apply ring ring-primary;
     }
 
-    .react-multi-select {
-        .react-select__control {
-            @apply h-auto;        
-        }
+    .react-select__input {
+        @apply border-none ring-0 h-full;
+    }
 
-        .react-select__multi-value {
-            @apply !bg-primary dark:!bg-secondary !rounded;
+    .react-select__value-container {
+        @apply h-full gap-2;
+    }
 
-            .react-select__multi-value__label {
-                @apply !text-secondary dark:!text-primary;
-            }
+    .react-select__single-value {
+        @apply text-black dark:text-white;
+    }
 
-            .react-select__multi-value__remove {
-                @apply !text-secondary dark:!text-primary !bg-transparent hover:!text-white dark:hover:!text-primary/50;
-            }
+    .react-select__indicator-separator {
+        @apply hidden;
+    }
+
+    .react-select__indicator {
+        @apply text-primary;
+    }
+
+    .react-select__menu {
+        @apply border bg-white dark:bg-black border-primary rounded-sm mt-1;
+    }
+
+    .react-select__menu-list {
+        @apply p-2; 
+    }
+
+    .react-select__clear-indicator {
+        @apply hover:opacity-75;
+    }
+
+    .react-select__option {
+        @apply !cursor-pointer p-2;
+    }
+
+    .react-select__option--is-focused {
+        @apply bg-primary/50 text-white;
+    }
+
+    .react-select__option--is-selected {
+        @apply bg-primary text-white;
+    }
+
+    .react-select__multi-value {
+        @apply bg-primary px-1 text-white rounded gap-1 cursor-default;
+    }
+
+    .react-select__multi-value__label {
+        @apply text-white;
+    }
+
+    .react-select__multi-value__remove {
+        @apply text-white hover:opacity-75 cursor-pointer;
+
+        svg {
+            @apply w-4 h-4;
         }
     }
 }
 
 @Layer utilities {
     .link-button {
-        @apply font-bold cursor-pointer hover:underline w-auto;
+        @apply font-bold cursor-pointer transition-opacity w-auto hover:opacity-80;
     }
 
     .logo {
@@ -214,8 +213,7 @@
     }
 
     .invalid-input {
-        @apply border-error;
-        @apply focus:ring-error focus:border-error;
+        @apply !border-error !ring-error;
     }
 
     .form-error {
@@ -231,6 +229,6 @@
     }
 
     .scrollbar {
-        @apply scrollbar scrollbar-track-transparent scrollbar-thumb-primary/50 dark:scrollbar-thumb-secondary/50; 
+        @apply scrollbar scrollbar-track-transparent scrollbar-thumb-primary; 
     }
 }

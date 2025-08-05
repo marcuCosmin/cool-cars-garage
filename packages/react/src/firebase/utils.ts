@@ -3,10 +3,32 @@ import {
   collection,
   getDoc,
   getDocs,
-  type DocumentData,
-  deleteDoc
+  deleteDoc,
+  type DocumentData
 } from "firebase/firestore"
-import { firestore } from "./config"
+import { signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { firebaseAuth, firestore } from "./config"
+
+import { withErrorPropagation } from "@/utils/withErrorPropagation"
+
+import type { UserMetadata } from "@/shared/models"
+
+type SignInUserProps = {
+  email: string
+  password: string
+}
+
+export const signInUser = withErrorPropagation(
+  "Firebase - signInUser",
+  ({ email, password }: SignInUserProps) =>
+    signInWithEmailAndPassword(firebaseAuth, email, password)
+)
+
+export type SignInUser = typeof signInUser
+
+export const signOutUser = withErrorPropagation("Firebase - signOutUser", () =>
+  signOut(firebaseAuth)
+)
 
 type GetFirestoreDocProps = {
   collection: string
@@ -109,3 +131,19 @@ export const deleteFirestoreDoc = async ({
 
   await deleteDoc(path)
 }
+
+export const getUserMetadata = withErrorPropagation(
+  "Firebase - getUserMetadata",
+  async (uid: string) => {
+    const userRef = doc(firestore, "users", uid)
+    const userSnapshot = await getDoc(userRef)
+
+    if (!userSnapshot.exists()) {
+      throw new Error("User metadata not found")
+    }
+
+    const userMetadata = userSnapshot.data() as UserMetadata
+
+    return userMetadata
+  }
+)

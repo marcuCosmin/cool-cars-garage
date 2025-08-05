@@ -1,7 +1,7 @@
 import { Suspense, lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 
-import { useReduxSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/config"
 
 import { Loader } from "@/components/basic/Loader"
 
@@ -32,11 +32,11 @@ const NotFound = lazy(() =>
 )
 
 export const Router = () => {
-  const uid = useReduxSelector(state => state.userReducer.user.uid)
-  const userRole = useReduxSelector(state => state.userReducer.metadata.role)
+  const uid = useAppSelector(state => state.user.uid)
+  const userRole = useAppSelector(state => state.user.metadata.role)
 
   const renderRoleBasedRoutes = () => {
-    if (userRole === "user") {
+    if (userRole === "driver") {
       return <Route index path="/" element={<Home />} />
     }
 

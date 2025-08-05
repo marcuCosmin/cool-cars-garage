@@ -1,7 +1,7 @@
 import { toast } from "react-toastify"
 import { Trash3Fill, PencilSquare } from "react-bootstrap-icons"
 
-import { useReduxDispatch } from "../../../redux/config"
+import { useAppDispatch } from "../../../redux/config"
 import { openModal } from "../../../redux/modalSlice"
 
 import { fieldValueToString } from "./utils"
@@ -25,7 +25,7 @@ export const DataCard = ({
   onDelete,
   onEdit
 }: DataCardProps) => {
-  const dispatch = useReduxDispatch()
+  const dispatch = useAppDispatch()
 
   const onDeleteConfirm = async () => {
     try {

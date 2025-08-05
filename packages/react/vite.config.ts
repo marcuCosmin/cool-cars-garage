@@ -10,6 +10,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@/hooks": path.resolve(__dirname, "./src/hooks"),
       "@/shared/utils": path.resolve(__dirname, "../shared/src/utils"),
       "@/shared/consts": path.resolve(__dirname, "../shared/src/consts"),
       "@/routes": "/src/routes",

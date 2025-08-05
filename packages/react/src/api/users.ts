@@ -1,6 +1,6 @@
 import { usersUrl } from "./config"
 
-import { signInUser } from "../firebase/auth"
+import { signInUser } from "@/firebase/utils"
 
 import type { User as FirebaseUser } from "firebase/auth"
 import type { UserMetadata } from "../models"
@@ -118,6 +118,8 @@ export const createUser = async (body: CreateUserArgs) => {
     return "Failed to create user: Unknown error occurred"
   }
 }
+
+export type CreateUser = typeof createUser
 
 export type SMSVerification = {
   validity: number
