@@ -3,12 +3,11 @@ import { toast } from "react-toastify"
 import { Trash2, User as UserIcon } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 
-import { useAppSelector } from "../../../redux/config"
-
 import { UserField } from "./UserField"
 import { Loader } from "../../basic/Loader"
 
 import { deleteUser, type User } from "../../../api/users"
+import { firebaseAuth } from "@/firebase/config"
 
 export const UserCard = ({
   email,
@@ -19,7 +18,6 @@ export const UserCard = ({
   uid,
   role
 }: User) => {
-  const user = useAppSelector(state => state.user)
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const [isDeleteLoading, setIsDeleteLoading] = useState(false)
   const queryClient = useQueryClient()
@@ -29,7 +27,7 @@ export const UserCard = ({
   const onDelete = async () => {
     try {
       setIsDeleteLoading(true)
-      const idToken = await user.getIdToken()
+      const idToken = await firebaseAuth.currentUser!.getIdToken()
 
       const error = await deleteUser({ idToken, uid })
 

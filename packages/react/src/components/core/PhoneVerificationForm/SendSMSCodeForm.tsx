@@ -1,5 +1,3 @@
-import { useAppSelector } from "../../../redux/config"
-
 import { Form } from "../../basic/Form/Form"
 import type { Fields } from "../../basic/Form/Form.models"
 
@@ -9,6 +7,7 @@ import {
 } from "../../../api/users"
 
 import { getPhoneNumberError } from "../../../utils/validations"
+import { firebaseAuth } from "@/firebase/config"
 
 type FormFields = {
   phoneNumber: string
@@ -32,12 +31,10 @@ export const SendSMSCodeForm = ({
   setVerification,
   setPhoneNumber
 }: SendSMSCodeFormProps) => {
-  const { user } = useAppSelector(state => state.userReducer)
-
   const savePhoneNumberAction = async ({ phoneNumber }: FormFields) => {
     const phoneNumberWithPrefix = `+44${phoneNumber}`
 
-    const idToken = await user.getIdToken()
+    const idToken = await firebaseAuth.currentUser!.getIdToken()
 
     const { verificationId, validity, error } = await sendSMSVerificationCode({
       phoneNumber: phoneNumberWithPrefix,
@@ -45,7 +42,7 @@ export const SendSMSCodeForm = ({
     })
 
     if (error) {
-      return error as string
+      return
     }
 
     setPhoneNumber(phoneNumberWithPrefix)

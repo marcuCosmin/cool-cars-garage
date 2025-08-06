@@ -6,9 +6,6 @@ import { Info } from "lucide-react"
 import { Form } from "../../basic/Form/Form"
 import type { Fields } from "../../basic/Form/Form.models"
 
-import { useAppDispatch, useAppSelector } from "../../../redux/config"
-import { updateUser } from "../../../redux/userSlice"
-
 import {
   sendSMSVerificationCode,
   updateUserPhoneNumber
@@ -18,6 +15,7 @@ import { createValidator } from "../../../utils/validations"
 import { secondsToUIFormat } from "../../../utils/secondsToUIFormat"
 
 import { type SMSVerification } from "../../../api/users"
+import { firebaseAuth } from "@/firebase/config"
 
 type FormFields = {
   code: string
@@ -34,7 +32,6 @@ export const VerifySMSCode = ({
   phoneNumber,
   setVerification
 }: VerifySMSCodeProps) => {
-  const dispatch = useAppDispatch()
   const [remainingTime, setRemainingTime] = useState(verification.validity)
 
   useEffect(() => {
@@ -44,8 +41,6 @@ export const VerifySMSCode = ({
 
     return () => clearInterval(interval)
   }, [])
-
-  const { user } = useAppSelector(state => state.userReducer)
 
   const fields: Fields<FormFields> = {
     code: {
@@ -64,24 +59,18 @@ export const VerifySMSCode = ({
   }
 
   const savePhoneNumberAction = async ({ code }: FormFields) => {
-    const idToken = await user.getIdToken()
+    const idToken = await firebaseAuth.currentUser!.getIdToken()
 
-    const error = await updateUserPhoneNumber({
+    await updateUserPhoneNumber({
       idToken,
       phoneNumber,
       verificationId: verification.verificationId,
       code
     })
-
-    if (error) {
-      return error
-    }
-
-    dispatch(updateUser({ phoneNumber }))
   }
 
   const onSendNewCodeButtonClick = async () => {
-    const idToken = await user.getIdToken()
+    const idToken = await firebaseAuth.currentUser!.getIdToken()
 
     const { error, ...verification } = await sendSMSVerificationCode({
       phoneNumber,
