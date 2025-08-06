@@ -9,6 +9,7 @@
       "@/shared/utils": ["../shared/src/utils"],
       "@/shared/consts": ["../shared/src/consts"],
       "@/shared/models": ["../shared/src/models"],
+      "@/utils/*": ["./src/utils/*"],
     }
   },
   "ts-node": {

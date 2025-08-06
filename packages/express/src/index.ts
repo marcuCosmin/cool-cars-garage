@@ -4,7 +4,7 @@ import { usersRouter } from "./routes/users"
 import { mailRouter } from "./routes/mail"
 import { carsRouter } from "./routes/cars"
 
-import { authorizationMiddleware } from "./utils/authorization-middleware"
+import { authorizationMiddleware } from "@/utils/authorization-middleware"
 
 const app = express()
 const port = process.env.PORT

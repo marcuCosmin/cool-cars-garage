@@ -12,8 +12,10 @@ import { getEmailError, getRequiredError } from "@/utils/validations"
 type FormFields = {
   email: string
   role: string
+  isTaxiDriver: boolean
   badgeNumber: string
   badgeExpirationDate: string
+  dbsUpdate: boolean
 }
 
 const fields: Fields<FormFields> = {
@@ -28,17 +30,29 @@ const fields: Fields<FormFields> = {
     options: ["Admin", "Manager", "Driver"],
     validator: getRequiredError
   },
+  dbsUpdate: {
+    label: "DBS Update",
+    type: "toggle",
+    displayCondition: ({ role }) => role === "Driver"
+  },
+  isTaxiDriver: {
+    label: "Taxi Driver",
+    type: "toggle",
+    displayCondition: ({ role }) => role === "Driver"
+  },
   badgeNumber: {
     label: "Badge Number",
     type: "number",
     validator: getRequiredError,
-    displayCondition: ({ role }) => role === "Driver"
+    displayCondition: ({ role, isTaxiDriver }) =>
+      role === "Driver" && isTaxiDriver
   },
   badgeExpirationDate: {
     label: "Badge Expiration Date",
     type: "date",
     validator: getRequiredError,
-    displayCondition: ({ role }) => role === "Driver"
+    displayCondition: ({ role, isTaxiDriver }) =>
+      role === "Driver" && isTaxiDriver
   }
 }
 

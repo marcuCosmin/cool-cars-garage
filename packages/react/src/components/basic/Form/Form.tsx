@@ -95,7 +95,7 @@ export const Form = <T extends DefaultFields>({
 
       <hr />
 
-      <div className="w-full p-2 flex flex-col gap-x-5 gap-y-2 items-center">
+      <div className="w-full flex flex-wrap justify-evenly gap-3">
         {Object.entries(fieldsState).map(([name, props]) => {
           const { displayCondition, ...remainingProps } = props
           const shouldDisplay = displayCondition
