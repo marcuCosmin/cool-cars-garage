@@ -1,18 +1,9 @@
 import { type Response, type NextFunction } from "express"
-import { firebaseAuth, firestore } from "../firebase/config"
 
-import type { Request, UserMetadata } from "../models"
+import { firebaseAuth } from "@/firebase/config"
+import { getUserMetadata } from "@/firebase/utils"
 
-const getUserMetadata = async (uid: string) => {
-  const userRef = firestore.collection("users").doc(uid)
-  const userDoc = await userRef.get()
-
-  if (!userDoc.exists) {
-    return null
-  }
-
-  return userDoc.data() as UserMetadata
-}
+import type { Request } from "@/models"
 
 const publicPathsConfig = {
   "/": ["GET"],

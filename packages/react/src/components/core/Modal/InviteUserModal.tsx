@@ -9,14 +9,11 @@ import type { Fields, FormAction } from "@/components/basic/Form/Form.models"
 
 import { getEmailError, getRequiredError } from "@/utils/validations"
 
-type FormFields = {
-  email: string
-  role: string
-  isTaxiDriver: boolean
-  badgeNumber: string
-  badgeExpirationDate: string
-  dbsUpdate: boolean
-}
+import type { DriverMetadata, User, UserMetadata } from "@/shared/models"
+
+type FormFields = Pick<User, "email"> &
+  Pick<UserMetadata, "role"> &
+  Omit<DriverMetadata, "role" | "birthDate">
 
 const fields: Fields<FormFields> = {
   email: {
@@ -33,26 +30,26 @@ const fields: Fields<FormFields> = {
   dbsUpdate: {
     label: "DBS Update",
     type: "toggle",
-    displayCondition: ({ role }) => role === "Driver"
+    displayCondition: ({ role }) => role === "driver"
   },
   isTaxiDriver: {
     label: "Taxi Driver",
     type: "toggle",
-    displayCondition: ({ role }) => role === "Driver"
+    displayCondition: ({ role }) => role === "driver"
   },
   badgeNumber: {
     label: "Badge Number",
     type: "number",
     validator: getRequiredError,
     displayCondition: ({ role, isTaxiDriver }) =>
-      role === "Driver" && isTaxiDriver
+      role === "driver" && isTaxiDriver
   },
   badgeExpirationDate: {
     label: "Badge Expiration Date",
     type: "date",
     validator: getRequiredError,
     displayCondition: ({ role, isTaxiDriver }) =>
-      role === "Driver" && isTaxiDriver
+      role === "driver" && isTaxiDriver
   }
 }
 

@@ -10,6 +10,9 @@
       "@/shared/consts": ["../shared/src/consts"],
       "@/shared/models": ["../shared/src/models"],
       "@/utils/*": ["./src/utils/*"],
+      "@/middlewares/*": ["./src/middlewares/*"],
+      "@/models": ["./src/models"],
+      "@/firebase/*": ["./src/firebase/*"],
     }
   },
   "ts-node": {

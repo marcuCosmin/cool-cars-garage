@@ -29,6 +29,8 @@ export type DriverMetadata = {
   badgeNumber: string
   badgeExpirationDate: Timestamp
   birthDate: Timestamp
+  isTaxiDriver: boolean
+  dbsUpdate: boolean
   role: "driver"
 }
 
