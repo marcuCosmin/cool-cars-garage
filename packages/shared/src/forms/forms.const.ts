@@ -1,37 +1,48 @@
-export const inviteUserFormFields = {
+import { Timestamp } from "firebase-admin/firestore"
+
+import { getEmailError, getRequiredError } from "./forms.utils"
+
+import type { FormFieldsSchema } from "./forms.models"
+
+import type { UserMetadata } from "../models"
+
+export type InviteUserFields = {
+  email: string
+  role: UserMetadata["role"]
+  dbsUpdate: boolean
+  isTaxiDriver: boolean
+  badgeNumber: number
+  badgeExpirationDate: Timestamp
+}
+
+export const inviteUserFormFields: FormFieldsSchema<InviteUserFields> = {
   email: {
-    label: "Email",
-    validator: getEmailError,
+    validate: getEmailError,
     type: "text"
   },
   role: {
-    label: "Role",
     type: "select",
-    options: ["Admin", "Manager", "Driver"],
-    validator: getRequiredError
+    options: ["admin", "manager", "driver"] as UserMetadata["role"][],
+    validate: getRequiredError
   },
   dbsUpdate: {
-    label: "DBS Update",
     type: "toggle",
-    displayCondition: ({ role }) => role === "driver"
+    shouldBeIncluded: ({ role }) => role === "driver"
   },
   isTaxiDriver: {
-    label: "Taxi Driver",
     type: "toggle",
-    displayCondition: ({ role }) => role === "driver"
+    shouldBeIncluded: ({ role }) => role === "driver"
   },
   badgeNumber: {
-    label: "Badge Number",
     type: "number",
-    validator: getRequiredError,
-    displayCondition: ({ role, isTaxiDriver }) =>
+    validate: getRequiredError,
+    shouldBeIncluded: ({ role, isTaxiDriver }) =>
       role === "driver" && isTaxiDriver
   },
   badgeExpirationDate: {
-    label: "Badge Expiration Date",
     type: "date",
-    validator: getRequiredError,
-    displayCondition: ({ role, isTaxiDriver }) =>
+    validate: getRequiredError,
+    shouldBeIncluded: ({ role, isTaxiDriver }) =>
       role === "driver" && isTaxiDriver
   }
 }
