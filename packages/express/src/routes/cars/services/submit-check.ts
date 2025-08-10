@@ -4,9 +4,8 @@ import { firestore } from "../../../firebase/config"
 
 import { getCurrentTimestamp } from "../../../utils/get-current-timestamp"
 
-import { createReportsNotification } from "../utils"
-
 import type { Request } from "../../../models"
+import { sendMail } from "@/utils/send-mail"
 
 type Answer = {
   label: string
@@ -46,70 +45,62 @@ export const handleCheckSubmission = async (
       answer => answer.value === false
     )
 
-    const carRef = firestore.collection("cars").doc(carId)
-
-    const checkRef = carRef.collection("checks")
+    const checkRef = firestore.collection("demo")
     const creationTimestamp = getCurrentTimestamp()
 
-    const createdCheck = await checkRef.add({
-      interior,
-      exterior,
-      odoReading,
-      driverId: uid,
-      creationTimestamp
-    })
-
-    const faultsIds: string[] = []
+    const faults: {
+      description: string
+      status: "pending"
+    }[] = []
 
     if (answersWithFaults.length) {
-      const faultsBatch = firestore.batch()
-      const faultsRef = carRef.collection("faults")
-
       answersWithFaults.forEach(answer => {
         const fault = {
           description: answer.label,
-          driverId: uid,
-          status: "pending",
-          checkId: createdCheck.id,
-          creationTimestamp,
-          carId
-        }
+          status: "pending"
+        } as const
 
-        const faultRef = faultsRef.doc()
-        faultsIds.push(faultRef.id)
-
-        faultsBatch.create(faultRef, fault)
+        faults.push(fault)
       })
-
-      await faultsBatch.commit()
     }
 
-    await createReportsNotification({
-      carId,
-      uid,
-      viewed: true,
-      type: "check",
-      reference: {
-        id: createdCheck.id,
-        path: "check"
-      }
+    const userRef = firestore.collection("users").doc(uid)
+    const userDoc = await userRef.get()
+
+    const userMetadata = userDoc.data()
+
+    if (!userMetadata) {
+      res.status(404).json({
+        error: "User not found"
+      })
+      return
+    }
+
+    const { name } = userMetadata
+
+    await checkRef.add({
+      vehicleRegNumber: carId,
+      odoReading: odoReading.value,
+      driverName: name,
+      timestamp: creationTimestamp,
+      fault: faults.length ? faults : null
     })
 
-    if (faultsIds.length) {
-      await createReportsNotification({
-        carId,
-        uid,
-        viewed: true,
-        reference: {
-          id: createdCheck.id,
-          path: "check"
-        },
-        type: "fault",
-        bulkCount: faultsIds.length
+    if (faults.length) {
+      await sendMail({
+        to: "marcucosmin3@yahoo.com",
+        subject: "Faults reported for a Check",
+        html: `
+          <div>Hello Marius,</div>
+          <br/>
+          <div>There ${faults.length > 1 ? "are" : "is"} ${faults.length} fault${faults.length > 1 ? "s" : ""} reported for the vehicle with registration number ${carId}.</div>
+          <div>Click <a href="${process.env.ALLOWED_ORIGIN}">here</a> to see the list of checks.</div>
+          <br/>
+          <div>Thanks,</div>
+          <b>Cool Cars Garage</b> team
+        `
       })
     }
-
-    // Send wapp message to Marius
 
     res.status(200).json({
       message: "Check reported successfully"

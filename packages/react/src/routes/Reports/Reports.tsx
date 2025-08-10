@@ -5,6 +5,7 @@ import { Toggle } from "@/components/basic/Toggle"
 import { firestore } from "@/firebase/config"
 import {
   collection,
+  doc,
   getDocs,
   limit,
   orderBy,
@@ -12,6 +13,7 @@ import {
   QueryConstraint,
   startAfter,
   Timestamp,
+  updateDoc,
   where
 } from "firebase/firestore"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -130,6 +132,30 @@ const useReportsList = ({ filters }: { filters: Filters }) => {
     setReports(prev => [...prev, ...newReports])
   }, [filters, lastRefValue, canFetchMore])
 
+  const resolveFault = async (reportId: string, faultIndex: number) => {
+    const reportIndex = reports.findIndex(r => r.id === reportId)
+
+    if (reportIndex !== -1) {
+      const newReps = reports.slice()
+      const report = newReps[reportIndex]
+
+      if (!newReps[reportIndex].fault) {
+        return
+      }
+
+      newReps[reportIndex].fault[faultIndex].resolvedAt = Timestamp.fromDate(
+        new Date()
+      )
+      newReps[reportIndex].fault[faultIndex].status = "resolved"
+
+      await updateDoc(doc(firestore, "demo", report.id), {
+        fault: newReps[reportIndex].fault
+      })
+
+      setReports(newReps)
+    }
+  }
+
   useEffect(() => {
     fetchInitialData()
   }, [filters])
@@ -152,7 +178,7 @@ const useReportsList = ({ filters }: { filters: Filters }) => {
     return () => intersectionObserver.disconnect()
   }, [isInitialLoading, fetchMore])
 
-  return { reports, sentinelRef, isInitialLoading }
+  return { reports, sentinelRef, isInitialLoading, resolveFault }
 }
 
 type Filters = {
@@ -197,8 +223,24 @@ const useFilters = () => {
   }
 }
 
-const ReportItem = ({ report }: { report: Report }) => {
+const ReportItem = ({
+  report,
+  onResolve
+}: {
+  report: Report
+  onResolve: (faultIndex: number) => Promise<void>
+}) => {
   const [isFaultsPopoverOpen, setIsFaultsPopoverOpen] = useState(false)
+  const [isResolveLoading, setIsResolveLoading] = useState(false)
+  const listRef = useRef<HTMLUListElement>(null)
+
+  const resolveWrapper = async (faultIndex: number) => {
+    setIsResolveLoading(true)
+
+    await onResolve(faultIndex)
+
+    setIsResolveLoading(false)
+  }
 
   return (
     <li
@@ -227,7 +269,10 @@ const ReportItem = ({ report }: { report: Report }) => {
           onClickOutside={() => setIsFaultsPopoverOpen(false)}
           isOpen={isFaultsPopoverOpen}
           content={
-            <ul className="border p-2 border-primary rounded-sm shadow-none overflow-y-auto max-h-96 scrollbar">
+            <ul
+              className="border p-2 border-primary rounded-sm shadow-none overflow-y-auto max-h-96 scrollbar"
+              ref={listRef}
+            >
               {report.fault.map((f, index) => (
                 <li key={index}>
                   <div className="font-semibold">
@@ -262,13 +307,28 @@ const ReportItem = ({ report }: { report: Report }) => {
                     </div>
                   )}
 
-                  {!!report.fault?.[index + 1] && <hr className="mt-1" />}
+                  {isResolveLoading && (
+                    <Loader enableOverlay text="Resolving Fault..." />
+                  )}
+
+                  <button
+                    type="button"
+                    className={`p-1 mt-2 ${f.status === "resolved" ? "hidden" : ""}`}
+                    onClick={() => resolveWrapper(index)}
+                  >
+                    Mark as resolved
+                  </button>
+
+                  {!!report.fault?.[index + 1] && <hr className="my-2" />}
                 </li>
               ))}
             </ul>
           }
         >
-          <button type="button" onClick={() => setIsFaultsPopoverOpen(true)}>
+          <button
+            type="button"
+            onClick={() => setIsFaultsPopoverOpen(!isFaultsPopoverOpen)}
+          >
             {report.fault.length} Faults Reported
           </button>
         </Popover>
@@ -285,7 +345,8 @@ export const Reports = () => {
     setHasFaults,
     resetFilters
   } = useFilters()
-  const { reports, sentinelRef, isInitialLoading } = useReportsList({ filters })
+  const { reports, sentinelRef, isInitialLoading, resolveFault } =
+    useReportsList({ filters })
 
   if (isInitialLoading) {
     return <Loader enableOverlay text="Loading reports" />
@@ -355,7 +416,13 @@ export const Reports = () => {
 
       <ul className="flex flex-wrap justify-center gap-5 p-5 overflow-y-auto scrollbar">
         {reports.map(report => (
-          <ReportItem key={report.id} report={report} />
+          <ReportItem
+            key={report.id}
+            report={report}
+            onResolve={(faultIndex: number) =>
+              resolveFault(report.id, faultIndex)
+            }
+          />
         ))}
         <div className="h-1 w-full" ref={sentinelRef} />
       </ul>
