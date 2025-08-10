@@ -201,6 +201,10 @@
             @apply w-4 h-4;
         }
     }
+
+    .Collapsible {
+        @apply sm:hidden;
+    }
 }
 
 @Layer utilities {

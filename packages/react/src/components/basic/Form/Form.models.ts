@@ -42,7 +42,7 @@ export type FormAction<T extends DefaultFields> = (
 
 export type FormFieldComponentProps<T> = {
   label?: string
-  value: T
+  value?: T
   onChange: (value?: T) => void
   error?: string
   onBlur?: () => void

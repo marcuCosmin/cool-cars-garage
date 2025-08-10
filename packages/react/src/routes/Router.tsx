@@ -21,13 +21,19 @@ const Layout = lazy(() =>
   import("./Layout").then(module => ({ default: module.Layout }))
 )
 const Reports = lazy(() =>
-  import("./Reports").then(module => ({
+  import("./Reports/Reports").then(module => ({
     default: module.Reports
   }))
 )
 const NotFound = lazy(() =>
   import("./NotFound").then(module => ({
     default: module.NotFound
+  }))
+)
+
+const ReportsAuth = lazy(() =>
+  import("./Reports/ReportsAuth").then(module => ({
+    default: module.ReportsAuth
   }))
 )
 
@@ -47,9 +53,10 @@ export const Router = () => {
 
     return (
       <>
-        <Route index path="/" element={<Home />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/">
+          <Route index element={<Reports />} />
+          <Route path="/auth" element={<ReportsAuth />} />
+        </Route>
       </>
     )
   }

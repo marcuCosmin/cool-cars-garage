@@ -25,6 +25,7 @@ export const DatePicker = ({
 
   const date = value ? value.toDate() : null
   const displayedValue = date ? date.toLocaleDateString() : ""
+  const containerClassName = "w-xs"
   const buttonClassName = mergeClassNames(
     "flex items-center justify-between p-2 bg-transparent text-start font-normal text-nowrap border border-primary rounded-sm text-primary dark:text-secondary h-input focus:ring-primary",
     error && "invalid-input"
@@ -91,12 +92,12 @@ export const DatePicker = ({
 
   if (label) {
     return (
-      <label>
+      <label className={containerClassName}>
         <div>{label}</div>
         {renderedContent}
       </label>
     )
   }
 
-  return <div>{renderedContent}</div>
+  return <div className={containerClassName}>{renderedContent}</div>
 }

@@ -44,7 +44,7 @@ export const Select = ({
   }
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-xs">
       {label && <div className="mb-2">{label}</div>}
       <ReactSelect
         blurInputOnSelect={false}
