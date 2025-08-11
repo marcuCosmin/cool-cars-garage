@@ -30,6 +30,7 @@
   "description": "",
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
+    "puppeteer": "^24.16.1",
     "react-collapsible": "^2.10.0"
   }
 }

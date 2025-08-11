@@ -12,4 +12,4 @@ export type Invitation = {
   id: string
 }
 
-export type FieldValue = string | number | boolean | Timestamp
+export type FieldValue = string | number | boolean | Timestamp | string[]

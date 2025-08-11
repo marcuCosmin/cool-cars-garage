@@ -3,6 +3,8 @@ import { Loader } from "@/components/basic/Loader"
 import { Select } from "@/components/basic/Select"
 import { Toggle } from "@/components/basic/Toggle"
 import { firestore } from "@/firebase/config"
+import { useAppDispatch } from "@/redux/config"
+import { openModal } from "@/redux/modalSlice"
 import {
   collection,
   doc,
@@ -348,6 +350,12 @@ export const Reports = () => {
   const { reports, sentinelRef, isInitialLoading, resolveFault } =
     useReportsList({ filters })
 
+  const dispatch = useAppDispatch()
+
+  const onExportClick = () => {
+    dispatch(openModal({ type: "export" }))
+  }
+
   if (isInitialLoading) {
     return <Loader enableOverlay text="Loading reports" />
   }
@@ -392,7 +400,13 @@ export const Reports = () => {
 
   return (
     <div className="flex flex-col items-center gap-5 pt-10 h-[inherit]">
-      <h1 className="text-center">Reports</h1>
+      <div className="w-full flex px-5">
+        <button type="button" className="w-fit" onClick={onExportClick}>
+          Export data
+        </button>
+      </div>
+
+      <h1 className="w-full text-center">Reports</h1>
 
       <div className="hidden sm:flex flex-col p-2">
         <h2 className="flex justify-center items-center gap-2">

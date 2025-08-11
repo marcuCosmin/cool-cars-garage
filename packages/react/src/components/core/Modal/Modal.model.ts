@@ -13,3 +13,7 @@ export type ModalOptions =
       type: "invite-user"
       props?: undefined
     }
+  | {
+      type: "export"
+      props?: undefined
+    }
