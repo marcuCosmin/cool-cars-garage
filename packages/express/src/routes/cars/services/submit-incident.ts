@@ -30,7 +30,7 @@ export const handleIncidentSubmission = async (
 
     if (description.length > 500) {
       res.status(400).json({
-        error: "The incident description must be less than 500 characters"
+        error: "The incident description must be less than 50 characters"
       })
 
       return
