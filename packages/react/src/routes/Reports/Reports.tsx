@@ -1,8 +1,9 @@
+import { carsUrl } from "@/api/config"
 import { DatePicker } from "@/components/basic/DatePicker"
 import { Loader } from "@/components/basic/Loader"
 import { Select } from "@/components/basic/Select"
 import { Toggle } from "@/components/basic/Toggle"
-import { firestore } from "@/firebase/config"
+import { firebaseAuth, firestore } from "@/firebase/config"
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 import {
@@ -244,13 +245,42 @@ const ReportItem = ({
     setIsResolveLoading(false)
   }
 
+  const handleExport = async () => {
+    const idToken = await firebaseAuth.currentUser!.getIdToken()
+    const response = await fetch(`${carsUrl}/export`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
+      },
+      body: JSON.stringify({ reportId: report.id })
+    })
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "checks_report.pdf"
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+
+    window.URL.revokeObjectURL(url)
+  }
+
   return (
     <li
       key={report.id}
       className="flex flex-col gap-3 border border-primary p-5 rounded-sm sm:max-w-lg h-fit"
     >
-      <div className="bg-primary p-1 w-fit rounded-sm ml-auto font-bold">
-        {report.vehicleRegNumber}
+      <div className="flex items-center">
+        <button type="button" onClick={handleExport} className="w-fit">
+          Export Check
+        </button>
+        <div className="border-primary border text-primary p-1 w-fit rounded-sm ml-auto font-bold">
+          {report.vehicleRegNumber}
+        </div>
       </div>
       {Object.keys(metadataConfig).map(key => {
         const { Icon, label, renderFn } =
@@ -402,7 +432,7 @@ export const Reports = () => {
     <div className="flex flex-col items-center gap-5 pt-10 h-[inherit]">
       <div className="w-full flex px-5">
         <button type="button" className="w-fit" onClick={onExportClick}>
-          Export data
+          Bulk Export
         </button>
       </div>
 

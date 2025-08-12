@@ -54,10 +54,23 @@ export const handleCheckSubmission = async (
     }[] = []
 
     if (answersWithFaults.length) {
-      answersWithFaults.forEach(answer => {
+      interior.forEach((answer, index) => {
         const fault = {
           description: answer.label,
-          status: "pending"
+          status: "pending",
+          questionIndex: index,
+          questionCategory: "interior"
+        } as const
+
+        faults.push(fault)
+      })
+
+      exterior.forEach((answer, index) => {
+        const fault = {
+          description: answer.label,
+          status: "pending",
+          questionIndex: index,
+          questionCategory: "exterior"
         } as const
 
         faults.push(fault)

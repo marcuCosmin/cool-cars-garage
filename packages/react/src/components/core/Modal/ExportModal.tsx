@@ -9,7 +9,6 @@ type FormFields = {
   carsIds: string[]
   startDate?: Timestamp
   endDate?: Timestamp
-  reportType: string
 }
 
 const fields: Fields<FormFields> = {
@@ -19,12 +18,6 @@ const fields: Fields<FormFields> = {
     validator: getRequiredError,
     isMulti: true,
     defaultValue: ["HX15BXR", "NX16EBJ", "WX57NZH", "EA11PZO"],
-    type: "select"
-  },
-  reportType: {
-    label: "Report Type",
-    options: ["Checks", "Defects"],
-    validator: getRequiredError,
     type: "select"
   },
   startDate: {
@@ -54,8 +47,7 @@ export const ExportModal = () => {
 
     const a = document.createElement("a")
     a.href = url
-    a.download =
-      data.reportType === "Checks" ? "checks_report.pdf" : "defects_report.pdf"
+    a.download = "checks_report.pdf"
     document.body.appendChild(a)
     a.click()
     a.remove()

@@ -10,6 +10,14 @@ import puppeteer from "puppeteer"
 
 export const carsRouter = Router()
 
+type Question = {
+  label: string
+}
+type QuestionDoc = {
+  interior: Question[]
+  exterior: Question[]
+}
+
 type Report = {
   id: string
   timestamp: Timestamp
@@ -20,6 +28,8 @@ type Report = {
     description: string
     status: "pending" | "resolved"
     resolvedAt?: Timestamp
+    questionIndex: number
+    questionCategory: string
   }[]
 }
 
@@ -38,7 +48,7 @@ carsRouter.post("/checks", cors(), handleCheckSubmission)
 
 carsRouter.options("/export", cors())
 carsRouter.post("/export", cors(), async (req, res) => {
-  const { carsIds, startDate, endDate, reportType } = req.body
+  const { carsIds, startDate, endDate, reportId } = req.body
 
   const toTimestamp = (date?: Timestamp) => {
     if (!date) {
@@ -50,7 +60,117 @@ carsRouter.post("/export", cors(), async (req, res) => {
   const start = toTimestamp(startDate)
   const end = toTimestamp(endDate)
 
-  const isChecksReport = reportType === "Checks"
+  const browser = await puppeteer.launch({ headless: true })
+  const page = await browser.newPage()
+
+  if (reportId) {
+    const reportRef = firestore.collection("demo").doc(reportId)
+    const reportSnapshot = await reportRef.get()
+    if (!reportSnapshot.exists) {
+      res.status(404).send("Report not found")
+      return
+    }
+    const reportData = reportSnapshot.data() as Report
+    const questions = firestore.collection("reports-config").doc("questions")
+
+    const questionsSnapshot = await questions.get()
+    const questionsData = questionsSnapshot.data()
+
+    const { interior, exterior } = questionsData as QuestionDoc
+
+    const tableInterior = interior
+      .map((question, index) => {
+        const fault = reportData!.fault?.find(
+          f => f.questionIndex === index && f.questionCategory === "interior"
+        )
+        return `
+        <tr>
+          <td>Interior</td>
+          <td>${question.label}</td>
+          <td>${fault ? fault.status : "passed"}</td>
+        </tr>
+      `
+      })
+      .join("")
+
+    const tableExterior = exterior
+      .map((question, index) => {
+        const fault = reportData!.fault?.find(
+          f => f.questionIndex === index && f.questionCategory === "exterior"
+        )
+        return `
+        <tr>
+          <td>Exterior</td>
+          <td>${question.label}</td>
+          <td>${fault ? fault.status : "passed"}</td>
+        </tr>
+      `
+      })
+      .join("")
+
+    await page.setContent(`<html>
+      <head>
+        <title>Report</title>
+        <style>
+          h1 {
+            text-align: center;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+          }
+          th {
+            background-color: #f4f4f4;
+          }
+        </style>
+      </head>
+      <body>
+        <p>Cool Cars South Coast Ltd.</p>
+        <h1>${reportData.vehicleRegNumber} ${reportData.driverName} ${reportData.timestamp
+          .toDate()
+          .toLocaleString("en-GB", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+          })}</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Question</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableInterior}
+            ${tableExterior}
+          </tbody>
+        </table>
+      </body>
+    </html>`)
+
+    const pdfBuffer = await page.pdf()
+
+    console.log(pdfBuffer.length)
+
+    await browser.close()
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=report.pdf",
+      "Content-Length": pdfBuffer.length
+    })
+
+    res.write(pdfBuffer)
+    return
+  }
 
   let carsRef = firestore
     .collection("demo")
@@ -65,19 +185,11 @@ carsRouter.post("/export", cors(), async (req, res) => {
     carsRef = carsRef.where("timestamp", "<=", end)
   }
 
-  if (!isChecksReport) {
-    carsRef = carsRef.where("fault", "!=", null)
-  }
-
   const carsSnapshot = await carsRef.get()
 
   const carsData = carsSnapshot.docs.map(doc => doc.data()) as Report[]
 
-  const browser = await puppeteer.launch({ headless: true })
-  const page = await browser.newPage()
-
-  if (isChecksReport) {
-    await page.setContent(`
+  await page.setContent(`
     <html>
       <head>
         <title>Cool Cars South Coast Ltd.</title>
@@ -139,100 +251,6 @@ carsRouter.post("/export", cors(), async (req, res) => {
       </body>
     </html>
   `)
-  } else {
-    const defects: {
-      description: string
-      status: "pending" | "resolved"
-      resolvedAt?: Timestamp
-      vehicleRegNumber: string
-      timestamp: Timestamp
-      driverName: string
-    }[] = []
-
-    carsData.forEach(car => {
-      car.fault?.forEach(f => {
-        defects.push({
-          description: f.description,
-          status: f.status,
-          vehicleRegNumber: car.vehicleRegNumber,
-          timestamp: car.timestamp,
-          driverName: car.driverName,
-          resolvedAt: f.resolvedAt
-        })
-      })
-    })
-
-    await page.setContent(`
-      <html>
-        <head>
-          <title>Cool Cars South Coast Ltd.</title>
-          <style>
-            h1 {
-              text-align: center;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              padding: 12px 15px;
-              border: 1px solid #ddd;
-              text-align: center;
-            }
-            th {
-              background-color: #f4f4f4;
-            }
-          </style>
-        </head>
-        <body>
-          <p>Cool Cars South Coast Ltd.</p>
-          <h1>Vehicle Defect Report</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Vehicle Registration</th>
-                <th>Date and Time</th>
-                <th>Driver</th>
-                <th>Resolved at</th>
-              </tr>
-            </thead>
-            <tbody>
-            ${defects
-              .map(
-                defect => `
-                <tr>
-                  <td>${defect.description}</td>
-                  <td>${defect.status}</td>
-                  <td>${defect.vehicleRegNumber}</td>
-                  <td>${defect.timestamp.toDate().toLocaleString(undefined, {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })}</td>
-                  <td>${defect.driverName}</td>
-                  <td>${
-                    defect.resolvedAt?.toDate().toLocaleString(undefined, {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit"
-                    }) || "Not resolved"
-                  }</td>
-                </tr>
-              `
-              )
-              .join("")}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `)
-  }
 
   const pdfBuffer = await page.pdf()
 
