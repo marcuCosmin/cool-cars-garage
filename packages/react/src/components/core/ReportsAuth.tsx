@@ -3,6 +3,8 @@ import { Android2, Apple } from "react-bootstrap-icons"
 import { firebaseAuth } from "@/firebase/config"
 
 import { getAuthToken } from "@/api/users"
+import { useAppSelector } from "@/redux/config"
+import { useEffect } from "react"
 
 const deviceLinkConfig = {
   android: {
@@ -18,6 +20,14 @@ const deviceLinkConfig = {
 } as const
 
 export const ReportsAuth = () => {
+  const uid = useAppSelector(state => state.user.uid)
+
+  useEffect(() => {
+    if (!uid) {
+      window.location.href = "/"
+    }
+  }, [uid])
+
   const onButtonClick = async () => {
     const idToken = await firebaseAuth.currentUser!.getIdToken()
     const authToken = await getAuthToken(idToken)
