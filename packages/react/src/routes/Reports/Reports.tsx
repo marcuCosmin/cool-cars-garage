@@ -261,7 +261,7 @@ const ReportItem = ({
 
     const a = document.createElement("a")
     a.href = url
-    a.download = "checks_report.pdf"
+    a.download = "individual_check_report.pdf"
     document.body.appendChild(a)
     a.click()
     a.remove()

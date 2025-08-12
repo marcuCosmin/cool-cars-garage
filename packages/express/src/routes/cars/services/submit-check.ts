@@ -55,6 +55,10 @@ export const handleCheckSubmission = async (
 
     if (answersWithFaults.length) {
       interior.forEach((answer, index) => {
+        if (answer.value) {
+          return
+        }
+
         const fault = {
           description: answer.label,
           status: "pending",
@@ -66,6 +70,10 @@ export const handleCheckSubmission = async (
       })
 
       exterior.forEach((answer, index) => {
+        if (answer.value) {
+          return
+        }
+
         const fault = {
           description: answer.label,
           status: "pending",

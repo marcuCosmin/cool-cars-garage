@@ -127,6 +127,10 @@ carsRouter.post("/export", cors(), async (req, res) => {
           th {
             background-color: #f4f4f4;
           }
+          h2 {
+            font-weight: bold;
+            text-align: center;
+          }
         </style>
       </head>
       <body>
@@ -141,6 +145,7 @@ carsRouter.post("/export", cors(), async (req, res) => {
             minute: "2-digit"
           })}</h1>
         <table>
+          <h2>Odometer reading: ${reportData.odoReading}</h2>
           <thead>
             <tr>
               <th>Category</th>
