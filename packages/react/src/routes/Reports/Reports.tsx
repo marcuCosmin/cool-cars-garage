@@ -261,7 +261,15 @@ const ReportItem = ({
 
     const a = document.createElement("a")
     a.href = url
-    a.download = "individual_check_report.pdf"
+    a.download = `${report.vehicleRegNumber} ${report.timestamp
+      .toDate()
+      .toLocaleString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      })}.pdf`
     document.body.appendChild(a)
     a.click()
     a.remove()
