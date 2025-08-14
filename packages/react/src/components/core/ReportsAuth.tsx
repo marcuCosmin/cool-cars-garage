@@ -3,8 +3,10 @@ import { Android2, Apple } from "react-bootstrap-icons"
 import { firebaseAuth } from "@/firebase/config"
 
 import { getAuthToken } from "@/api/users"
-import { useAppSelector } from "@/redux/config"
+import { useLocation, useNavigate } from "react-router"
 import { useEffect } from "react"
+import { useAppSelector } from "@/redux/config"
+import { Loader } from "../basic/Loader"
 
 const deviceLinkConfig = {
   android: {
@@ -21,10 +23,11 @@ const deviceLinkConfig = {
 
 export const ReportsAuth = () => {
   const uid = useAppSelector(state => state.user.uid)
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!uid) {
-      window.location.href = "/"
+      navigate("/")
     }
   }, [uid])
 
@@ -43,6 +46,10 @@ export const ReportsAuth = () => {
         <Icon size={40} /> {label}
       </a>
     )
+  }
+
+  if (!uid) {
+    return <Loader />
   }
 
   return (

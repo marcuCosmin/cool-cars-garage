@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router"
+import { NavLink, NavLinkRenderProps, Outlet, useNavigate } from "react-router"
 
 import { signOutUser } from "@/firebase/utils"
 
@@ -22,11 +22,16 @@ export const Layout = () => {
 
     navigate("/")
   }
-
+  const navLinkClassName = ({ isActive }: NavLinkRenderProps) =>
+    `text-white ${isActive ? "underline" : "no-underline"}`
   return (
     <>
-      <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-primary font-bold z-[9000]">
+      <nav className="flex justify-between items-center sticky left-0 top-0 p-3 w-full bg-primary font-bold z-[9000]">
         <NavLink className="logo" to="/" end />
+
+        <NavLink className={navLinkClassName} end to="/auth">
+          Reports Auth
+        </NavLink>
 
         <button
           className="text-white link-button relative"

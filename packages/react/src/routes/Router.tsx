@@ -66,6 +66,7 @@ export const Router = () => {
             <>
               <Route path="/" element={<SignIn />} />
               <Route path="/sign-up" element={<SignUp />} />
+              <Route path="/auth" element={<ReportsAuth />} />
             </>
           ) : (
             <Route element={<Layout />}>{renderRoleBasedRoutes()}</Route>
