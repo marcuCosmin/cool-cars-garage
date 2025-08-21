@@ -1,21 +1,14 @@
-import { Timestamp } from "firebase-admin/firestore"
-
 import { getEmailError, getRequiredError } from "./forms.utils"
 
 import type { FormFieldsSchema } from "./forms.models"
 
-import type { UserMetadata } from "../models"
+import type { DriverMetadata, User, UserMetadata } from "../models"
 
-export type InviteUserFields = {
-  email: string
-  role: UserMetadata["role"]
-  dbsUpdate: boolean
-  isTaxiDriver: boolean
-  badgeNumber: number
-  badgeExpirationDate: Timestamp
-}
+export type InviteUserData = Pick<User, "email"> &
+  Pick<UserMetadata, "role"> &
+  Partial<Omit<DriverMetadata, "role" | "birthDate">>
 
-export const inviteUserFormFields: FormFieldsSchema<InviteUserFields> = {
+export const inviteUserFormFields: FormFieldsSchema<InviteUserData> = {
   email: {
     validate: getEmailError,
     type: "text"
@@ -27,22 +20,20 @@ export const inviteUserFormFields: FormFieldsSchema<InviteUserFields> = {
   },
   dbsUpdate: {
     type: "toggle",
-    shouldBeIncluded: ({ role }) => role === "driver"
+    shouldHide: ({ role }) => role !== "driver"
   },
   isTaxiDriver: {
     type: "toggle",
-    shouldBeIncluded: ({ role }) => role === "driver"
+    shouldHide: ({ role }) => role !== "driver"
   },
   badgeNumber: {
     type: "number",
     validate: getRequiredError,
-    shouldBeIncluded: ({ role, isTaxiDriver }) =>
-      role === "driver" && isTaxiDriver
+    shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   },
   badgeExpirationDate: {
     type: "date",
     validate: getRequiredError,
-    shouldBeIncluded: ({ role, isTaxiDriver }) =>
-      role === "driver" && isTaxiDriver
+    shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   }
 }

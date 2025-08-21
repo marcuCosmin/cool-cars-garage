@@ -4,27 +4,34 @@ import { firestore } from "@/firebase/config"
 import { isEmailUsed } from "@/firebase/utils"
 
 import { sendMail } from "@/utils/send-mail"
+import { getFormValidationResult } from "@/utils/get-form-validation-result"
+
+import {
+  inviteUserFormFields,
+  type InviteUserData
+} from "@/shared/forms/forms.const"
 
 import type { Request } from "@/models"
 
-import type { DriverMetadata, UserMetadata, User } from "@/shared/models"
-
-type ReqBody = Pick<User, "email"> &
-  Pick<UserMetadata, "role"> &
-  Omit<DriverMetadata, "role" | "birthDate">
-
-export const handleInviteRequest = async (
-  req: Request<undefined, undefined, ReqBody>,
+export const handleUserInvitation = async (
+  req: Request<undefined, undefined, InviteUserData>,
   res: Response
 ) => {
-  const {
-    email,
-    role,
-    isTaxiDriver,
-    badgeNumber,
-    badgeExpirationDate,
-    dbsUpdate
-  } = req.body
+  const { errors, filteredData: invitationData } = getFormValidationResult({
+    schema: inviteUserFormFields,
+    data: req.body
+  })
+
+  if (errors) {
+    res.status(400).json({
+      error: "Invalid form data",
+      details: errors
+    })
+
+    return
+  }
+
+  const { email } = invitationData
 
   const emailIsUsed = await isEmailUsed(email as string)
 
@@ -49,10 +56,9 @@ export const handleInviteRequest = async (
     return
   }
 
-  const createdInvite = await firestore.collection("invitations").add({
-    email,
-    role
-  })
+  const createdInvite = await firestore
+    .collection("invitations")
+    .add(invitationData)
 
   await sendMail({
     to: email as string,

@@ -12,7 +12,7 @@ const port = process.env.PORT
 
 app.use(express.json())
 app.use(authorizationMiddleware)
-app.use(errorMiddleware)
+// app.use(errorMiddleware)
 
 app.use("/users", usersRouter)
 app.use("/cars", carsRouter)

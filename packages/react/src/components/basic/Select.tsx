@@ -8,7 +8,7 @@ type Option = {
 }
 
 export type SelectProps = FormFieldComponentProps<string | string[]> & {
-  options: string[]
+  options: Option[]
   isMulti?: boolean
 }
 
@@ -22,11 +22,6 @@ export const Select = ({
   error
 }: SelectProps) => {
   const isSearchable = options.length > 10
-
-  const parsedOptions = options.map(option => ({
-    value: option,
-    label: option
-  }))
 
   const selectClassName = isMulti ? "react-multi-select" : "react-select"
 
@@ -55,7 +50,7 @@ export const Select = ({
         placeholder={null}
         onChange={handleChange}
         value={parsedValue}
-        options={parsedOptions}
+        options={options}
         classNamePrefix="react-select"
         className={selectClassName}
         classNames={{

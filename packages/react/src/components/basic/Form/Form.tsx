@@ -6,7 +6,9 @@ import { Loader } from "@/components/basic/Loader"
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
-import type { FieldValue } from "@/models"
+import type { FormData } from "@/shared/forms/forms.models"
+
+import type { ExtendedFormFieldsSchema, FieldValue } from "@/models"
 
 import { FormField } from "./FormField"
 
@@ -16,18 +18,16 @@ import {
   getFormFieldsValidationResult
 } from "./Form.utils"
 
-import type { Fields, FormAction, DefaultFields } from "./Form.models"
-
-type FormProps<T extends DefaultFields> = {
+type FormProps<T extends FormData> = {
   containerClassName?: string
   title: ReactNode
   submitLabel: ReactNode
-  action: FormAction<T>
-  fields: Fields<T>
+  action: (fieldsValueMap: T) => Promise<unknown>
+  fields: ExtendedFormFieldsSchema<T>
   children?: ReactNode
 }
 
-export const Form = <T extends DefaultFields>({
+export const Form = <T extends FormData>({
   title,
   submitLabel,
   containerClassName,
@@ -62,7 +62,7 @@ export const Form = <T extends DefaultFields>({
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const { fieldsMap, hasValidationError, validatedFieldsState } =
+    const { formData, hasValidationError, validatedFieldsState } =
       getFormFieldsValidationResult(fieldsState)
     dispatchFieldsAction({ type: "SET_FIELDS", fields: validatedFieldsState })
 
@@ -70,11 +70,11 @@ export const Form = <T extends DefaultFields>({
       return
     }
 
-    await mutateAction(fieldsMap)
+    await mutateAction(formData)
   }
 
   const formClassName = mergeClassNames(
-    "flex flex-col gap-5 items-center border border-primary rounded-sm p-5 bg-white dark:bg-black sm:min-w-sm w-full",
+    "flex flex-col gap-5 items-center border border-primary rounded-sm p-5 bg-white dark:bg-black sm:min-w-sm w-full max-w-md",
     containerClassName
   )
 
@@ -97,12 +97,10 @@ export const Form = <T extends DefaultFields>({
 
       <div className="w-full flex flex-wrap justify-evenly gap-3">
         {Object.entries(fieldsState).map(([name, props]) => {
-          const { displayCondition, ...remainingProps } = props
-          const shouldDisplay = displayCondition
-            ? displayCondition(fieldsValues)
-            : true
+          const { shouldHide, ...remainingProps } = props
+          const isHidden = shouldHide?.(fieldsValues)
 
-          if (!shouldDisplay) {
+          if (isHidden) {
             return null
           }
 

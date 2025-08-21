@@ -12,6 +12,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
+      "@/shared/forms/*": ["../shared/src/forms/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/shared/utils": ["../shared/src/utils"],
       "@/shared/consts": ["../shared/src/consts"],

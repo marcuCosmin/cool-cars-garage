@@ -1,65 +1,52 @@
 import { toast } from "react-toastify"
 
-import { inviteUser } from "@/api/users"
+import { inviteUser } from "@/api/utils"
 
-import { firebaseAuth } from "@/firebase/config"
+import { useAppDispatch } from "@/redux/config"
+import { closeModal } from "@/redux/modalSlice"
 
 import { Form } from "@/components/basic/Form/Form"
-import type { Fields, FormAction } from "@/components/basic/Form/Form.models"
 
-import { getEmailError, getRequiredError } from "@/utils/validations"
+import { extendFormFields } from "@/utils/extendFormFields"
 
-import type { DriverMetadata, User, UserMetadata } from "@/shared/models"
+import {
+  inviteUserFormFields,
+  type InviteUserData
+} from "@/shared/forms/forms.const"
 
-type FormFields = Pick<User, "email"> &
-  Pick<UserMetadata, "role"> &
-  Omit<DriverMetadata, "role" | "birthDate">
-
-const fields: Fields<FormFields> = {
-  email: {
-    label: "Email",
-    validator: getEmailError,
-    type: "text"
-  },
-  role: {
-    label: "Role",
-    type: "select",
-    options: ["Admin", "Manager", "Driver"],
-    validator: getRequiredError
-  },
-  dbsUpdate: {
-    label: "DBS Update",
-    type: "toggle",
-    displayCondition: ({ role }) => role === "driver"
-  },
-  isTaxiDriver: {
-    label: "Taxi Driver",
-    type: "toggle",
-    displayCondition: ({ role }) => role === "driver"
-  },
-  badgeNumber: {
-    label: "Badge Number",
-    type: "number",
-    validator: getRequiredError,
-    displayCondition: ({ role, isTaxiDriver }) =>
-      role === "driver" && isTaxiDriver
-  },
-  badgeExpirationDate: {
-    label: "Badge Expiration Date",
-    type: "date",
-    validator: getRequiredError,
-    displayCondition: ({ role, isTaxiDriver }) =>
-      role === "driver" && isTaxiDriver
+const fields = extendFormFields({
+  fieldsSchema: inviteUserFormFields,
+  additionalFieldsProps: {
+    email: {
+      label: "Email"
+    },
+    role: {
+      label: "Role",
+      options: ["Admin", "Manager", "Driver"]
+    },
+    dbsUpdate: {
+      label: "DBS Update"
+    },
+    isTaxiDriver: {
+      label: "Is Taxi Driver"
+    },
+    badgeNumber: {
+      label: "Badge Number"
+    },
+    badgeExpirationDate: {
+      label: "Badge Expiration Date"
+    }
   }
-}
+})
 
 export const InviteUserModal = () => {
-  const inviteAction: FormAction<FormFields> = async ({ email, role }) => {
-    const idToken = await firebaseAuth.currentUser!.getIdToken()
-    const error = await inviteUser({ idToken, email, role })
+  const dispatch = useAppDispatch()
+  const action = async (data: InviteUserData) => {
+    const { message } = await inviteUser(data)
 
-    if (!error) {
-      toast.success("User invited successfully")
+    if (message) {
+      toast.success(message)
+      dispatch(closeModal())
     }
   }
 
@@ -67,7 +54,7 @@ export const InviteUserModal = () => {
     <Form
       containerClassName="p-0 border-none"
       title="Invite user"
-      action={inviteAction}
+      action={action}
       submitLabel="Invite"
       fields={fields}
     />

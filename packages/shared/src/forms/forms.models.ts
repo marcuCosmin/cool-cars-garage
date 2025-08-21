@@ -1,33 +1,31 @@
-import { Timestamp } from "firebase-admin/firestore"
-
-export type FormFieldValue = string | number | boolean | Timestamp
+export type FormFieldValue = string | number | boolean
 export type FormFieldValidator = (value?: FormFieldValue) => string
 
-type FormFields = Record<string, FormFieldValue>
+export type FormData = Record<string, FormFieldValue>
 
-type FormFieldsCommonProps<T extends FormFields> = {
+type FormFieldsCommonProps<T extends FormData> = {
   validate?: FormFieldValidator
-  shouldBeIncluded?: (formFields: T) => boolean
+  shouldHide?: (formFields: T) => boolean
 }
 
-type FormDateProps<T extends FormFields> = FormFieldsCommonProps<T> & {
+export type FormDateProps<T extends FormData> = FormFieldsCommonProps<T> & {
   type: "date"
 }
 
-type FormToggleProps<T extends FormFields> = FormFieldsCommonProps<T> & {
+export type FormToggleProps<T extends FormData> = FormFieldsCommonProps<T> & {
   type: "toggle"
 }
 
-type FormSelectProps<T extends FormFields> = FormFieldsCommonProps<T> & {
+export type FormSelectProps<T extends FormData> = FormFieldsCommonProps<T> & {
   type: "select"
   options: string[]
 }
 
-type FormInputProps<T extends FormFields> = FormFieldsCommonProps<T> & {
+export type FormInputProps<T extends FormData> = FormFieldsCommonProps<T> & {
   type: "text" | "number"
 }
 
-export type FormFieldsSchema<T extends FormFields> = {
+export type FormFieldsSchema<T extends FormData> = {
   [key in keyof T]:
     | FormDateProps<T>
     | FormToggleProps<T>

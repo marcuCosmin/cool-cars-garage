@@ -39,7 +39,7 @@ export const SignForm = ({ formType, invitation }: SignFormProps) => {
 
   return (
     <Form
-      containerClassName="fixed non-relative-center max-w-md"
+      containerClassName="fixed non-relative-center"
       title="Cool Cars Garage"
       submitLabel={submitLabel}
       action={action}

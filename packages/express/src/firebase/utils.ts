@@ -22,4 +22,11 @@ export const isEmailUsed = async (email: string) => {
   }
 }
 
-export const createUserInvitation = async()
+export const getAuthUser = async (uid: string) => {
+  try {
+    const user = await firebaseAuth.getUser(uid)
+    return user
+  } catch {
+    return null
+  }
+}

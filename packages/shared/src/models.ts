@@ -1,15 +1,13 @@
-import { Timestamp } from "firebase-admin/firestore"
-
 export type CarChecks = {
-  mot: Timestamp
-  roadTax: Timestamp
-  insurance: Timestamp
-  safetyChecks?: Timestamp
-  tachograph?: Timestamp
+  mot: number
+  roadTax: number
+  insurance: number
+  safetyChecks?: number
+  tachograph?: number
   wheelChairLift?: string
-  wheelChairLiftCheck?: Timestamp
-  plateNumberExpiryDate?: Timestamp
-  cornwallMot?: Timestamp
+  wheelChairLiftCheck?: number
+  plateNumberExpiryDate?: number
+  cornwallMot?: number
 }
 
 export type Car = CarChecks & {
@@ -27,8 +25,8 @@ export type CarCheckField = keyof CarChecks
 
 export type DriverMetadata = {
   badgeNumber: string
-  badgeExpirationDate: Timestamp
-  birthDate: Timestamp
+  badgeExpirationDate: number
+  birthDate: number
   isTaxiDriver: boolean
   dbsUpdate: boolean
   role: "driver"

@@ -1,28 +1,23 @@
-import { Timestamp } from "firebase/firestore"
+import { Input, type InputProps } from "@/components/basic/Input"
+import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
+import { Select, type SelectProps } from "@/components/basic/Select"
+import { DatePicker } from "@/components/basic/DatePicker"
 
-import { Input, type InputProps } from "../Input"
-import { Toggle, type ToggleProps } from "../Toggle"
-import { Select, type SelectProps } from "../Select"
-import { DatePicker } from "../DatePicker"
+import type { FormData, FormFieldValue } from "@/shared/forms/forms.models"
 
-import type {
-  DefaultFields,
-  FieldStateProps,
-  FormFieldComponentProps
-} from "./Form.models"
-import type { FieldValue } from "../../../models"
+import type { FieldStateProps, FormFieldComponentProps } from "./Form.models"
 
-type FormFieldProps<T extends DefaultFields> = Omit<
+type FormFieldProps<T extends FormData> = Omit<
   FieldStateProps<T>,
   "hideCondition"
 > & {
   name: string
-  onValueChange: (name: string, value?: FieldValue) => void
+  onValueChange: (name: string, value?: FormFieldValue) => void
   onTouchedChange: (name: string) => void
   onErrorChange: (name: string, error?: string) => void
 }
 
-export const FormField = <T extends DefaultFields>({
+export const FormField = <T extends FormData>({
   type,
   name,
   touched,
@@ -30,31 +25,31 @@ export const FormField = <T extends DefaultFields>({
   onValueChange,
   onErrorChange,
   onTouchedChange,
-  validator,
+  validate,
   ...props
 }: FormFieldProps<T>) => {
-  const validate = (value?: FieldValue) => {
-    if (!validator) {
+  const handleValidation = (value?: FormFieldValue) => {
+    if (!validate) {
       return
     }
 
-    const errorMessage = validator(value)
+    const errorMessage = validate(value)
     onErrorChange(name, errorMessage)
   }
 
   const onBlur = () => {
     onTouchedChange(name)
-    validate(value)
+    handleValidation(value)
   }
 
-  const onChange = (value?: FieldValue) => {
+  const onChange = (value?: FormFieldValue) => {
     onValueChange(name, value)
 
     if (!touched) {
       return
     }
 
-    validate(value)
+    handleValidation(value)
   }
 
   const passedProps = {
@@ -65,9 +60,7 @@ export const FormField = <T extends DefaultFields>({
   }
 
   if (type === "date") {
-    return (
-      <DatePicker {...(passedProps as FormFieldComponentProps<Timestamp>)} />
-    )
+    return <DatePicker {...(passedProps as FormFieldComponentProps<number>)} />
   }
 
   if (type === "select") {

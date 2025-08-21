@@ -1,13 +1,14 @@
 import { Router } from "express"
 import cors from "cors"
 
+import { handleUserInvitation } from "./invite"
+import { handleAuthTokenGeneration } from "./generate-auth-token"
+
 import { handleGetRequest } from "./services/get"
 import { handleDeleteRequest } from "./services/delete"
-import { handleInviteRequest } from "./services/invite"
 import { handleCreateRequest } from "./services/create"
 import { handleSendVerificationSMSRequest } from "./services/send-verification-sms"
 import { handleUpdatePhoneNumberRequest } from "./services/update-phone-number"
-import { handleAuthTokenGeneration } from "./services/generate-auth-token"
 
 export const usersRouter = Router()
 
@@ -19,11 +20,17 @@ usersRouter.get(
   cors({ origin: "*" }),
   handleAuthTokenGeneration
 )
+usersRouter.options("/invite", cors({ origin: process.env.ALLOWED_ORIGIN }))
+usersRouter.post(
+  "/invite",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleUserInvitation
+)
 
 usersRouter.delete("/", handleDeleteRequest)
 
 usersRouter.post("/", handleCreateRequest)
-usersRouter.post("/invite", handleInviteRequest)
+
 usersRouter.post("/send-verification-sms", handleSendVerificationSMSRequest)
 
 usersRouter.patch("/update-phone-number", handleUpdatePhoneNumberRequest)
