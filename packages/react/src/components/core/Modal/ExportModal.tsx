@@ -11,13 +11,23 @@ type FormFields = {
   endDate?: Timestamp
 }
 
+const cars = [
+  "HX15BXR",
+  "NX16EBJ",
+  "WX57NZH",
+  "EA11PZO",
+  "WL12EFX",
+  "HX15KPT",
+  "HK59PFZ"
+]
+
 const fields: Fields<FormFields> = {
   carsIds: {
     label: "Cars",
-    options: ["HX15BXR", "NX16EBJ", "WX57NZH", "EA11PZO"],
+    options: cars,
     validator: getRequiredError,
     isMulti: true,
-    defaultValue: ["HX15BXR", "NX16EBJ", "WX57NZH", "EA11PZO"],
+    defaultValue: cars,
     type: "select"
   },
   startDate: {

@@ -22,7 +22,7 @@ export const handleIncidentSubmission = async (
 
     if (!carId || !description?.trim()) {
       res.status(400).json({
-        error: "Invalid request body"
+        error: "Invalid request body!"
       })
 
       return
