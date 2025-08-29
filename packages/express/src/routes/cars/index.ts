@@ -84,7 +84,7 @@ carsRouter.post("/export", cors(), async (req, res) => {
       pdfDoc.fontSize(16).text(
         `${reportData.vehicleRegNumber} ${reportData.driverName} ${reportData.timestamp
           .toDate()
-          .toLocaleString("en-GB", {
+          .toLocaleString(undefined, {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
