@@ -427,7 +427,7 @@ export const Reports = () => {
           "EA11PZO",
           "WL12EFX",
           "HX15KPT",
-          "HK59PFZ"
+          "HK59PZF"
         ]}
         value={filters.vehicleRegNumber}
         onChange={setVehicleRegNumber}

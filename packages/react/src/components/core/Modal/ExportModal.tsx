@@ -18,7 +18,7 @@ const cars = [
   "EA11PZO",
   "WL12EFX",
   "HX15KPT",
-  "HK59PFZ"
+  "HK59PZF"
 ]
 
 const fields: Fields<FormFields> = {
