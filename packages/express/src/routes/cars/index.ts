@@ -84,12 +84,14 @@ carsRouter.post("/export", cors(), async (req, res) => {
       pdfDoc.fontSize(16).text(
         `${reportData.vehicleRegNumber} ${reportData.driverName} ${reportData.timestamp
           .toDate()
-          .toLocaleString(undefined, {
+          .toLocaleString("en-GB", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
             hour: "2-digit",
-            minute: "2-digit"
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Europe/London"
           })}`,
         { align: "center" }
       )
@@ -215,12 +217,14 @@ carsRouter.post("/export", cors(), async (req, res) => {
             ? "Defects found"
             : "Passed",
           car.vehicleRegNumber,
-          car.timestamp.toDate().toLocaleString(undefined, {
+          car.timestamp.toDate().toLocaleString("en-GB", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
             hour: "2-digit",
-            minute: "2-digit"
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Europe/London"
           }),
           car.driverName,
           car.odoReading.toString(),

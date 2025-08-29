@@ -40,7 +40,12 @@ export const Router = () => {
 
   const renderRoleBasedRoutes = () => {
     if (userRole === "driver") {
-      return <Route index path="/" element={<Home />} />
+      return (
+        <>
+          <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Home />} />
+        </>
+      )
     }
 
     if (userRole === "manager") {
