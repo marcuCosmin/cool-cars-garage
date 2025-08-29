@@ -5,19 +5,25 @@ import { isEmailUsed } from "@/firebase/utils"
 
 import { sendMail } from "@/utils/send-mail"
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
-
-import {
-  inviteUserFormFields,
-  type InviteUserData
-} from "@/shared/forms/forms.const"
+import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
+import {
+  inviteUserFormFields,
+  type InviteUserFormData
+} from "@/shared/forms/forms.const"
+
+import type {
+  DriverMetadata,
+  InvitationDoc
+} from "@/shared/firestore/firestore.model"
+
 export const handleUserInvitation = async (
-  req: Request<undefined, undefined, InviteUserData>,
+  req: Request<undefined, undefined, InviteUserFormData>,
   res: Response
 ) => {
-  const { errors, filteredData: invitationData } = getFormValidationResult({
+  const { errors, filteredData: invitationFormData } = getFormValidationResult({
     schema: inviteUserFormFields,
     data: req.body
   })
@@ -31,7 +37,7 @@ export const handleUserInvitation = async (
     return
   }
 
-  const { email } = invitationData
+  const { email, role, ...invitationFormMetadata } = invitationFormData
 
   const emailIsUsed = await isEmailUsed(email as string)
 
@@ -56,12 +62,28 @@ export const handleUserInvitation = async (
     return
   }
 
+  const invitationDataMetadata: InvitationDoc["metadata"] =
+    role === "driver"
+      ? {
+          ...(invitationFormMetadata as Omit<DriverMetadata, "role">),
+          role
+        }
+      : {
+          role
+        }
+
+  const invitationData: InvitationDoc = {
+    metadata: invitationDataMetadata,
+    email,
+    creationTimestamp: getCurrentTimestamp()
+  }
+
   const createdInvite = await firestore
     .collection("invitations")
     .add(invitationData)
 
   await sendMail({
-    to: email as string,
+    to: email,
     subject: "Invitation to join Cool Cars Garage",
     html: `
         <div>Hello,</div>

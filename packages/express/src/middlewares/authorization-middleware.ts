@@ -8,6 +8,10 @@ import type { Request } from "@/models"
 const publicPathsConfig = {
   "/": ["GET"],
   "/mail": ["POST"],
+  "/users": ["POST"]
+}
+
+const usersPublicPathsConfig = {
   "/users/generate-auth-token": ["GET"],
   "/cars/incidents": ["POST"],
   "/cars/checks": ["POST"]
@@ -21,12 +25,14 @@ export const authorizationMiddleware = async (
   const publicPathConfig =
     publicPathsConfig[req.path as keyof typeof publicPathsConfig]
 
-  if (publicPathConfig?.[0] === "ALL" || req.method === "OPTIONS") {
+  if (publicPathConfig?.includes(req.method) || req.method === "OPTIONS") {
     next()
     return
   }
 
   try {
+    const usersPublicPathConfig =
+      usersPublicPathsConfig[req.path as keyof typeof usersPublicPathsConfig]
     const authorizationHeader = req.headers.authorization
     const idToken = authorizationHeader?.split("Bearer ")[1]
 
@@ -42,10 +48,10 @@ export const authorizationMiddleware = async (
 
     const userMetadata = await getUserMetadata(uid)
 
-    const isPublicRequest = publicPathConfig
-      ? publicPathConfig.includes(req.method)
-      : false
-    const isAuthorizedPublicRequest = isPublicRequest && !!userMetadata?.role
+    const isUserPublicRequest = usersPublicPathConfig?.includes(req.method)
+
+    const isAuthorizedPublicRequest =
+      isUserPublicRequest && !!userMetadata?.role
 
     const isAuthorizedProtectedRequest = userMetadata?.role === "admin"
 

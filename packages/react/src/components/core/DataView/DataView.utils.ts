@@ -1,42 +1,36 @@
 import { Timestamp } from "firebase/firestore"
 
-import type { FiltersConfig, FiltersState, DefaultDataItem } from "./model"
+import type {
+  FiltersConfig,
+  FiltersState,
+  DefaultDataItem
+} from "./DataView.model"
 import type { FieldValue } from "../../../models"
 
-export const dataToArray = <DataItem extends DefaultDataItem>(
-  data: Record<string, DataItem>
-) =>
-  Object.entries(data).map(([key, value]) => ({
-    ...value,
-    id: key
-  }))
+export const parseSearchString = (searchString: string) =>
+  searchString.trim().toLowerCase()
 
 export const filtersConfigToState = <DataItem extends DefaultDataItem>(
   filtersConfig: FiltersConfig<DataItem>
 ): FiltersState<DataItem> =>
-  Object.entries(filtersConfig).reduce((acc, [label, filterProps]) => {
+  filtersConfig.map(filterProps => {
     const { type } = filterProps
 
     switch (type) {
       case "select": {
         return {
-          ...acc,
-          [label]: {
-            ...filterProps,
-            value: []
-          }
+          ...filterProps,
+          value: [] as string[]
         }
       }
       case "toggle": {
         return {
-          ...acc,
-          [label]: { ...filterProps, value: false }
+          ...filterProps,
+          value: false
         }
       }
-      default:
-        throw new Error(`Unknown filter type: ${type}`)
     }
-  }, {})
+  })
 
 export const fieldValueToString = (value: FieldValue): string => {
   if (value instanceof Timestamp) {

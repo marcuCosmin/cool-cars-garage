@@ -1,14 +1,15 @@
-import { useState } from "react"
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons"
 
 import { useAppDispatch } from "@/redux/config"
 import { closeModal } from "@/redux/modalSlice"
 
+import { useAppMutation } from "@/hooks/useAppMutation"
+
 import { Loader } from "@/components/basic/Loader"
 
 export type ConfirmationModalContentProps = {
   text: string
-  onConfirm: () => Promise<void> | void
+  onConfirm: () => Promise<void>
 }
 
 const iconsSize = 50
@@ -17,15 +18,15 @@ export const ConfirmationModalContent = ({
   text,
   onConfirm
 }: ConfirmationModalContentProps) => {
-  const [isLoading, setIsLoading] = useState(false)
+  const { isLoading, mutate: handleConfirm } = useAppMutation({
+    mutationFn: onConfirm,
+    showToast: true
+  })
   const dispatch = useAppDispatch()
 
   const onConfirmClick = async () => {
-    setIsLoading(true)
+    await handleConfirm()
 
-    await onConfirm()
-
-    setIsLoading(false)
     dispatch(closeModal())
   }
   const onCancelClick = () => dispatch(closeModal())

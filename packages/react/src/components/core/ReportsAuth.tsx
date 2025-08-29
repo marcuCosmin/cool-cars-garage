@@ -1,8 +1,6 @@
 import { Android2, Apple } from "react-bootstrap-icons"
 
-import { firebaseAuth } from "@/firebase/config"
-
-import { getAuthToken } from "@/api/users"
+import { getAuthToken } from "@/api/utils"
 
 const deviceLinkConfig = {
   android: {
@@ -19,8 +17,7 @@ const deviceLinkConfig = {
 
 export const ReportsAuth = () => {
   const onButtonClick = async () => {
-    const idToken = await firebaseAuth.currentUser!.getIdToken()
-    const authToken = await getAuthToken(idToken)
+    const authToken = await getAuthToken()
 
     window.location.href = `${import.meta.env.VITE_REPORTS_AUTH_URL}?authToken=${authToken}`
   }

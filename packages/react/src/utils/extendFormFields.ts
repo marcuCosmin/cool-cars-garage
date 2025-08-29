@@ -8,6 +8,11 @@ import type {
   ExtendedFormToggleProps
 } from "@/models"
 
+type FormInputAdditionalProps<T extends FormData> = Omit<
+  ExtendedFormInputProps<T>,
+  "type"
+>
+
 type FormToggleAdditionalProps<T extends FormData> = Omit<
   ExtendedFormToggleProps<T>,
   "type"
@@ -25,7 +30,7 @@ type FormSelectAdditionalProps<T extends FormData> = Omit<
 
 type AdditionalFieldsProps<T extends FormData> = {
   [key in keyof T]?:
-    | ExtendedFormInputProps<T>
+    | FormInputAdditionalProps<T>
     | FormSelectAdditionalProps<T>
     | FormToggleAdditionalProps<T>
     | FormDateAdditionalProps<T>

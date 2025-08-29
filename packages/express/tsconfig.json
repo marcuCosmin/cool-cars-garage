@@ -6,10 +6,7 @@
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/shared/forms/*": ["../shared/src/forms/*"],
-      "@/shared/utils": ["../shared/src/utils"],
-      "@/shared/consts": ["../shared/src/consts"],
-      "@/shared/models": ["../shared/src/models"],
+      "@/shared/*": ["../shared/src/*"],
       "@/utils/*": ["./src/utils/*"],
       "@/middlewares/*": ["./src/middlewares/*"],
       "@/models": ["./src/models"],

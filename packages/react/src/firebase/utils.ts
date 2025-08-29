@@ -6,67 +6,28 @@ import {
   deleteDoc,
   type DocumentData
 } from "firebase/firestore"
-import { signInWithEmailAndPassword, signOut } from "firebase/auth"
+import {
+  signInWithCustomToken,
+  signInWithEmailAndPassword,
+  signOut
+} from "firebase/auth"
 import { firebaseAuth, firestore } from "./config"
 
-import { withErrorPropagation } from "@/utils/withErrorPropagation"
+import type { SignInFormData } from "@/shared/forms/forms.const"
+import type {
+  InvitationDoc,
+  UserMetadata
+} from "@/shared/firestore/firestore.model"
 
-import type { UserMetadata } from "@/shared/models"
-
-type SignInUserProps = {
-  email: string
-  password: string
-}
-
-export const signInUser = withErrorPropagation(
-  "Firebase - signInUser",
-  ({ email, password }: SignInUserProps) =>
-    signInWithEmailAndPassword(firebaseAuth, email, password)
-)
+export const signInUser = ({ email, password }: SignInFormData) =>
+  signInWithEmailAndPassword(firebaseAuth, email, password)
 
 export type SignInUser = typeof signInUser
 
-export const signOutUser = withErrorPropagation("Firebase - signOutUser", () =>
-  signOut(firebaseAuth)
-)
+export const signInUserAfterCreation = (authToken: string) =>
+  signInWithCustomToken(firebaseAuth, authToken)
 
-type GetFirestoreDocProps = {
-  collection: string
-  document: string
-}
-
-export const getFirestoreDoc = async <T extends DocumentData>({
-  collection,
-  document
-}: GetFirestoreDocProps) => {
-  const path = doc(firestore, collection, document)
-
-  const snapshot = await getDoc(path)
-
-  if (!snapshot.exists()) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Attempted to get non-existent document: ${document} from collection: ${collection}`
-    )
-
-    // this is a react query constraint, we have to return null instead of undefined
-    return null
-  }
-
-  const data = snapshot.data()
-
-  if (!data) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Document ${document} from collection ${collection} exists, but it has no data`
-    )
-
-    // this is a react query constraint, we have to return null instead of undefined
-    return null
-  }
-
-  return data as T
-}
+export const signOutUser = () => signOut(firebaseAuth)
 
 type GetFirestoreDocsReturnType<T> = Promise<(T & { id: string })[] | null>
 
@@ -132,18 +93,28 @@ export const deleteFirestoreDoc = async ({
   await deleteDoc(path)
 }
 
-export const getUserMetadata = withErrorPropagation(
-  "Firebase - getUserMetadata",
-  async (uid: string) => {
-    const userRef = doc(firestore, "users", uid)
-    const userSnapshot = await getDoc(userRef)
+export const getUserMetadata = async (uid: string) => {
+  const userRef = doc(firestore, "users", uid)
+  const userSnapshot = await getDoc(userRef)
 
-    if (!userSnapshot.exists()) {
-      throw new Error("User metadata not found")
-    }
-
-    const userMetadata = userSnapshot.data() as UserMetadata
-
-    return userMetadata
+  if (!userSnapshot.exists()) {
+    throw new Error("User metadata not found")
   }
-)
+
+  const userMetadata = userSnapshot.data() as UserMetadata
+
+  return userMetadata
+}
+
+export const getInvitation = async (invitationId: string) => {
+  const invitationRef = doc(firestore, "invitations", invitationId)
+  const invitationSnapshot = await getDoc(invitationRef)
+
+  if (!invitationSnapshot.exists()) {
+    return null
+  }
+
+  const invitation = invitationSnapshot.data()
+
+  return invitation as InvitationDoc
+}

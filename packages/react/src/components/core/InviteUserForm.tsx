@@ -11,7 +11,7 @@ import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
   inviteUserFormFields,
-  type InviteUserData
+  type InviteUserFormData
 } from "@/shared/forms/forms.const"
 
 const fields = extendFormFields({
@@ -39,9 +39,9 @@ const fields = extendFormFields({
   }
 })
 
-export const InviteUserModal = () => {
+export const InviteUserForm = () => {
   const dispatch = useAppDispatch()
-  const action = async (data: InviteUserData) => {
+  const action = async (data: InviteUserFormData) => {
     const { message } = await inviteUser(data)
 
     if (message) {

@@ -1,56 +1,37 @@
-import { toast } from "react-toastify"
 import { Trash3Fill, PencilSquare } from "react-bootstrap-icons"
 
-import { useAppDispatch } from "../../../redux/config"
-import { openModal } from "../../../redux/modalSlice"
+import { useAppDispatch } from "@/redux/config"
+import { openModal } from "@/redux/modalSlice"
 
-import { fieldValueToString } from "./utils"
-
-import { keyToLabel } from "../../../utils/string"
+import { keyToLabel } from "@/utils/string"
 
 import type { FieldValue } from "@/models"
 
-type DataCardProps = {
-  title: string
-  subtitle: string
-  onDelete: () => Promise<string | undefined> | string | undefined
+import { fieldValueToString } from "./DataView.utils"
+
+import type { DefaultDataItem } from "./DataView.model"
+
+type DataCardProps = Pick<DefaultDataItem, "title" | "badge"> & {
+  onDelete: () => Promise<void>
   fieldsData: Record<string, FieldValue>
-  onEdit?: () => void
+  onEdit: () => void
 }
 
 export const DataCard = ({
   title,
-  subtitle,
+  badge,
   fieldsData,
   onDelete,
   onEdit
 }: DataCardProps) => {
   const dispatch = useAppDispatch()
 
-  const onDeleteConfirm = async () => {
-    try {
-      const error = await onDelete()
-
-      if (!error) {
-        toast.success("Item deleted successfully")
-        return
-      }
-
-      toast.error(error)
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message)
-      }
-
-      toast.error("Failed to delete item: Unknown error occurred")
-    }
-  }
   const onDeleteClick = () =>
     dispatch(
       openModal({
         type: "confirmation",
         props: {
-          onConfirm: onDeleteConfirm,
+          onConfirm: onDelete,
           text: `Are you sure you want to delete ${title}?`
         }
       })
@@ -62,19 +43,17 @@ export const DataCard = ({
         <p className="flex items-center font-bold gap-2">{title}</p>
 
         <p className="text-sm font-bold bg-primary dark:bg-secondary rounded-xl px-3 capitalize w-fit text-secondary dark:text-primary">
-          {subtitle}
+          {badge}
         </p>
 
         <div className="flex items-center gap-4">
-          {onEdit && (
-            <button
-              type="button"
-              className="bg-transparent w-fit p-0 text-primary dark:text-secondary"
-              onClick={onEdit}
-            >
-              <PencilSquare width={18} height={18} />
-            </button>
-          )}
+          <button
+            type="button"
+            className="bg-transparent w-fit p-0 text-primary dark:text-secondary"
+            onClick={onEdit}
+          >
+            <PencilSquare width={18} height={18} />
+          </button>
 
           <button
             type="button"

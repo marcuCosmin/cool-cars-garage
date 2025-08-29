@@ -1,29 +1,19 @@
-import { CircleAlert } from "lucide-react"
-
 import { useQuery } from "@tanstack/react-query"
 
-import { getFirestoreDoc } from "../../firebase/utils"
+import { getInvitation } from "@/firebase/utils"
 
-import { SignForm } from "./SignForm/SignForm"
-import { Loader } from "../basic/Loader"
+import { Loader } from "@/components/basic/Loader"
 
-import type { Invitation } from "../../models"
+import { SignUpForm } from "./SignUpForm"
 
 type SignUpProps = {
   invitationId: string
 }
 
 export const SignUp = ({ invitationId }: SignUpProps) => {
-  const queryFn = () => {
-    return getFirestoreDoc<Omit<Invitation, "id">>({
-      collection: "invitations",
-      document: invitationId
-    })
-  }
-
   const { data: invitation, isLoading } = useQuery({
     queryKey: ["invitation"],
-    queryFn
+    queryFn: () => getInvitation(invitationId)
   })
 
   if (isLoading) {
@@ -34,7 +24,7 @@ export const SignUp = ({ invitationId }: SignUpProps) => {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-4">
         <h1 className="flex items-center gap-2">
-          Your invitation is no longer available <CircleAlert size={48} />
+          Your invitation is no longer available
         </h1>
 
         <p>Contact the manager to send you a new one !</p>
@@ -42,10 +32,5 @@ export const SignUp = ({ invitationId }: SignUpProps) => {
     )
   }
 
-  return (
-    <SignForm
-      invitation={{ ...invitation, id: invitationId }}
-      formType="sign-up"
-    />
-  )
+  return <SignUpForm invitation={{ ...invitation, id: invitationId }} />
 }

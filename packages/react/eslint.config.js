@@ -8,6 +8,12 @@ export default tseslint.config(
   { ignores: ["dist", "vite.config.ts"] },
   {
     extends: [...defaultConfig],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: import.meta.dirname
+      }
+    },
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh

@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 import { deleteCar, fetchAllCars, setEditedCarId } from "@/redux/carsSlice"
 
-import type { FiltersConfig } from "@/components/core/DataView/model"
+import type { FiltersConfig } from "@/components/core/DataView/DataView.model"
 import { DataView } from "@/components/core/DataView/DataView"
 
 import { Loader } from "@/components/basic/Loader"

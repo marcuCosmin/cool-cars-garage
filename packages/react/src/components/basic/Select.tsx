@@ -8,6 +8,7 @@ type Option = {
 }
 
 export type SelectProps = FormFieldComponentProps<string | string[]> & {
+  disabled?: boolean
   options: Option[]
   isMulti?: boolean
 }
@@ -19,15 +20,16 @@ export const Select = ({
   onBlur,
   label,
   isMulti,
-  error
+  error,
+  disabled
 }: SelectProps) => {
   const isSearchable = options.length > 10
 
   const selectClassName = isMulti ? "react-multi-select" : "react-select"
 
   const parsedValue: SingleValue<Option> | MultiValue<Option> = isMulti
-    ? (value as string[]).map(option => ({ value: option, label: option }))
-    : { value: value as string, label: value as string }
+    ? options.find(option => (value as string[]).includes(option.value)) || []
+    : options.find(option => option.value === value) || null
 
   const handleChange = (newValue: SingleValue<Option> | MultiValue<Option>) => {
     if (isMulti) {
@@ -42,6 +44,7 @@ export const Select = ({
     <div className="w-full max-w-sm">
       {label && <div className="mb-2">{label}</div>}
       <ReactSelect
+        isDisabled={disabled}
         blurInputOnSelect={false}
         unstyled
         isMulti={isMulti}

@@ -79,7 +79,7 @@
     }
 
     .ReactModal__Content {
-        @apply flex justify-center items-center max-w-2xl m-auto w-[95%] h-fit max-h-[70vh] sm:w-fit !bg-white dark:!bg-black !overflow-visible !border-primary !top-0 !left-0 !right-0 !bottom-0;
+        @apply flex justify-center items-center max-w-2xl m-auto w-[95%] h-fit max-h-[85vh] sm:w-fit !bg-white dark:!bg-black !overflow-visible !border-primary !top-0 !left-0 !right-0 !bottom-0;
     }
 
     .react-calendar  {
@@ -132,6 +132,10 @@
 
     .react-tiny-popover-container {
         @apply max-w-sm bg-white dark:bg-black rounded-sm z-[9999];
+    }
+
+    .react-select--is-disabled {
+        @apply opacity-50;
     }
 
     .react-select__control {

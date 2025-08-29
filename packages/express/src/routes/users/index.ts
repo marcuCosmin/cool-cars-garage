@@ -1,18 +1,28 @@
 import { Router } from "express"
 import cors from "cors"
 
-import { handleUserInvitation } from "./invite"
-import { handleAuthTokenGeneration } from "./generate-auth-token"
+import { handleUserInvitation } from "./invite/post"
+import { handleAuthTokenGeneration } from "./generate-auth-token/get"
+import { handleCreateRequest } from "./post"
 
-import { handleGetRequest } from "./services/get"
+import { handleGetRequest } from "./get"
 import { handleDeleteRequest } from "./services/delete"
-import { handleCreateRequest } from "./services/create"
 import { handleSendVerificationSMSRequest } from "./services/send-verification-sms"
 import { handleUpdatePhoneNumberRequest } from "./services/update-phone-number"
 
 export const usersRouter = Router()
 
-usersRouter.get("/", handleGetRequest)
+usersRouter.options("/", cors({ origin: process.env.ALLOWED_ORIGIN }))
+usersRouter.get(
+  "/",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleGetRequest
+)
+usersRouter.post(
+  "/",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleCreateRequest
+)
 
 usersRouter.options("/generate-auth-token", cors({ origin: "*" }))
 usersRouter.get(
@@ -28,8 +38,6 @@ usersRouter.post(
 )
 
 usersRouter.delete("/", handleDeleteRequest)
-
-usersRouter.post("/", handleCreateRequest)
 
 usersRouter.post("/send-verification-sms", handleSendVerificationSMSRequest)
 

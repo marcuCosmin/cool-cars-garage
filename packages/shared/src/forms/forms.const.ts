@@ -1,14 +1,21 @@
-import { getEmailError, getRequiredError } from "./forms.utils"
+import { getEmailError, getNameError, getRequiredError } from "./forms.utils"
 
 import type { FormFieldsSchema } from "./forms.models"
 
-import type { DriverMetadata, User, UserMetadata } from "../models"
+import type {
+  DriverMetadata,
+  InvitationDoc,
+  User,
+  UserMetadata
+} from "../firestore/firestore.model"
 
-export type InviteUserData = Pick<User, "email"> &
+export type InviteUserFormData = Pick<User, "email"> &
   Pick<UserMetadata, "role"> &
-  Partial<Omit<DriverMetadata, "role" | "birthDate">>
+  Partial<
+    Omit<Extract<DriverMetadata, { isTaxiDriver: true }>, "birthDate" | "role">
+  >
 
-export const inviteUserFormFields: FormFieldsSchema<InviteUserData> = {
+export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
   email: {
     validate: getEmailError,
     type: "text"
@@ -37,3 +44,47 @@ export const inviteUserFormFields: FormFieldsSchema<InviteUserData> = {
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   }
 }
+
+export type SignInFormData = Pick<User, "email"> & {
+  password: string
+}
+
+export const signInFormFields: FormFieldsSchema<SignInFormData> = {
+  email: {
+    validate: getEmailError,
+    type: "text"
+  },
+  password: {
+    validate: getRequiredError,
+    type: "password"
+  }
+}
+
+export type SignUpFormData = SignInFormData & {
+  firstName: string
+  lastName: string
+  birthDate?: number
+}
+
+export type SignUpData = Omit<SignUpFormData, "role"> & {
+  invitationId: string
+}
+
+export const getSignUpFormFields = ({
+  metadata: { role }
+}: InvitationDoc): FormFieldsSchema<SignUpFormData> => ({
+  ...signInFormFields,
+  firstName: {
+    validate: getNameError,
+    type: "text"
+  },
+  lastName: {
+    validate: getNameError,
+    type: "text"
+  },
+  birthDate: {
+    validate: getRequiredError,
+    type: "date",
+    shouldHide: () => role !== "driver"
+  }
+})

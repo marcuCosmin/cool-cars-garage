@@ -13,18 +13,6 @@ import type {
   FormToggleProps
 } from "@/shared/forms/forms.models"
 
-export type UserRole = "admin" | "manager" | "user"
-
-export type UserMetadata = {
-  role: UserRole
-}
-
-export type Invitation = {
-  email: string
-  role: UserRole
-  id: string
-}
-
 export type FieldValue = string | number | boolean | Timestamp
 
 type FormFieldOwnProps<T> = Omit<T, "value" | "onChange" | "error" | "onBlur">

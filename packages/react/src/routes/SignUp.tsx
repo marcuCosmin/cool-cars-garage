@@ -1,11 +1,12 @@
-import { NotFound } from "./NotFound"
-import { SignUp as SignUpCore } from "../components/core/SignUp"
+import { useSearchParams } from "react-router"
 
-import { useUrlQueryParams } from "../hooks/useUrlQuery"
+import { SignUp as SignUpCore } from "@/components/core/SignUp/SignUp"
+
+import { NotFound } from "./NotFound"
 
 export const SignUp = () => {
-  const { params } = useUrlQueryParams()
-  const { invitationId } = params
+  const [searchParams] = useSearchParams()
+  const invitationId = searchParams.get("invitationId")
 
   if (!invitationId) {
     return <NotFound />

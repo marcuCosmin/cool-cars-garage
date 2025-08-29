@@ -62,7 +62,7 @@ export const DatePicker = ({
     <>
       <Popover
         padding={2}
-        positions={["bottom"]}
+        positions={["bottom", "top", "right", "left"]}
         content={
           <Calendar
             inputRef={calendarRef}

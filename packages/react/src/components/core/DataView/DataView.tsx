@@ -1,28 +1,20 @@
-import { useEffect, useState } from "react"
 import { PlusCircleFill, Search } from "react-bootstrap-icons"
 
 import { Input } from "@/components/basic/Input"
 
-import { parseSearchString } from "@/utils/string"
+import { useDataViewList } from "./useDataViewList"
 
 import { DataCard } from "./DataCard"
 import { Filters } from "./Filters"
 
-import { dataToArray, filtersConfigToState } from "./utils"
-
-import type {
-  FiltersConfig,
-  DefaultDataItem,
-  FiltersState,
-  OnFilterChange
-} from "./model"
+import type { FiltersConfig, DefaultDataItem } from "./DataView.model"
 
 type DataViewProps<DataItem extends DefaultDataItem> = {
-  initialData: Record<string, DataItem>
+  initialData: DataItem[]
   filtersConfig: FiltersConfig<DataItem>
   onAddButtonClick: () => void
   onItemEdit: (id: string) => void
-  onItemDelete: (id: string) => Promise<string | undefined> | string | undefined
+  onItemDelete: (id: string) => Promise<void>
 }
 
 export const DataView = <DataItem extends DefaultDataItem>({
@@ -32,67 +24,8 @@ export const DataView = <DataItem extends DefaultDataItem>({
   onAddButtonClick,
   onItemEdit
 }: DataViewProps<DataItem>) => {
-  const [data, setData] = useState(dataToArray(initialData))
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
-
-  const onFilterChange: OnFilterChange = ({ label, value }) => {
-    const filter = filters[label]
-
-    setFilters({
-      ...filters,
-      [label]: { ...filter, value }
-    } as FiltersState<DataItem>)
-  }
-
-  const onSearchChange = (searchQuery: string = "") =>
-    setSearchQuery(searchQuery)
-
-  useEffect(() => {
-    let newData = dataToArray(initialData)
-    const parsedSearchQuery = parseSearchString(searchQuery)
-
-    if (parsedSearchQuery) {
-      newData = newData.filter(item => {
-        const parsedTitle = parseSearchString(item.title)
-        const parsedSubtitle = parseSearchString(item.subtitle)
-
-        return (
-          parsedTitle.includes(parsedSearchQuery) ||
-          parsedSubtitle.includes(parsedSearchQuery)
-        )
-      })
-    }
-
-    Object.values(filters).forEach(filter => {
-      const { type } = filter
-
-      if (type === "toggle") {
-        const { filterFn, value } = filter
-
-        if (!value) {
-          return
-        }
-
-        newData = newData.filter(filterFn)
-        return
-      }
-
-      const { value, field } = filter
-
-      if (value.length === 0) {
-        return
-      }
-
-      newData = newData.filter(item => {
-        const itemValue = item[field as keyof typeof item]
-
-        return value.some(v => v === itemValue)
-      })
-    })
-
-    setData(newData)
-  }, [initialData, searchQuery, filters])
+  const { items, searchQuery, onSearchChange, filters, onFilterChange } =
+    useDataViewList({ initialData, filtersConfig })
 
   return (
     <div className="h-[calc(100vh-64px)]">
@@ -119,7 +52,7 @@ export const DataView = <DataItem extends DefaultDataItem>({
       </div>
 
       <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar">
-        {data.map(({ title, subtitle, id, ...itemProps }) => {
+        {items.map(({ title, badge, id, ...itemProps }) => {
           const onEdit = () => onItemEdit(id)
           const onDelete = () => onItemDelete(id)
 
@@ -128,7 +61,7 @@ export const DataView = <DataItem extends DefaultDataItem>({
               onDelete={onDelete}
               onEdit={onEdit}
               title={title}
-              subtitle={subtitle}
+              badge={badge}
               key={id}
               fieldsData={itemProps}
             />

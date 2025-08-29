@@ -5,9 +5,8 @@ import {
 } from "@reduxjs/toolkit"
 
 import { getUserMetadata } from "@/firebase/utils"
-import type { User as FirebaseUser } from "firebase/auth"
 
-import type { User } from "@/shared/models"
+import type { User } from "@/shared/firestore/firestore.model"
 
 type UserState = User & {
   isLoading: boolean
@@ -36,13 +35,13 @@ const userSlice = createSlice({
   reducers: {
     initUserData: (
       state,
-      action: PayloadAction<Pick<FirebaseUser, "uid" | "email" | "displayName">>
+      action: PayloadAction<Pick<User, "uid" | "email" | "displayName">>
     ) => {
       const { uid, email, displayName } = action.payload
 
       state.uid = uid
-      state.email = email!
-      state.displayName = displayName!
+      state.email = email
+      state.displayName = displayName
     },
     clearUser: () => ({
       ...initialState,
@@ -50,6 +49,9 @@ const userSlice = createSlice({
     })
   },
   extraReducers: builder => {
+    builder.addCase(fetchUserMetadata.pending, state => {
+      state.isLoading = true
+    })
     builder.addCase(fetchUserMetadata.fulfilled, (state, action) => {
       state.metadata = action.payload
       state.isLoading = false

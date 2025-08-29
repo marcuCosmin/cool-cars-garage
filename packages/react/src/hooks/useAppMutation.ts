@@ -1,7 +1,7 @@
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "react-toastify"
 
-type DefaultMutationFn = (...args: any) => Promise<any>
+type DefaultMutationFn = (...args: any) => Promise<any | void>
 
 type UseAppMutationProps<T extends DefaultMutationFn> = {
   mutationFn: T
@@ -22,10 +22,10 @@ export const useAppMutation = <T extends DefaultMutationFn>({
 
   const mutate = async (...args: Parameters<T>) => {
     try {
-      const data = await mutateAsync(...args)
+      const response = await mutateAsync(...args)
 
       return {
-        data,
+        response,
         error: null
       }
     } catch (error) {

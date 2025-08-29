@@ -82,8 +82,12 @@ export const getPasswordError = createValidator({
 
 export const getNameError = createValidator({
   required: true,
-  min: 1,
-  max: 15
+  min: 2,
+  max: 50,
+  regex: {
+    pattern: /^[A-Za-z]+$/,
+    error: "The name must contain only english alphabet letters"
+  }
 })
 
 export const getPhoneNumberError = createValidator({

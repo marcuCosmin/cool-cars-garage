@@ -22,7 +22,7 @@ export type FormSelectProps<T extends FormData> = FormFieldsCommonProps<T> & {
 }
 
 export type FormInputProps<T extends FormData> = FormFieldsCommonProps<T> & {
-  type: "text" | "number"
+  type: "text" | "number" | "password"
 }
 
 export type FormFieldsSchema<T extends FormData> = {
