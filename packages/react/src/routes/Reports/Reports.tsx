@@ -419,7 +419,16 @@ export const Reports = () => {
       </div>
       <Select
         label="Vehicle"
-        options={["All", "HX15BXR", "NX16EBJ", "WX57NZH", "EA11PZO"]}
+        options={[
+          "All",
+          "HX15BXR",
+          "NX16EBJ",
+          "WX57NZH",
+          "EA11PZO",
+          "WL12EFX",
+          "HX15KPT",
+          "HK59PFZ"
+        ]}
         value={filters.vehicleRegNumber}
         onChange={setVehicleRegNumber}
       />
