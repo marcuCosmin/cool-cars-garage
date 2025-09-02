@@ -44,6 +44,7 @@ export const Select = ({
     <div className="w-full max-w-sm">
       {label && <div className="mb-2">{label}</div>}
       <ReactSelect
+        menuPortalTarget={document.body}
         isDisabled={disabled}
         blurInputOnSelect={false}
         unstyled

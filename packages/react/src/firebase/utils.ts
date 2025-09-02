@@ -14,10 +14,7 @@ import {
 import { firebaseAuth, firestore } from "./config"
 
 import type { SignInFormData } from "@/shared/forms/forms.const"
-import type {
-  InvitationDoc,
-  UserMetadata
-} from "@/shared/firestore/firestore.model"
+import type { InvitationDoc, UserDoc } from "@/shared/firestore/firestore.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -101,7 +98,7 @@ export const getUserMetadata = async (uid: string) => {
     throw new Error("User metadata not found")
   }
 
-  const userMetadata = userSnapshot.data() as UserMetadata
+  const userMetadata = userSnapshot.data() as UserDoc
 
   return userMetadata
 }

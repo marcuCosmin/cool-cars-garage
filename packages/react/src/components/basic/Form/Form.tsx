@@ -95,7 +95,7 @@ export const Form = <T extends FormData>({
 
       <hr />
 
-      <div className="w-full flex flex-wrap justify-evenly gap-3">
+      <div className="w-full flex flex-wrap justify-evenly gap-3 overflow-y-auto scrollbar">
         {Object.entries(fieldsState).map(([name, props]) => {
           const { shouldHide, ...remainingProps } = props
           const isHidden = shouldHide?.(fieldsValues)

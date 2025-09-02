@@ -1,7 +1,6 @@
 export type DriverMetadata = {
   birthDate: number
   dbsUpdate: boolean
-  role: "driver"
   badgeNumber?: string
   badgeExpirationDate?: number
   isTaxiDriver: boolean
@@ -9,23 +8,20 @@ export type DriverMetadata = {
   v5: string
 }
 
-export type ManagerMetadata = {
-  role: "manager"
+export type UserRole = "admin" | "manager" | "driver"
+
+export type UserDoc = {
+  firstName: string
+  lastName: string
+  isActive: boolean
+  creationTimestamp: number
+  role: UserRole
+  metadata?: DriverMetadata
 }
 
-export type AdminMetadata = {
-  role: "admin"
-}
-
-export type UserMetadata = DriverMetadata | ManagerMetadata | AdminMetadata
-
-export type User = {
+export type User = UserDoc & {
   uid: string
   email: string
-  displayName: string
-  isActive: boolean
-  metadata: UserMetadata
-  creationTimestamp: number
   phoneNumber?: string
 }
 

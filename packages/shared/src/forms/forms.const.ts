@@ -9,18 +9,29 @@ import type {
   UserMetadata
 } from "../firestore/firestore.model"
 
-export type InviteUserFormData = Pick<User, "email"> &
-  Pick<UserMetadata, "role"> &
-  Omit<DriverMetadata, "role">
+export type InviteUserFormData = Omit<
+  User,
+  "metadata" | "uid" | "creationTimestamp" | "isActive"
+> &
+  User["metadata"]
 
 export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
   email: {
     validate: getEmailError,
     type: "text"
   },
+  firstName: {
+    validate: getNameError,
+    type: "text"
+  },
+  lastName: {
+    validate: getNameError,
+    type: "text"
+  },
   birthDate: {
     type: "date",
-    validate: getRequiredError
+    validate: getRequiredError,
+    shouldHide: ({ role }) => role !== "driver"
   },
   role: {
     type: "select",
