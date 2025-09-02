@@ -90,14 +90,13 @@ carsRouter.post("/export", cors(), async (req, res) => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            hour12: true,
-            timeZone: "Europe/London"
+            hour12: true
           })}`,
         { align: "center" }
       )
       pdfDoc.moveDown()
       pdfDoc.fontSize(11)
-      pdfDoc.text(`Odometer reading: ${reportData.odoReading} km`, {
+      pdfDoc.text(`Odometer reading: ${reportData.odoReading}`, {
         align: "center"
       })
       pdfDoc.moveDown()
@@ -223,8 +222,7 @@ carsRouter.post("/export", cors(), async (req, res) => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            hour12: true,
-            timeZone: "Europe/London"
+            hour12: true
           }),
           car.driverName,
           car.odoReading.toString(),
