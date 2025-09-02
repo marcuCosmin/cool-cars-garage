@@ -11,15 +11,7 @@ type FormFields = {
   endDate?: Timestamp
 }
 
-const cars = [
-  "HX15BXR",
-  "NX16EBJ",
-  "WX57NZH",
-  "EA11PZO",
-  "WL12EFX",
-  "HX15KPT",
-  "HK59PZF"
-]
+const cars = ["HX15BXR", "NX16EBJ", "WX57NZH", "EA11PZO"]
 
 const fields: Fields<FormFields> = {
   carsIds: {
