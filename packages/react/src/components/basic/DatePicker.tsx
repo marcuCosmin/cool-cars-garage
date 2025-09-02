@@ -98,5 +98,5 @@ export const DatePicker = ({
     )
   }
 
-  return <div>{renderedContent}</div>
+  return <div className="w-full max-w-sm">{renderedContent}</div>
 }

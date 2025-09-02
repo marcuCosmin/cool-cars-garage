@@ -73,7 +73,7 @@ export const Input = ({
   }
 
   const containerClassName = mergeClassNames(
-    !label && "w-full",
+    !label && "w-full max-w-sm",
     additionalContainerClassName
   )
 
