@@ -1,21 +1,19 @@
 import { Select, type SelectProps } from "@/components/basic/Select"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
 
-import type {
-  DefaultDataItem,
-  FiltersState,
-  FilterChangeHandler
-} from "./DataView.model"
+import type { FiltersState, FilterChangeHandler } from "./DataView.model"
 
-type FiltersProps<DataItem extends DefaultDataItem> = {
-  filters: FiltersState<DataItem>
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+
+type FiltersProps<RawItem extends RawDataListItem> = {
+  filters: FiltersState<RawItem>
   onFilterChange: FilterChangeHandler
 }
 
-export const Filters = <DataItem extends DefaultDataItem>({
+export const Filters = <RawItem extends RawDataListItem>({
   filters,
   onFilterChange
-}: FiltersProps<DataItem>) =>
+}: FiltersProps<RawItem>) =>
   filters.map((filterProps, index) => {
     const { type, label } = filterProps
 

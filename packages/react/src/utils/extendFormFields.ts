@@ -29,7 +29,7 @@ type FormSelectAdditionalProps<T extends FormData> = Omit<
 }
 
 type AdditionalFieldsProps<T extends FormData> = {
-  [key in keyof T]?:
+  [key in keyof T]:
     | FormInputAdditionalProps<T>
     | FormSelectAdditionalProps<T>
     | FormToggleAdditionalProps<T>

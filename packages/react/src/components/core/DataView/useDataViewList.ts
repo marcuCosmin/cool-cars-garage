@@ -3,22 +3,24 @@ import { useEffect, useState } from "react"
 import { filtersConfigToState, parseSearchString } from "./DataView.utils"
 
 import type {
-  DefaultDataItem,
+  DataListItem,
   FilterChangeHandler,
   FiltersConfig,
   FiltersState
 } from "./DataView.model"
 
-type UseDataViewList<DataItem extends DefaultDataItem> = {
-  initialData: DataItem[]
-  filtersConfig: FiltersConfig<DataItem>
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+
+type UseDataViewList<RawItem extends RawDataListItem> = {
+  data: DataListItem<RawItem>[]
+  filtersConfig: FiltersConfig<RawItem>
 }
 
-export const useDataViewList = <DataItem extends DefaultDataItem>({
-  initialData,
+export const useDataViewList = <RawItem extends RawDataListItem>({
+  data,
   filtersConfig
-}: UseDataViewList<DataItem>) => {
-  const [items, setItems] = useState(initialData)
+}: UseDataViewList<RawItem>) => {
+  const [items, setItems] = useState(data)
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
 
@@ -28,7 +30,7 @@ export const useDataViewList = <DataItem extends DefaultDataItem>({
     newFilters[index] = {
       ...newFilters[index],
       value
-    } as FiltersState<DataItem>[number]
+    } as FiltersState<RawItem>[number]
 
     setFilters(newFilters)
   }
@@ -37,13 +39,13 @@ export const useDataViewList = <DataItem extends DefaultDataItem>({
     setSearchQuery(searchQuery)
 
   useEffect(() => {
-    let newData = initialData.slice()
+    let newData = data.slice()
     const parsedSearchQuery = parseSearchString(searchQuery)
 
     if (parsedSearchQuery) {
       newData = newData.filter(item => {
         const parsedTitle = parseSearchString(item.title)
-        const parsedSubtitle = parseSearchString(item.badge)
+        const parsedSubtitle = parseSearchString(item.subtitle)
 
         return (
           parsedTitle.includes(parsedSearchQuery) ||
@@ -73,14 +75,14 @@ export const useDataViewList = <DataItem extends DefaultDataItem>({
       }
 
       newData = newData.filter(item => {
-        const itemValue = item[field as keyof typeof item]
+        const itemMetadata = item.metadata[field]
 
-        return value.some(v => v === itemValue)
+        return value.some(v => v === itemMetadata.value)
       })
     })
 
     setItems(newData)
-  }, [initialData, searchQuery, filters])
+  }, [data, searchQuery, filters])
 
   return { items, searchQuery, onSearchChange, filters, onFilterChange }
 }

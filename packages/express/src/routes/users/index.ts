@@ -3,10 +3,11 @@ import cors from "cors"
 
 import { handleUserInvitation } from "./invite/post"
 import { handleAuthTokenGeneration } from "./generate-auth-token/get"
-import { handleCreateRequest } from "./post"
-
 import { handleGetRequest } from "./get"
-import { handleDeleteRequest } from "./services/delete"
+import { handleCreateRequest } from "./post"
+import { handleDeleteRequest } from "./delete"
+import { handleUserUpdate } from "./put"
+
 import { handleSendVerificationSMSRequest } from "./services/send-verification-sms"
 import { handleUpdatePhoneNumberRequest } from "./services/update-phone-number"
 
@@ -23,6 +24,16 @@ usersRouter.post(
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleCreateRequest
 )
+usersRouter.delete(
+  "/",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleDeleteRequest
+)
+usersRouter.put(
+  "/",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleUserUpdate
+)
 
 usersRouter.options("/generate-auth-token", cors({ origin: "*" }))
 usersRouter.get(
@@ -30,14 +41,13 @@ usersRouter.get(
   cors({ origin: "*" }),
   handleAuthTokenGeneration
 )
+
 usersRouter.options("/invite", cors({ origin: process.env.ALLOWED_ORIGIN }))
 usersRouter.post(
   "/invite",
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleUserInvitation
 )
-
-usersRouter.delete("/", handleDeleteRequest)
 
 usersRouter.post("/send-verification-sms", handleSendVerificationSMSRequest)
 

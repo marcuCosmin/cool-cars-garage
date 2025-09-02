@@ -1,18 +1,13 @@
-type DriverMetadataStatic = {
+export type DriverMetadata = {
   birthDate: number
   dbsUpdate: boolean
   role: "driver"
+  badgeNumber?: string
+  badgeExpirationDate?: number
+  isTaxiDriver: boolean
+  isPSVDriver: boolean
+  v5: string
 }
-
-export type DriverMetadata = DriverMetadataStatic &
-  (
-    | {
-        badgeNumber?: string
-        badgeExpirationDate?: number
-        isTaxiDriver: true
-      }
-    | { isTaxiDriver: false }
-  )
 
 export type ManagerMetadata = {
   role: "manager"
@@ -28,12 +23,13 @@ export type User = {
   uid: string
   email: string
   displayName: string
-  creationTimestamp?: number
-  phoneNumber?: string
+  isActive: boolean
   metadata: UserMetadata
+  creationTimestamp: number
+  phoneNumber?: string
 }
 
 export type InvitationDoc = Pick<User, "email"> & {
   creationTimestamp: number
-  metadata: ManagerMetadata | AdminMetadata | Omit<DriverMetadata, "birthDate">
+  metadata: UserMetadata
 }

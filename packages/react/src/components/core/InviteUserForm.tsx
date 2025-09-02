@@ -20,6 +20,12 @@ const fields = extendFormFields({
     email: {
       label: "Email"
     },
+    birthDate: {
+      label: "Birth Date"
+    },
+    v5: {
+      label: "V5 Reference Number"
+    },
     role: {
       label: "Role",
       options: ["Admin", "Manager", "Driver"]
@@ -35,19 +41,21 @@ const fields = extendFormFields({
     },
     badgeExpirationDate: {
       label: "Badge Expiration Date"
+    },
+    isPSVDriver: {
+      label: "Is PSV Driver"
     }
   }
 })
 
 export const InviteUserForm = () => {
   const dispatch = useAppDispatch()
+
   const action = async (data: InviteUserFormData) => {
     const { message } = await inviteUser(data)
 
-    if (message) {
-      toast.success(message)
-      dispatch(closeModal())
-    }
+    toast.success(message)
+    dispatch(closeModal())
   }
 
   return (

@@ -30,3 +30,10 @@ export const getAuthUser = async (uid: string) => {
     return null
   }
 }
+
+export const deleteUser = async (uid: string) => {
+  const userRef = firestore.collection("users").doc(uid)
+
+  await firestore.recursiveDelete(userRef)
+  await firebaseAuth.deleteUser(uid)
+}

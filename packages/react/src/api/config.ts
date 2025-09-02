@@ -5,8 +5,12 @@ import type { InviteUserFormData, SignUpData } from "@/shared/forms/forms.const"
 const baseUrl = import.meta.env.VITE_API_URL
 
 type ExecuteApiRequestProps = {
-  method: "POST" | "GET"
-  path: "/users" | "/users/invite" | "/users/generate-auth-token"
+  method: "POST" | "GET" | "DELETE" | "PUT"
+  path:
+    | "/users"
+    | "/users/invite"
+    | "/users/generate-auth-token"
+    | `/users?${string}`
   payload?: InviteUserFormData | SignUpData
 }
 

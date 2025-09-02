@@ -1,4 +1,5 @@
-import type { ConfirmationModalContentProps } from "./ConfirmationModalContent"
+import type { ConfirmationModalContentProps } from "@/components/core/ConfirmationModalContent"
+import type { EditUserFormProps } from "@/components/core/EditUserForm"
 
 export type ModalOptions =
   | {
@@ -12,4 +13,8 @@ export type ModalOptions =
   | {
       type: "invite-user"
       props?: undefined
+    }
+  | {
+      type: "edit-user"
+      props: EditUserFormProps
     }

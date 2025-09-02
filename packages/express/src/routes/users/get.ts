@@ -5,7 +5,8 @@ import { firebaseAuth, firestore } from "@/firebase/config"
 
 import type { Request } from "@/models"
 
-import type { User, UserMetadata } from "@/shared/firestore/firestore.model"
+import type { UserMetadata } from "@/shared/firestore/firestore.model"
+import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
 export const handleGetRequest = async (req: Request, res: Response) => {
   const uid = req.uid as string
@@ -37,8 +38,8 @@ export const handleGetRequest = async (req: Request, res: Response) => {
     return
   }
 
-  const users: User[] = usersMetadata.docs.map(doc => {
-    const metadata = doc.data() as UserMetadata
+  const users: RawUserListItem[] = usersMetadata.docs.map(doc => {
+    const { role, ...metadata } = doc.data() as UserMetadata
     const matchingAuthUser = authUsers.find(
       ({ uid }) => uid === doc.id
     ) as UserRecord
@@ -55,12 +56,15 @@ export const handleGetRequest = async (req: Request, res: Response) => {
     const creationTimestamp = creationDate.getTime()
 
     return {
-      creationTimestamp,
-      uid,
-      email: email as string,
-      displayName: displayName as string,
-      phoneNumber,
-      metadata
+      title: displayName as string,
+      subtitle: role,
+      id: uid,
+      metadata: {
+        email: email as string,
+        phoneNumber,
+        creationTimestamp,
+        ...metadata
+      }
     }
   })
 

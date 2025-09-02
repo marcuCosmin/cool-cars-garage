@@ -1,18 +1,19 @@
-import { Timestamp } from "firebase/firestore"
-
 import type {
   FiltersConfig,
   FiltersState,
-  DefaultDataItem
+  ItemMetadata,
+  DataListItemMetadataConfig,
+  DataListItem
 } from "./DataView.model"
-import type { FieldValue } from "../../../models"
+
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 export const parseSearchString = (searchString: string) =>
   searchString.trim().toLowerCase()
 
-export const filtersConfigToState = <DataItem extends DefaultDataItem>(
-  filtersConfig: FiltersConfig<DataItem>
-): FiltersState<DataItem> =>
+export const filtersConfigToState = <RawItem extends RawDataListItem>(
+  filtersConfig: FiltersConfig<RawItem>
+): FiltersState<RawItem> =>
   filtersConfig.map(filterProps => {
     const { type } = filterProps
 
@@ -32,14 +33,56 @@ export const filtersConfigToState = <DataItem extends DefaultDataItem>(
     }
   })
 
-export const fieldValueToString = (value: FieldValue): string => {
-  if (value instanceof Timestamp) {
-    return value.toDate().toLocaleDateString()
+type ExtendDataListItemsProps<RawItem extends RawDataListItem> = {
+  items: RawItem[]
+  metadataConfig: DataListItemMetadataConfig<RawItem>
+}
+
+export const extendDataListItems = <RawItem extends RawDataListItem>({
+  items,
+  metadataConfig
+}: ExtendDataListItemsProps<RawItem>) => {
+  const extendedItems = items.map(item => {
+    const { id, title, subtitle, metadata } = item
+
+    const extendedMetadata = Object.entries(metadata).reduce(
+      (acc, [key, value]) => {
+        const castedKey = key as keyof DataListItemMetadataConfig<RawItem>
+        const config = metadataConfig[castedKey]
+
+        acc[castedKey] = { ...config, value } as ItemMetadata
+
+        return acc
+      },
+      {} as DataListItem<RawItem>["metadata"]
+    )
+
+    return {
+      id,
+      title,
+      subtitle,
+      metadata: extendedMetadata
+    }
+  })
+
+  return extendedItems
+}
+
+export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
+  if (!value) {
+    return null
   }
 
-  if (typeof value === "string") {
-    return value
+  switch (type) {
+    case "text":
+      return value
+    case "boolean":
+      return value ? "Yes" : "No"
+    case "date":
+      return new Date(value).toLocaleDateString("en-GB")
+    case "link":
+      return value
+    default:
+      return null
   }
-
-  return String(value)
 }

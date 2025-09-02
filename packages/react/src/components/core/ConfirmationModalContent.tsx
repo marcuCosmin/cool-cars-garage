@@ -5,6 +5,8 @@ import { closeModal } from "@/redux/modalSlice"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 
+import { mergeClassNames } from "@/utils/mergeClassNames"
+
 import { Loader } from "@/components/basic/Loader"
 
 export type ConfirmationModalContentProps = {
@@ -12,7 +14,9 @@ export type ConfirmationModalContentProps = {
   onConfirm: () => Promise<void>
 }
 
-const iconsSize = 50
+const iconsSize = 20
+const buttonsClassNames =
+  "flex gap-2 justify-center items-center border border-primary"
 
 export const ConfirmationModalContent = ({
   text,
@@ -33,16 +37,32 @@ export const ConfirmationModalContent = ({
 
   return (
     <div className="flex flex-col relative gap-20 max-w-md">
-      {isLoading && <Loader />}
+      {isLoading && <Loader enableOverlay />}
 
       <h1 className="text-center text-2xl">{text}</h1>
 
-      <div className="flex justify-around">
-        <button type="button" onClick={onConfirmClick}>
+      <div className="flex justify-around gap-5">
+        <button
+          className={mergeClassNames(
+            buttonsClassNames,
+            "bg-primary text-white"
+          )}
+          type="button"
+          onClick={onConfirmClick}
+        >
           <CheckCircleFill size={iconsSize} />
+          Confirm
         </button>
-        <button type="button" onClick={onCancelClick}>
+        <button
+          className={mergeClassNames(
+            buttonsClassNames,
+            "bg-transparent text-primary"
+          )}
+          type="button"
+          onClick={onCancelClick}
+        >
           <XCircleFill size={iconsSize} />
+          Cancel
         </button>
       </div>
     </div>

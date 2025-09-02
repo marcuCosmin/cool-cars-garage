@@ -11,19 +11,26 @@ import type {
 
 export type InviteUserFormData = Pick<User, "email"> &
   Pick<UserMetadata, "role"> &
-  Partial<
-    Omit<Extract<DriverMetadata, { isTaxiDriver: true }>, "birthDate" | "role">
-  >
+  Omit<DriverMetadata, "role">
 
 export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
   email: {
     validate: getEmailError,
     type: "text"
   },
+  birthDate: {
+    type: "date",
+    validate: getRequiredError
+  },
   role: {
     type: "select",
     options: ["admin", "manager", "driver"] as UserMetadata["role"][],
     validate: getRequiredError
+  },
+  v5: {
+    type: "text",
+    validate: getRequiredError,
+    shouldHide: ({ role }) => role !== "driver"
   },
   dbsUpdate: {
     type: "toggle",
@@ -42,7 +49,23 @@ export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
     type: "date",
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
+  },
+  isPSVDriver: {
+    type: "toggle",
+    shouldHide: ({ role }) => role !== "driver"
   }
+}
+
+export type EditUserFormData = Pick<User, "email"> &
+  Pick<UserMetadata, "role"> &
+  Omit<DriverMetadata, "role">
+
+export type EditUserData = EditUserFormData & {
+  uid: string
+}
+
+export const editUserFormFields: FormFieldsSchema<EditUserFormData> = {
+  ...inviteUserFormFields
 }
 
 export type SignInFormData = Pick<User, "email"> & {

@@ -1,12 +1,52 @@
 import { type SelectProps } from "@/components/basic/Select"
 
-import type { FormFieldValue } from "@/shared/forms/forms.models"
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-export type DefaultDataItem = Record<string, FormFieldValue> & {
-  title: string
-  badge: string
-  id: string
+type ItemTextMetadata = {
+  type: "text"
+  label: string
+  value?: string
 }
+
+type ItemBooleanMetadata = {
+  type: "boolean"
+  label: string
+  value?: boolean
+}
+
+type ItemDateMetadata = {
+  type: "date"
+  label: string
+  value?: number
+}
+
+type ItemLinkMetadata = {
+  type: "link"
+  label: string
+  value: string
+  href: string
+}
+
+type ItemMetadataConfig =
+  | Omit<ItemTextMetadata, "value">
+  | Omit<ItemBooleanMetadata, "value">
+  | Omit<ItemDateMetadata, "value">
+  | Omit<ItemLinkMetadata, "value">
+
+export type ItemMetadata =
+  | ItemTextMetadata
+  | ItemBooleanMetadata
+  | ItemDateMetadata
+  | ItemLinkMetadata
+
+export type DataListItemMetadataConfig<RawItem extends RawDataListItem> = {
+  [key in keyof RawItem["metadata"]]: ItemMetadataConfig
+}
+
+export type DataListItem<RawItem extends RawDataListItem> = Omit<
+  RawDataListItem,
+  "metadata"
+> & { metadata: { [key in keyof RawItem["metadata"]]: ItemMetadata } }
 
 export type FilterChangeHandler = (props: {
   value: string[] | boolean
@@ -24,18 +64,18 @@ type SelectFilterProps = {
   field: string
 } & ComponentFilterProps
 
-type ToggleFilterProps<DataItem extends DefaultDataItem> = {
+type ToggleFilterProps<RawItem extends RawDataListItem> = {
   type: "toggle"
-  filterFn: (item: DataItem) => boolean
+  filterFn: (item: DataListItem<RawItem>) => boolean
   value: boolean
 } & ComponentFilterProps
 
-export type FiltersConfig<DataItem extends DefaultDataItem> = (
+export type FiltersConfig<RawItem extends RawDataListItem> = (
   | Omit<SelectFilterProps, "value">
-  | Omit<ToggleFilterProps<DataItem>, "value">
+  | Omit<ToggleFilterProps<RawItem>, "value">
 )[]
 
-export type FiltersState<DataItem extends DefaultDataItem> = (
+export type FiltersState<RawItem extends RawDataListItem> = (
   | SelectFilterProps
-  | ToggleFilterProps<DataItem>
+  | ToggleFilterProps<RawItem>
 )[]

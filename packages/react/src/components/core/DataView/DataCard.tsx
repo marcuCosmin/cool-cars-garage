@@ -1,26 +1,41 @@
-import { Trash3Fill, PencilSquare } from "react-bootstrap-icons"
+import {
+  Trash3Fill,
+  PencilSquare,
+  Icon,
+  Calendar2Week,
+  CheckCircle,
+  BoxArrowUp,
+  InfoCircle
+} from "react-bootstrap-icons"
 
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 
-import { keyToLabel } from "@/utils/string"
+import type { DataListItem, ItemMetadata } from "./DataView.model"
 
-import type { FieldValue } from "@/models"
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import { getParsedItemMetadataValue } from "./DataView.utils"
 
-import { fieldValueToString } from "./DataView.utils"
+const metadataIconsMap: Record<ItemMetadata["type"], Icon> = {
+  text: InfoCircle,
+  boolean: CheckCircle,
+  date: Calendar2Week,
+  link: BoxArrowUp
+}
 
-import type { DefaultDataItem } from "./DataView.model"
-
-type DataCardProps = Pick<DefaultDataItem, "title" | "badge"> & {
+type DataCardProps = Pick<
+  DataListItem<RawDataListItem>,
+  "title" | "subtitle"
+> & {
+  metadata: DataListItem<RawDataListItem>["metadata"]
   onDelete: () => Promise<void>
-  fieldsData: Record<string, FieldValue>
   onEdit: () => void
 }
 
 export const DataCard = ({
   title,
-  badge,
-  fieldsData,
+  subtitle,
+  metadata,
   onDelete,
   onEdit
 }: DataCardProps) => {
@@ -38,46 +53,59 @@ export const DataCard = ({
     )
 
   return (
-    <li className="relative flex flex-col w-full gap-4 p-5 max-w-sm bg-secondary dark:bg-primary shadow-primary dark:shadow-secondary shadow-sm rounded-md">
+    <li className="relative flex flex-col w-full gap-4 p-5 max-w-sm border-primary border shadow-sm rounded-md">
       <div className="flex justify-between items-center">
-        <p className="flex items-center font-bold gap-2">{title}</p>
+        <p className="font-bold text-primary">{title}</p>
 
-        <p className="text-sm font-bold bg-primary dark:bg-secondary rounded-xl px-3 capitalize w-fit text-secondary dark:text-primary">
-          {badge}
+        <p className="text-sm font-bold bg-primary text-white rounded-md py-1 px-4 capitalize w-fit">
+          {subtitle}
         </p>
 
         <div className="flex items-center gap-4">
           <button
             type="button"
-            className="bg-transparent w-fit p-0 text-primary dark:text-secondary"
+            className="bg-transparent w-fit p-0 text-primary"
             onClick={onEdit}
           >
-            <PencilSquare width={18} height={18} />
+            <PencilSquare width={20} height={20} />
           </button>
 
           <button
             type="button"
-            className="bg-transparent w-fit p-0 text-primary dark:text-secondary"
+            className="bg-transparent w-fit p-0 text-primary"
             onClick={onDeleteClick}
           >
-            <Trash3Fill width={18} />
+            <Trash3Fill width={20} height={20} />
           </button>
         </div>
       </div>
 
       <hr />
 
-      <div>
-        {Object.entries(fieldsData)
-          .sort(([key1], [key2]) => key1.localeCompare(key2))
-          .map(([key, value]) => {
-            const label = keyToLabel(key)
+      <div className="flex flex-col gap-2">
+        {Object.values(metadata)
+          .sort(({ label: label1 }, { label: label2 }) =>
+            // TODO: Remove "?" after demo
+            label1?.localeCompare(label2)
+          )
+          .map(props => {
+            const parsedValue = getParsedItemMetadataValue(props)
 
-            const formattedValue = fieldValueToString(value)
+            const { label, type } = props
+
+            const Icon = metadataIconsMap[type]
+
+            if (!parsedValue) {
+              return null
+            }
 
             return (
-              <p className="flex items-center gap-2">
-                {label}: {formattedValue}
+              <p className="flex items-center text-primary gap-2 font-bold">
+                <Icon height={20} width={20} />
+                {label}:{" "}
+                <span className="text-black dark:text-white font-normal">
+                  {parsedValue}
+                </span>
               </p>
             )
           })}

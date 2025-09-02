@@ -40,8 +40,9 @@
     }
 
     button {
-       @apply p-2 font-semibold bg-primary text-white rounded-sm w-full cursor-pointer outline-0;
-       @apply focus:bg-primary/80 focus:ring-1 focus:ring-black dark:focus:ring-white;
+       @apply p-2 font-semibold bg-primary text-white rounded-sm w-full cursor-pointer outline-0 transition-opacity;
+       @apply hover:opacity-75;
+       @apply focus-visible:bg-primary/80 focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white;
     }
 
     label {

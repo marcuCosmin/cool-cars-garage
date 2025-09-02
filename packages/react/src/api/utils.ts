@@ -1,7 +1,11 @@
 import { executeApiRequest } from "./config"
 
-import type { InviteUserFormData, SignUpData } from "@/shared/forms/forms.const"
-
+import type {
+  EditUserData,
+  InviteUserFormData,
+  SignUpData
+} from "@/shared/forms/forms.const"
+import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 import type { User } from "@/shared/firestore/firestore.model"
 
 export const inviteUser = (payload: InviteUserFormData) =>
@@ -12,7 +16,7 @@ export const inviteUser = (payload: InviteUserFormData) =>
   })
 
 type GetAllUsersResponse = {
-  users: User[]
+  users: RawUserListItem[]
 }
 export const getAllUsers = () =>
   executeApiRequest<GetAllUsersResponse>({
@@ -36,5 +40,18 @@ export const createUser = (payload: SignUpData) =>
   executeApiRequest<CreateUserResponse>({
     path: "/users",
     method: "POST",
+    payload
+  })
+
+export const deleteUser = (uid: User["uid"]) =>
+  executeApiRequest({
+    path: `/users?uid=${uid}`,
+    method: "DELETE"
+  })
+
+export const updateUser = (payload: EditUserData) =>
+  executeApiRequest({
+    path: "/users",
+    method: "PUT",
     payload
   })
