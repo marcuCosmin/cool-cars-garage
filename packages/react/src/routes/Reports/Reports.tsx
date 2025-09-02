@@ -4,7 +4,7 @@ import { Loader } from "@/components/basic/Loader"
 import { Select } from "@/components/basic/Select"
 import { Toggle } from "@/components/basic/Toggle"
 import { firebaseAuth, firestore } from "@/firebase/config"
-import { useAppDispatch } from "@/redux/config"
+import { useAppDispatch, useAppSelector } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 import {
   collection,
@@ -233,6 +233,7 @@ const ReportItem = ({
   report: Report
   onResolve: (faultIndex: number) => Promise<void>
 }) => {
+  const role = useAppSelector(state => state.user.metadata.role)
   const [isFaultsPopoverOpen, setIsFaultsPopoverOpen] = useState(false)
   const [isResolveLoading, setIsResolveLoading] = useState(false)
   const listRef = useRef<HTMLUListElement>(null)
@@ -351,13 +352,15 @@ const ReportItem = ({
                     <Loader enableOverlay text="Resolving Fault..." />
                   )}
 
-                  <button
-                    type="button"
-                    className={`p-1 mt-2 ${f.status === "resolved" ? "hidden" : ""}`}
-                    onClick={() => resolveWrapper(index)}
-                  >
-                    Mark as resolved
-                  </button>
+                  {role === "admin" && (
+                    <button
+                      type="button"
+                      className={`p-1 mt-2 ${f.status === "resolved" ? "hidden" : ""}`}
+                      onClick={() => resolveWrapper(index)}
+                    >
+                      Mark as resolved
+                    </button>
+                  )}
 
                   {!!report.fault?.[index + 1] && <hr className="my-2" />}
                 </li>
