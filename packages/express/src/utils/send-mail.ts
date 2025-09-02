@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
 
 type SendMailOptions = {
-  to: string
+  to: string | string[]
   subject: string
   html: string
 }

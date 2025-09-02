@@ -109,7 +109,7 @@ export const handleCheckSubmission = async (
 
     if (faults.length) {
       await sendMail({
-        to: "marius@coolrides.co.uk",
+        to: ["marius@coolrides.co.uk", "info@focusdrivertraining.com"],
         subject: "Faults reported for a Check",
         html: `
           <div>Hello Marius,</div>
