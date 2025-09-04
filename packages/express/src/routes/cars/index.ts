@@ -63,7 +63,15 @@ carsRouter.post("/export", cors(), async (req, res) => {
     }
 
     const start = toTimestamp(startDate)
-    const end = toTimestamp(endDate)
+    let end = toTimestamp(endDate)
+
+    if (end) {
+      const e = end?.toDate() as Date
+
+      e.setHours(23, 59, 59, 999)
+
+      end = Timestamp.fromDate(e)
+    }
 
     if (reportId) {
       const reportRef = firestore.collection("demo").doc(reportId)
