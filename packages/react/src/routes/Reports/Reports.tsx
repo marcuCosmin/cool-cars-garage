@@ -205,8 +205,14 @@ const useFilters = () => {
 
     setFilters(prev => ({ ...prev, vehicleRegNumber: value || "All" }))
   }
-  const setDateRange = (start?: Timestamp, end?: Timestamp) =>
+  const setDateRange = (start?: Timestamp, end?: Timestamp) => {
+    if (end) {
+      const e = end.toDate()
+      e.setHours(23, 59, 59, 999)
+      end = Timestamp.fromDate(e)
+    }
     setFilters(prev => ({ ...prev, dateRange: [start, end] }))
+  }
 
   const setHasFaults = (value?: boolean) =>
     setFilters(prev => ({ ...prev, hasFaults: !!value }))
