@@ -25,12 +25,16 @@ export const getFormValidationResult = <T extends FormData>({
 
   Object.entries(schema).forEach(([key, fieldSchema]) => {
     const castedKey = key as keyof T
-    const { type, validate, shouldHide } = fieldSchema
+    const { type, validate, shouldHide, isOptional } = fieldSchema
     const value = data[castedKey]
 
     const isHidden = shouldHide?.(data)
 
     if (isHidden) {
+      return
+    }
+
+    if (isOptional?.(data) && !value) {
       return
     }
 

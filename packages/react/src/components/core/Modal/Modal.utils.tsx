@@ -12,14 +12,9 @@ const CarModalContent = lazy(() =>
     default: module.CarModalContent
   }))
 )
-const InviteUserForm = lazy(() =>
-  import("../InviteUserForm").then(module => ({
-    default: module.InviteUserForm
-  }))
-)
-const EditUserForm = lazy(() =>
-  import("../EditUserForm").then(module => ({
-    default: module.EditUserForm
+const UserFrom = lazy(() =>
+  import("../UserForm").then(module => ({
+    default: module.UserForm
   }))
 )
 
@@ -29,9 +24,7 @@ export const getModalContent = ({ type, props }: ModalOptions) => {
       return <ConfirmationModalContent {...props} />
     case "car":
       return <CarModalContent />
-    case "invite-user":
-      return <InviteUserForm />
-    case "edit-user":
-      return <EditUserForm {...props} />
+    case "user":
+      return <UserFrom />
   }
 }

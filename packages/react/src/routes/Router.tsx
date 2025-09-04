@@ -33,7 +33,7 @@ const NotFound = lazy(() =>
 
 export const Router = () => {
   const uid = useAppSelector(state => state.user.uid)
-  const userRole = useAppSelector(state => state.user.metadata.role)
+  const userRole = useAppSelector(state => state.user.role)
 
   const renderRoleBasedRoutes = () => {
     if (userRole === "driver") {

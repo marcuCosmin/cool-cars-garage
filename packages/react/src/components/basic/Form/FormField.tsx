@@ -1,3 +1,5 @@
+import { useEffect } from "react"
+
 import { Input, type InputProps } from "@/components/basic/Input"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
 import { Select, type SelectProps } from "@/components/basic/Select"
@@ -9,12 +11,13 @@ import type { FieldStateProps, FormFieldComponentProps } from "./Form.models"
 
 type FormFieldProps<T extends FormData> = Omit<
   FieldStateProps<T>,
-  "hideCondition"
+  "isOptional" | "hideCondition"
 > & {
   name: string
   onValueChange: (name: string, value?: FormFieldValue) => void
   onTouchedChange: (name: string) => void
   onErrorChange: (name: string, error?: string) => void
+  optional?: boolean
 }
 
 export const FormField = <T extends FormData>({
@@ -26,8 +29,11 @@ export const FormField = <T extends FormData>({
   onErrorChange,
   onTouchedChange,
   validate,
+  optional,
   ...props
 }: FormFieldProps<T>) => {
+  const forwardedLabel = optional ? `${props.label} (optional)` : props.label
+
   const handleValidation = (value?: FormFieldValue) => {
     if (!validate) {
       return
@@ -38,6 +44,10 @@ export const FormField = <T extends FormData>({
   }
 
   const onBlur = () => {
+    if (!touched && optional && !value) {
+      return
+    }
+
     onTouchedChange(name)
     handleValidation(value)
   }
@@ -54,10 +64,24 @@ export const FormField = <T extends FormData>({
 
   const passedProps = {
     ...props,
+    label: forwardedLabel,
     value,
     onChange,
     onBlur
   }
+
+  useEffect(() => {
+    if (!optional || !touched) {
+      return
+    }
+
+    if (value) {
+      handleValidation(value)
+      return
+    }
+
+    onErrorChange(name)
+  }, [optional, touched])
 
   if (type === "date") {
     return <DatePicker {...(passedProps as FormFieldComponentProps<number>)} />

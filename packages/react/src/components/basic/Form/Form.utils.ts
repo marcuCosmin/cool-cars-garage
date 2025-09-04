@@ -38,8 +38,9 @@ export const getFormFieldsValidationResult = <T extends FormData>(
   const validatedFieldsState: FieldsState<T> = { ...fieldsState }
 
   Object.entries(formData).forEach(([field, value]) => {
-    const { validate, ...fieldProps } = fieldsState[field]
-    const error = validate?.(value)
+    const { validate, isOptional, ...fieldProps } = fieldsState[field]
+    const error =
+      isOptional?.(formData) && value ? validate?.(value) : undefined
 
     if (error) {
       hasValidationError = true

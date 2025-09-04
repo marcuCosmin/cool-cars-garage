@@ -7,10 +7,7 @@ import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
 import type { Request } from "@/models"
 
-import {
-  editUserFormFields,
-  type EditUserData
-} from "@/shared/forms/forms.const"
+import { userFormFields, type EditUserData } from "@/shared/forms/forms.const"
 
 export const handleUserUpdate = async (
   req: Request<undefined, undefined, EditUserData>,
@@ -18,7 +15,7 @@ export const handleUserUpdate = async (
 ) => {
   const { uid, ...payload } = req.body
   const { errors, filteredData: updatedData } = getFormValidationResult({
-    schema: editUserFormFields,
+    schema: userFormFields,
     data: payload
   })
 

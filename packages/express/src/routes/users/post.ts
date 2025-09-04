@@ -1,46 +1,22 @@
 import { type Request, type Response } from "express"
 
-import { firebaseAuth, firestore } from "@/firebase/config"
+import { firestore } from "@/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
+import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
-import {
-  getSignUpFormFields,
-  type SignUpData
-} from "@/shared/forms/forms.const"
-import type {
-  InvitationDoc,
-  UserMetadata
-} from "@/shared/firestore/firestore.model"
+import { userFormFields, type UserFormData } from "@/shared/forms/forms.const"
+import type { UserDoc } from "@/shared/firestore/firestore.model"
+
+import { inviteUser } from "./utils"
 
 export const handleCreateRequest = async (
-  req: Request<undefined, undefined, SignUpData>,
+  req: Request<undefined, undefined, UserFormData>,
   res: Response
 ) => {
-  const { invitationId, ...formData } = req.body
-
-  const invitationSnapshot = await firestore
-    .collection("invitations")
-    .doc(invitationId)
-    .get()
-
-  if (!invitationSnapshot.exists) {
-    res.status(400).json({
-      error: "The provided invitation ID is invalid"
-    })
-
-    return
-  }
-
-  const { creationTimestamp, ...invitation } =
-    invitationSnapshot.data() as InvitationDoc
-
   const { errors, filteredData: signUpData } = getFormValidationResult({
-    schema: getSignUpFormFields({
-      ...invitation,
-      creationTimestamp
-    }),
-    data: formData
+    schema: userFormFields,
+    data: req.body
   })
 
   if (errors) {
@@ -52,36 +28,25 @@ export const handleCreateRequest = async (
     return
   }
 
-  if (signUpData.email !== invitation.email) {
-    res.status(400).json({
-      error: "Invalid email address"
-    })
+  const { email, firstName, lastName, role, ...userDocMetadata } = signUpData
 
-    return
+  const userDocData: UserDoc = {
+    firstName,
+    lastName,
+    role,
+    isActive: true,
+    creationTimestamp: getCurrentTimestamp()
   }
 
-  const { email, password, firstName, lastName, birthDate } = signUpData
+  if (userDocMetadata) {
+    userDocData.metadata = userDocMetadata
+  }
 
-  const { uid } = await firebaseAuth.createUser({
-    email,
-    emailVerified: true,
-    password,
-    displayName: `${firstName} ${lastName}`
-  })
+  const userDoc = await firestore.collection("users").add(userDocData)
 
-  const userMetadata: UserMetadata =
-    invitation.metadata.role === "driver"
-      ? {
-          ...invitation.metadata,
-          birthDate: birthDate as number
-        }
-      : invitation.metadata
+  if (email) {
+    await inviteUser({ ...userDocData, email, uid: userDoc.id })
+  }
 
-  await firestore.collection("users").doc(uid).set(userMetadata)
-
-  await firestore.collection("invitations").doc(invitationId).delete()
-
-  const authToken = await firebaseAuth.createCustomToken(uid)
-
-  res.status(200).json({ authToken })
+  res.status(200).json({ message: "User created successfully" })
 }

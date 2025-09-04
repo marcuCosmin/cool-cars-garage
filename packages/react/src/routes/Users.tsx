@@ -49,7 +49,7 @@ export const Users = () => {
     queryFn: getAllUsers
   })
 
-  const onAddButtonClick = () => dispatch(openModal({ type: "invite-user" }))
+  const onAddButtonClick = () => dispatch(openModal({ type: "user" }))
 
   const onItemDelete = async (uid: User["uid"]) => {
     const response = await deleteUser(uid)
@@ -60,7 +60,7 @@ export const Users = () => {
   }
   const onItemEdit = (uid: User["uid"]) => {
     const user = data?.users.find(user => user.id === uid) as RawUserListItem
-    dispatch(openModal({ type: "edit-user", props: { user } }))
+    dispatch(openModal({ type: "user" }))
   }
 
   if (isLoading) {

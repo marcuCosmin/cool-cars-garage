@@ -97,8 +97,9 @@ export const Form = <T extends FormData>({
 
       <div className="w-full flex flex-wrap justify-evenly gap-3 overflow-y-auto scrollbar">
         {Object.entries(fieldsState).map(([name, props]) => {
-          const { shouldHide, ...remainingProps } = props
+          const { shouldHide, isOptional, ...remainingProps } = props
           const isHidden = shouldHide?.(fieldsValues)
+          const optional = isOptional?.(fieldsValues)
 
           if (isHidden) {
             return null
@@ -107,6 +108,7 @@ export const Form = <T extends FormData>({
           return (
             <FormField
               {...remainingProps}
+              optional={optional}
               name={name}
               key={name}
               onErrorChange={onFieldErrorChange}

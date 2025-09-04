@@ -11,7 +11,7 @@ import { Form } from "@/components/basic/Form/Form"
 import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
-  editUserFormFields,
+  userFormFields,
   type EditUserFormData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
@@ -23,7 +23,7 @@ export type EditUserFormProps = {
 export const EditUserForm = ({ user }: EditUserFormProps) => {
   const { subtitle, metadata } = user
   const fields = extendFormFields({
-    fieldsSchema: editUserFormFields,
+    fieldsSchema: userFormFields,
     additionalFieldsProps: {
       email: {
         label: "Email",

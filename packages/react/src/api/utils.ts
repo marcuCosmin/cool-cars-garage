@@ -3,7 +3,7 @@ import { executeApiRequest } from "./config"
 import type {
   EditUserData,
   InviteUserFormData,
-  SignUpData
+  UserFormData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 import type { User } from "@/shared/firestore/firestore.model"
@@ -33,11 +33,8 @@ export const getAuthToken = () =>
     method: "GET"
   })
 
-type CreateUserResponse = {
-  authToken: string
-}
-export const createUser = (payload: SignUpData) =>
-  executeApiRequest<CreateUserResponse>({
+export const createUser = (payload: UserFormData) =>
+  executeApiRequest({
     path: "/users",
     method: "POST",
     payload

@@ -1,6 +1,6 @@
 import { toast } from "react-toastify"
 
-import { inviteUser } from "@/api/utils"
+import { createUser } from "@/api/utils"
 
 import { useAppDispatch } from "@/redux/config"
 import { closeModal } from "@/redux/modalSlice"
@@ -9,22 +9,22 @@ import { Form } from "@/components/basic/Form/Form"
 
 import { extendFormFields } from "@/utils/extendFormFields"
 
-import {
-  inviteUserFormFields,
-  type InviteUserFormData
-} from "@/shared/forms/forms.const"
+import { userFormFields, type UserFormData } from "@/shared/forms/forms.const"
 
 const fields = extendFormFields({
-  fieldsSchema: inviteUserFormFields,
+  fieldsSchema: userFormFields,
   additionalFieldsProps: {
     email: {
       label: "Email"
     },
+    firstName: {
+      label: "First Name"
+    },
+    lastName: {
+      label: "Last Name"
+    },
     birthDate: {
       label: "Birth Date"
-    },
-    v5: {
-      label: "V5 Reference Number"
     },
     role: {
       label: "Role",
@@ -48,11 +48,11 @@ const fields = extendFormFields({
   }
 })
 
-export const InviteUserForm = () => {
+export const UserForm = () => {
   const dispatch = useAppDispatch()
 
-  const action = async (data: InviteUserFormData) => {
-    const { message } = await inviteUser(data)
+  const action = async (data: UserFormData) => {
+    const { message } = await createUser(data)
 
     toast.success(message)
     dispatch(closeModal())

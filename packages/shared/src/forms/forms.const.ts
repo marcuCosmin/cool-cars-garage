@@ -2,22 +2,18 @@ import { getEmailError, getNameError, getRequiredError } from "./forms.utils"
 
 import type { FormFieldsSchema } from "./forms.models"
 
-import type {
-  DriverMetadata,
-  InvitationDoc,
-  User,
-  UserMetadata
-} from "../firestore/firestore.model"
+import type { InvitationDoc, User } from "../firestore/firestore.model"
 
-export type InviteUserFormData = Omit<
+export type UserFormData = Omit<
   User,
-  "metadata" | "uid" | "creationTimestamp" | "isActive"
+  "metadata" | "uid" | "creationTimestamp" | "isActive" | "phoneNumber"
 > &
   User["metadata"]
 
-export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
+export const userFormFields: FormFieldsSchema<UserFormData> = {
   email: {
     validate: getEmailError,
+    isOptional: ({ role }) => role === "driver",
     type: "text"
   },
   firstName: {
@@ -35,13 +31,8 @@ export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
   },
   role: {
     type: "select",
-    options: ["admin", "manager", "driver"] as UserMetadata["role"][],
+    options: ["admin", "manager", "driver"],
     validate: getRequiredError
-  },
-  v5: {
-    type: "text",
-    validate: getRequiredError,
-    shouldHide: ({ role }) => role !== "driver"
   },
   dbsUpdate: {
     type: "toggle",
@@ -65,18 +56,6 @@ export const inviteUserFormFields: FormFieldsSchema<InviteUserFormData> = {
     type: "toggle",
     shouldHide: ({ role }) => role !== "driver"
   }
-}
-
-export type EditUserFormData = Pick<User, "email"> &
-  Pick<UserMetadata, "role"> &
-  Omit<DriverMetadata, "role">
-
-export type EditUserData = EditUserFormData & {
-  uid: string
-}
-
-export const editUserFormFields: FormFieldsSchema<EditUserFormData> = {
-  ...inviteUserFormFields
 }
 
 export type SignInFormData = Pick<User, "email"> & {

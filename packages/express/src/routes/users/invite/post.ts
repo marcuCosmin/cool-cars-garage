@@ -9,10 +9,7 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
-import {
-  inviteUserFormFields,
-  type InviteUserFormData
-} from "@/shared/forms/forms.const"
+import { userFormFields, type UserFormData } from "@/shared/forms/forms.const"
 
 import type {
   DriverMetadata,
@@ -20,11 +17,11 @@ import type {
 } from "@/shared/firestore/firestore.model"
 
 export const handleUserInvitation = async (
-  req: Request<undefined, undefined, InviteUserFormData>,
+  req: Request<undefined, undefined, UserFormData>,
   res: Response
 ) => {
   const { errors, filteredData: invitationFormData } = getFormValidationResult({
-    schema: inviteUserFormFields,
+    schema: userFormFields,
     data: req.body
   })
 

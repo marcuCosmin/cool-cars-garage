@@ -18,7 +18,7 @@ export const Modal = () => {
   const onRequestClose = () => dispatch(closeModal())
 
   return (
-    <ReactModal onRequestClose={onRequestClose} isOpen>
+    <ReactModal ariaHideApp={false} onRequestClose={onRequestClose} isOpen>
       {modalContent}
     </ReactModal>
   )

@@ -5,7 +5,6 @@ export type DriverMetadata = {
   badgeExpirationDate?: number
   isTaxiDriver: boolean
   isPSVDriver: boolean
-  v5: string
 }
 
 export type UserRole = "admin" | "manager" | "driver"
@@ -25,7 +24,8 @@ export type User = UserDoc & {
   phoneNumber?: string
 }
 
-export type InvitationDoc = Pick<User, "email"> & {
-  creationTimestamp: number
-  metadata: UserMetadata
-}
+export type InvitationDoc = Pick<User, "email"> &
+  UserDoc & {
+    creationTimestamp: number
+    uid: string
+  }
