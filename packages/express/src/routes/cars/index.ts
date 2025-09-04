@@ -98,7 +98,8 @@ carsRouter.post("/export", cors(), async (req, res) => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            hour12: true
+            hour12: true,
+            timeZone: "Europe/Bucharest"
           })}`,
         { align: "center" }
       )
@@ -230,7 +231,8 @@ carsRouter.post("/export", cors(), async (req, res) => {
             day: "2-digit",
             hour: "2-digit",
             minute: "2-digit",
-            hour12: true
+            hour12: true,
+            timeZone: "Europe/Bucharest"
           }),
           car.driverName,
           car.odoReading.toString(),
