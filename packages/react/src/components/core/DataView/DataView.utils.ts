@@ -69,7 +69,7 @@ export const extendDataListItems = <RawItem extends RawDataListItem>({
 }
 
 export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
-  if (!value) {
+  if (value === null || value === undefined) {
     return null
   }
 

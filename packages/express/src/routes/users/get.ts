@@ -1,11 +1,10 @@
 import { type Response } from "express"
 
-import { UserRecord } from "firebase-admin/auth"
 import { firebaseAuth, firestore } from "@/firebase/config"
 
 import type { Request } from "@/models"
 
-import type { UserMetadata } from "@/shared/firestore/firestore.model"
+import type { UserDoc } from "@/shared/firestore/firestore.model"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
 export const handleGetRequest = async (req: Request, res: Response) => {
@@ -39,31 +38,22 @@ export const handleGetRequest = async (req: Request, res: Response) => {
   }
 
   const users: RawUserListItem[] = usersMetadata.docs.map(doc => {
-    const { role, ...metadata } = doc.data() as UserMetadata
-    const matchingAuthUser = authUsers.find(
-      ({ uid }) => uid === doc.id
-    ) as UserRecord
+    const { role, firstName, lastName, ...docData } = doc.data() as UserDoc
+    const matchingAuthUser = authUsers.find(({ uid }) => uid === doc.id)
 
-    const {
-      uid,
-      email,
-      displayName,
-      phoneNumber,
-      metadata: authMetadata
-    } = matchingAuthUser
+    const { metadata, ...remainingDocData } = docData
 
-    const creationDate = new Date(authMetadata.creationTime)
-    const creationTimestamp = creationDate.getTime()
+    const displayName = `${firstName} ${lastName}`
 
     return {
       title: displayName as string,
       subtitle: role,
-      id: uid,
+      id: doc.id,
       metadata: {
-        email: email as string,
-        phoneNumber,
-        creationTimestamp,
-        ...metadata
+        email: matchingAuthUser?.email,
+        phoneNumber: matchingAuthUser?.phoneNumber,
+        ...metadata,
+        ...remainingDocData
       }
     }
   })

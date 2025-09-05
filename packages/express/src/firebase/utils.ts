@@ -1,3 +1,5 @@
+import { type FirebaseError } from "firebase-admin"
+
 import { firebaseAuth, firestore } from "./config"
 
 import type { UserMetadata } from "@/models"
@@ -35,5 +37,13 @@ export const deleteUser = async (uid: string) => {
   const userRef = firestore.collection("users").doc(uid)
 
   await firestore.recursiveDelete(userRef)
-  await firebaseAuth.deleteUser(uid)
+  try {
+    await firebaseAuth.deleteUser(uid)
+  } catch (error) {
+    if ((error as FirebaseError).code === "auth/user-not-found") {
+      return
+    }
+
+    throw error
+  }
 }

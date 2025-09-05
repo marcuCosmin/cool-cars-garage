@@ -17,7 +17,7 @@ const deviceLinkConfig = {
 
 export const ReportsAuth = () => {
   const onButtonClick = async () => {
-    const authToken = await getAuthToken()
+    const { authToken } = await getAuthToken()
 
     window.location.href = `${import.meta.env.VITE_REPORTS_AUTH_URL}?authToken=${authToken}`
   }

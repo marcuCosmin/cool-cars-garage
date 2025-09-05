@@ -1,4 +1,4 @@
-export type DriverMetadata = {
+type UserMetadata = {
   birthDate: number
   dbsUpdate: boolean
   badgeNumber?: string
@@ -15,7 +15,7 @@ export type UserDoc = {
   isActive: boolean
   creationTimestamp: number
   role: UserRole
-  metadata?: DriverMetadata
+  metadata?: UserMetadata
 }
 
 export type User = UserDoc & {

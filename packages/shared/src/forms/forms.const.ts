@@ -6,9 +6,15 @@ import type { InvitationDoc, User } from "../firestore/firestore.model"
 
 export type UserFormData = Omit<
   User,
-  "metadata" | "uid" | "creationTimestamp" | "isActive" | "phoneNumber"
+  | "metadata"
+  | "uid"
+  | "creationTimestamp"
+  | "isActive"
+  | "phoneNumber"
+  | "email"
 > &
-  User["metadata"]
+  Partial<Pick<User, "email">> &
+  Partial<User["metadata"]>
 
 export const userFormFields: FormFieldsSchema<UserFormData> = {
   email: {
@@ -58,6 +64,8 @@ export const userFormFields: FormFieldsSchema<UserFormData> = {
   }
 }
 
+export type UserEditData = UserFormData & { uid: User["uid"] }
+
 export type SignInFormData = Pick<User, "email"> & {
   password: string
 }
@@ -84,7 +92,7 @@ export type SignUpData = Omit<SignUpFormData, "role"> & {
 }
 
 export const getSignUpFormFields = ({
-  metadata: { role }
+  role
 }: InvitationDoc): FormFieldsSchema<SignUpFormData> => ({
   ...signInFormFields,
   firstName: {

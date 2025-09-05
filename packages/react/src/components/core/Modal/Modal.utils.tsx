@@ -25,6 +25,6 @@ export const getModalContent = ({ type, props }: ModalOptions) => {
     case "car":
       return <CarModalContent />
     case "user":
-      return <UserFrom />
+      return <UserFrom {...props} />
   }
 }

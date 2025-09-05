@@ -11,10 +11,11 @@ import {
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 
-import type { DataListItem, ItemMetadata } from "./DataView.model"
-
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+
 import { getParsedItemMetadataValue } from "./DataView.utils"
+
+import type { DataListItem, ItemMetadata } from "./DataView.model"
 
 const metadataIconsMap: Record<ItemMetadata["type"], Icon> = {
   text: InfoCircle,
@@ -90,12 +91,14 @@ export const DataCard = ({
           )
           .map(props => {
             const parsedValue = getParsedItemMetadataValue(props)
+            console.log(props)
+            console.log(parsedValue)
 
             const { label, type } = props
 
             const Icon = metadataIconsMap[type]
 
-            if (!parsedValue) {
+            if (parsedValue === null || parsedValue === undefined) {
               return null
             }
 

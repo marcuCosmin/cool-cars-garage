@@ -14,6 +14,7 @@ import {
 import { extendDataListItems } from "@/components/core/DataView/DataView.utils"
 import { Loader } from "@/components/basic/Loader"
 
+import { type UserEditData } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 import type { User } from "@/shared/firestore/firestore.model"
 
@@ -37,7 +38,9 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
     birthDate: { type: "date", label: "Birth Date" },
     isTaxiDriver: { type: "boolean", label: "Is Taxi Driver" },
     badgeNumber: { type: "text", label: "Badge Number" },
-    badgeExpirationDate: { type: "date", label: "Badge Expiration Date" }
+    badgeExpirationDate: { type: "date", label: "Badge Expiration Date" },
+    isActive: { type: "boolean", label: "Is Active" },
+    isPSVDriver: { type: "boolean", label: "Is PSV Driver" }
   }
 
 export const Users = () => {
@@ -59,8 +62,26 @@ export const Users = () => {
     toast.success(response.message)
   }
   const onItemEdit = (uid: User["uid"]) => {
-    const user = data?.users.find(user => user.id === uid) as RawUserListItem
-    dispatch(openModal({ type: "user" }))
+    const { metadata, title, subtitle, id } = data?.users.find(
+      user => user.id === uid
+    ) as RawUserListItem
+
+    const [firstName, lastName] = title.split(" ")
+
+    const userFormData: UserEditData = {
+      uid: id,
+      email: metadata.email,
+      firstName,
+      lastName,
+      birthDate: metadata.birthDate,
+      role: subtitle as User["role"],
+      dbsUpdate: metadata.dbsUpdate,
+      isTaxiDriver: metadata.isTaxiDriver,
+      badgeNumber: metadata.badgeNumber,
+      badgeExpirationDate: metadata.badgeExpirationDate,
+      isPSVDriver: metadata.isPSVDriver
+    }
+    dispatch(openModal({ type: "user", props: { user: userFormData } }))
   }
 
   if (isLoading) {

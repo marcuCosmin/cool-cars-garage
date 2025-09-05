@@ -1,4 +1,4 @@
-import type { DriverMetadata, User } from "../firestore/firestore.model"
+import type { User } from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
 type DefaultDataListItemMetadata = Record<string, FormFieldValue | undefined>
@@ -13,13 +13,10 @@ export type RawDataListItem<
 }
 
 export type RawUserListItem = RawDataListItem<
-  Pick<User, "email" | "creationTimestamp" | "phoneNumber"> &
-    Partial<
-      Omit<
-        Extract<DriverMetadata, { isTaxiDriver: true }>,
-        "role" | "isTaxiDriver"
-      > & {
-        isTaxiDriver: boolean
-      }
-    >
+  Omit<
+    Partial<Pick<User, "email">> &
+      Omit<User, "metadata" | "email"> &
+      Partial<User["metadata"]>,
+    "uid" | "firstName" | "lastName" | "role"
+  >
 >

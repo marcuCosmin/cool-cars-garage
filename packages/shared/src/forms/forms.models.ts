@@ -27,7 +27,7 @@ export type FormInputProps<T extends FormData> = FormFieldsCommonProps<T> & {
 }
 
 export type FormFieldsSchema<T extends FormData> = {
-  [key in keyof T]:
+  [key in keyof Required<T>]:
     | FormDateProps<T>
     | FormToggleProps<T>
     | FormSelectProps<T>

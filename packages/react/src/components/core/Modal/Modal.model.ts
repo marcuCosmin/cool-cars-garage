@@ -1,4 +1,5 @@
 import type { ConfirmationModalContentProps } from "@/components/core/ConfirmationModalContent"
+import type { UserFormProps } from "@/components/core/UserForm"
 
 export type ModalOptions =
   | {
@@ -11,5 +12,5 @@ export type ModalOptions =
     }
   | {
       type: "user"
-      props?: undefined
+      props?: UserFormProps
     }
