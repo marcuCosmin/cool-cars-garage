@@ -2,8 +2,8 @@ import { Router } from "express"
 import cors from "cors"
 
 import { updateCheckPointDate } from "./services/update-checkpoint-date"
-import { handleIncidentSubmission } from "./services/submit-incident"
-import { handleCheckSubmission } from "./services/submit-check"
+import { handleIncidentSubmission } from "./incidents/post"
+import { handleCheckSubmission } from "./checks/post"
 
 export const carsRouter = Router()
 
