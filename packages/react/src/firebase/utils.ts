@@ -41,7 +41,6 @@ export const getFirestoreDocs = async <T extends DocumentData>(
       `Failed to retrieve data from collection: ${collectionId}. The collection is empty`
     )
 
-    // this is a react query constraint, we have to return null instead of undefined
     return null
   }
 
@@ -69,7 +68,6 @@ export const getFirestoreDocs = async <T extends DocumentData>(
     // eslint-disable-next-line no-console
     console.warn(`Collection ${collectionId} exists, but it has no data`)
 
-    // this is a react query constraint, we have to return null instead of undefined
     return null
   }
 

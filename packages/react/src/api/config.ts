@@ -1,6 +1,6 @@
 import { firebaseAuth } from "@/firebase/config"
 
-import type { InviteUserFormData, SignUpData } from "@/shared/forms/forms.const"
+import type { UserCreateData, SignUpData } from "@/shared/forms/forms.const"
 
 const baseUrl = import.meta.env.VITE_API_URL
 
@@ -11,7 +11,8 @@ type ExecuteApiRequestProps = {
     | "/users/invite"
     | "/users/generate-auth-token"
     | `/users?${string}`
-  payload?: InviteUserFormData | SignUpData
+    | "/users/create-from-invitation"
+  payload?: UserCreateData | SignUpData
 }
 
 type ApiErrorResponse = {

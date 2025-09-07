@@ -2,24 +2,19 @@ import { getEmailError, getNameError, getRequiredError } from "./forms.utils"
 
 import type { FormFieldsSchema } from "./forms.models"
 
-import type { InvitationDoc, User } from "../firestore/firestore.model"
+import type { DriverMetadata, User } from "../firestore/firestore.model"
 
-export type UserFormData = Omit<
+export type UserCreateData = Omit<
   User,
-  | "metadata"
-  | "uid"
-  | "creationTimestamp"
-  | "isActive"
-  | "phoneNumber"
-  | "email"
+  "uid" | "creationTimestamp" | "isActive" | "email"
 > &
   Partial<Pick<User, "email">> &
-  Partial<User["metadata"]>
+  Partial<DriverMetadata>
 
-export const userFormFields: FormFieldsSchema<UserFormData> = {
+export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   email: {
     validate: getEmailError,
-    isOptional: ({ role }) => role === "driver",
+    isOptional: ({ role, isPSVDriver }) => role === "driver" && !isPSVDriver,
     type: "text"
   },
   firstName: {
@@ -37,7 +32,7 @@ export const userFormFields: FormFieldsSchema<UserFormData> = {
   },
   role: {
     type: "select",
-    options: ["admin", "manager", "driver"],
+    options: ["manager", "driver"],
     validate: getRequiredError
   },
   dbsUpdate: {
@@ -64,7 +59,7 @@ export const userFormFields: FormFieldsSchema<UserFormData> = {
   }
 }
 
-export type UserEditData = UserFormData & { uid: User["uid"] }
+export type UserEditData = UserCreateData & { uid: User["uid"] }
 
 export type SignInFormData = Pick<User, "email"> & {
   password: string
@@ -81,31 +76,12 @@ export const signInFormFields: FormFieldsSchema<SignInFormData> = {
   }
 }
 
-export type SignUpFormData = SignInFormData & {
-  firstName: string
-  lastName: string
-  birthDate?: number
-}
+export type SignUpFormData = SignInFormData
 
-export type SignUpData = Omit<SignUpFormData, "role"> & {
+export type SignUpData = SignUpFormData & {
   invitationId: string
 }
 
-export const getSignUpFormFields = ({
-  role
-}: InvitationDoc): FormFieldsSchema<SignUpFormData> => ({
-  ...signInFormFields,
-  firstName: {
-    validate: getNameError,
-    type: "text"
-  },
-  lastName: {
-    validate: getNameError,
-    type: "text"
-  },
-  birthDate: {
-    validate: getRequiredError,
-    type: "date",
-    shouldHide: () => role !== "driver"
-  }
-})
+export const signUpFormFields: FormFieldsSchema<SignUpFormData> = {
+  ...signInFormFields
+}

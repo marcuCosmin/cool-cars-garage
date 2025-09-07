@@ -1,4 +1,4 @@
-import type { User } from "../firestore/firestore.model"
+import type { DriverMetadata, User } from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
 type DefaultDataListItemMetadata = Record<string, FormFieldValue | undefined>
@@ -15,8 +15,10 @@ export type RawDataListItem<
 export type RawUserListItem = RawDataListItem<
   Omit<
     Partial<Pick<User, "email">> &
-      Omit<User, "metadata" | "email"> &
-      Partial<User["metadata"]>,
+      Omit<User, "email"> &
+      Partial<DriverMetadata>,
     "uid" | "firstName" | "lastName" | "role"
-  >
+  > & {
+    invitationPending?: boolean
+  }
 >

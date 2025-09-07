@@ -11,8 +11,8 @@ import { Form } from "@/components/basic/Form/Form"
 import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
-  userFormFields,
-  type UserFormData,
+  userCreateFields,
+  type UserCreateData,
   type UserEditData
 } from "@/shared/forms/forms.const"
 
@@ -29,7 +29,7 @@ export const UserForm = ({ user }: UserFormProps) => {
   const submitLabel = isEdit ? "Save" : "Create"
 
   const fields = extendFormFields({
-    fieldsSchema: userFormFields,
+    fieldsSchema: userCreateFields,
     additionalFieldsProps: {
       email: {
         label: "Email",
@@ -49,7 +49,7 @@ export const UserForm = ({ user }: UserFormProps) => {
       },
       role: {
         label: "Role",
-        options: ["Admin", "Manager", "Driver"],
+        options: ["Manager", "Driver"],
         defaultValue: user?.role
       },
       dbsUpdate: {
@@ -75,7 +75,7 @@ export const UserForm = ({ user }: UserFormProps) => {
     }
   })
 
-  const action = async (data: UserFormData) => {
+  const action = async (data: UserCreateData) => {
     const { message } = isEdit
       ? await updateUser({ ...user, ...data })
       : await createUser(data)

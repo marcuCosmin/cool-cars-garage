@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router"
 
-import { createUser } from "@/api/utils"
+import { createUserFromInvitation } from "@/api/utils"
 
 import { signInUserAfterCreation } from "@/firebase/utils"
 
@@ -8,7 +8,10 @@ import { Form } from "@/components/basic/Form/Form"
 
 import { extendFormFields } from "@/utils/extendFormFields"
 
-import { SignUpFormData, getSignUpFormFields } from "@/shared/forms/forms.const"
+import {
+  signUpFormFields,
+  type SignUpFormData
+} from "@/shared/forms/forms.const"
 
 import type { Invitation } from "./SignUp.model"
 
@@ -17,10 +20,8 @@ type SignUpFormProps = {
 }
 
 export const SignUpForm = ({ invitation }: SignUpFormProps) => {
-  const navigate = useNavigate()
-
   const fields = extendFormFields({
-    fieldsSchema: getSignUpFormFields(invitation),
+    fieldsSchema: signUpFormFields,
     additionalFieldsProps: {
       email: {
         label: "Email",
@@ -29,21 +30,14 @@ export const SignUpForm = ({ invitation }: SignUpFormProps) => {
       },
       password: {
         label: "Password"
-      },
-      firstName: {
-        label: "First Name"
-      },
-      lastName: {
-        label: "Last Name"
-      },
-      birthDate: {
-        label: "Birth Date"
       }
     }
   })
 
+  const navigate = useNavigate()
+
   const action = async (data: SignUpFormData) => {
-    const response = await createUser({
+    const response = await createUserFromInvitation({
       ...data,
       invitationId: invitation.id
     })

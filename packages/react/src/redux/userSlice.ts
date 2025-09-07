@@ -1,14 +1,14 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  type PayloadAction
-} from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
 import { getUserMetadata } from "@/firebase/utils"
+import type { User as FirebaseUser } from "firebase/auth"
 
 import type { User } from "@/shared/firestore/firestore.model"
 
-type UserState = User & {
+type UserState = Pick<
+  User,
+  "uid" | "email" | "firstName" | "lastName" | "role"
+> & {
   isLoading: boolean
   error?: string
 }
@@ -16,47 +16,54 @@ type UserState = User & {
 const initialState: UserState = {
   uid: "",
   email: "",
-  displayName: "",
-  metadata: {
-    role: "admin"
-  },
+  firstName: "",
+  lastName: "",
+  role: "driver",
   isLoading: true,
   error: ""
 }
 
-export const fetchUserMetadata = createAsyncThunk(
+const handleUserInit = async (user: FirebaseUser | null) => {
+  if (!user) {
+    return
+  }
+
+  const { uid, email } = user
+  const { role, firstName, lastName } = await getUserMetadata(uid)
+
+  return {
+    uid,
+    email: email as string,
+    role,
+    firstName,
+    lastName
+  }
+}
+
+export const initUserData = createAsyncThunk(
   "user/fetch-metadata",
-  getUserMetadata
+  handleUserInit
 )
 
 const userSlice = createSlice({
   name: "user",
-  initialState,
-  reducers: {
-    initUserData: (
-      state,
-      action: PayloadAction<Pick<User, "uid" | "email" | "displayName">>
-    ) => {
-      const { uid, email, displayName } = action.payload
-
-      state.uid = uid
-      state.email = email
-      state.displayName = displayName
-    },
-    clearUser: () => ({
-      ...initialState,
-      isLoading: false
-    })
-  },
+  initialState: { ...initialState },
+  reducers: {},
   extraReducers: builder => {
-    builder.addCase(fetchUserMetadata.pending, state => {
+    builder.addCase(initUserData.pending, state => {
       state.isLoading = true
     })
-    builder.addCase(fetchUserMetadata.fulfilled, (state, action) => {
-      state.metadata = action.payload
-      state.isLoading = false
+    builder.addCase(initUserData.fulfilled, (state, action) => {
+      const { payload } = action
+
+      if (!payload) {
+        Object.assign(state, { ...initialState, isLoading: false })
+        return
+      }
+
+      Object.assign(state, { ...payload })
     })
-    builder.addCase(fetchUserMetadata.rejected, (state, action) => {
+    builder.addCase(initUserData.rejected, (state, action) => {
       state.error = action.error.message
 
       state.isLoading = false
@@ -64,5 +71,4 @@ const userSlice = createSlice({
   }
 })
 
-export const { initUserData, clearUser } = userSlice.actions
 export const { reducer: user } = userSlice

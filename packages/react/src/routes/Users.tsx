@@ -33,14 +33,14 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
   {
     email: { type: "text", label: "Email" },
     creationTimestamp: { type: "date", label: "Join Date" },
-    phoneNumber: { type: "text", label: "Phone Number" },
     dbsUpdate: { type: "boolean", label: "DBS Update" },
     birthDate: { type: "date", label: "Birth Date" },
     isTaxiDriver: { type: "boolean", label: "Is Taxi Driver" },
     badgeNumber: { type: "text", label: "Badge Number" },
     badgeExpirationDate: { type: "date", label: "Badge Expiration Date" },
     isActive: { type: "boolean", label: "Is Active" },
-    isPSVDriver: { type: "boolean", label: "Is PSV Driver" }
+    isPSVDriver: { type: "boolean", label: "Is PSV Driver" },
+    invitationPending: { type: "boolean", label: "Invitation Pending" }
   }
 
 export const Users = () => {
@@ -54,21 +54,26 @@ export const Users = () => {
 
   const onAddButtonClick = () => dispatch(openModal({ type: "user" }))
 
-  const onItemDelete = async (uid: User["uid"]) => {
-    const response = await deleteUser(uid)
+  const onItemDelete = async (id: RawUserListItem["id"]) => {
+    const deletedItem = data?.usersList.find(user => user.id === id)
+
+    const response = await deleteUser({
+      id,
+      email: deletedItem?.metadata.email
+    })
 
     await queryClient.invalidateQueries({ queryKey: ["users"] })
 
     toast.success(response.message)
   }
   const onItemEdit = (uid: User["uid"]) => {
-    const { metadata, title, subtitle, id } = data?.users.find(
+    const { metadata, title, subtitle, id } = data?.usersList.find(
       user => user.id === uid
     ) as RawUserListItem
 
     const [firstName, lastName] = title.split(" ")
 
-    const userFormData: UserEditData = {
+    const userEditData: UserEditData = {
       uid: id,
       email: metadata.email,
       firstName,
@@ -81,7 +86,7 @@ export const Users = () => {
       badgeExpirationDate: metadata.badgeExpirationDate,
       isPSVDriver: metadata.isPSVDriver
     }
-    dispatch(openModal({ type: "user", props: { user: userFormData } }))
+    dispatch(openModal({ type: "user", props: { user: userEditData } }))
   }
 
   if (isLoading) {
@@ -91,7 +96,7 @@ export const Users = () => {
   return (
     <DataView
       data={extendDataListItems({
-        items: data?.users || [],
+        items: data?.usersList || [],
         metadataConfig: usersDataItemsMetadataConfig
       })}
       filtersConfig={filtersConfig}

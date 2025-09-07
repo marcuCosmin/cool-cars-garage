@@ -1,21 +1,29 @@
 import { type Request, type Response } from "express"
 
 import { firestore } from "@/firebase/config"
+import { isEmailUsed } from "@/firebase/utils"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
-import { userFormFields, type UserFormData } from "@/shared/forms/forms.const"
-import type { UserDoc } from "@/shared/firestore/firestore.model"
+import {
+  userCreateFields,
+  type UserCreateData
+} from "@/shared/forms/forms.const"
+import type {
+  DriverMetadata,
+  UserBaseProps,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
 
 import { inviteUser } from "./utils"
 
 export const handleCreateRequest = async (
-  req: Request<undefined, undefined, UserFormData>,
+  req: Request<undefined, undefined, UserCreateData>,
   res: Response
 ) => {
   const { errors, filteredData: signUpData } = getFormValidationResult({
-    schema: userFormFields,
+    schema: userCreateFields,
     data: req.body
   })
 
@@ -30,23 +38,63 @@ export const handleCreateRequest = async (
 
   const { email, firstName, lastName, role, ...userDocMetadata } = signUpData
 
-  const userDocData: UserDoc = {
+  const userBaseProps: UserBaseProps = {
     firstName,
     lastName,
-    role,
     isActive: true,
     creationTimestamp: getCurrentTimestamp()
   }
 
-  if (userDocMetadata) {
-    userDocData.metadata = userDocMetadata
-  }
-
-  const userDoc = await firestore.collection("users").add(userDocData)
+  const userDocData: UserDoc =
+    role === "driver"
+      ? {
+          ...userBaseProps,
+          role,
+          metadata: userDocMetadata as Required<DriverMetadata>
+        }
+      : { ...userBaseProps, role }
 
   if (email) {
-    await inviteUser({ ...userDocData, email, uid: userDoc.id })
+    const emailIsUsed = await isEmailUsed(email)
+
+    if (emailIsUsed) {
+      res.status(400).json({
+        error: "The provided email is already in use"
+      })
+      return
+    }
+
+    const invitationSnapshot = await firestore
+      .collection("invitations")
+      .where("email", "==", email)
+      .get()
+
+    if (!invitationSnapshot.empty) {
+      res.status(400).json({
+        error: "An invitation for this email already exists"
+      })
+      return
+    }
+
+    await inviteUser({ ...userDocData, email })
+
+    res.status(200).json({ message: "User invited successfully" })
+    return
   }
+
+  const userDocSnapshot = await firestore
+    .collection("users")
+    .where("email", "==", email)
+    .get()
+
+  if (!userDocSnapshot.empty) {
+    res.status(400).json({
+      error: "The provided email is already in use"
+    })
+    return
+  }
+
+  await firestore.collection("users").add(userDocData)
 
   res.status(200).json({ message: "User created successfully" })
 }

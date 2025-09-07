@@ -1,4 +1,4 @@
-type UserMetadata = {
+export type DriverMetadata = {
   birthDate: number
   dbsUpdate: boolean
   badgeNumber?: string
@@ -7,25 +7,39 @@ type UserMetadata = {
   isPSVDriver: boolean
 }
 
-export type UserRole = "admin" | "manager" | "driver"
+type AdminProps = {
+  role: "admin"
+}
 
-export type UserDoc = {
+type ManagerProps = {
+  role: "manager"
+}
+
+type DriverProps = {
+  role: "driver"
+  metadata: DriverMetadata
+}
+
+export type UserBaseProps = {
   firstName: string
   lastName: string
   isActive: boolean
   creationTimestamp: number
-  role: UserRole
-  metadata?: UserMetadata
 }
+
+export type UserDoc = UserBaseProps & (DriverProps | ManagerProps | AdminProps)
 
 export type User = UserDoc & {
   uid: string
   email: string
-  phoneNumber?: string
 }
 
-export type InvitationDoc = Pick<User, "email"> &
-  UserDoc & {
-    creationTimestamp: number
-    uid: string
-  }
+export type ExistingUserInvitation = Pick<
+  User,
+  "uid" | "email" | "creationTimestamp"
+>
+export type NewUserInvitation = Pick<User, "email"> & UserDoc
+
+export type InvitationDoc = ExistingUserInvitation | NewUserInvitation
+
+export type DocWithID<T> = T & { id: string }

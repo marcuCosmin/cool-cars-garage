@@ -14,7 +14,7 @@ import { useAppMutation } from "@/hooks/useAppMutation"
 import { Loader } from "@/components/basic/Loader"
 
 export const Layout = () => {
-  const userRole = useAppSelector(state => state.user.metadata.role)
+  const userRole = useAppSelector(state => state.user.role)
   const navigate = useNavigate()
 
   const { isLoading, mutate: signOutMutation } = useAppMutation({

@@ -1,22 +1,14 @@
 import { executeApiRequest } from "./config"
 
 import type {
-  EditUserData,
-  InviteUserFormData,
-  UserFormData
+  UserEditData,
+  UserCreateData,
+  SignUpData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
-import type { User } from "@/shared/firestore/firestore.model"
-
-export const inviteUser = (payload: InviteUserFormData) =>
-  executeApiRequest({
-    path: "/users/invite",
-    method: "POST",
-    payload
-  })
 
 type GetAllUsersResponse = {
-  users: RawUserListItem[]
+  usersList: RawUserListItem[]
 }
 export const getAllUsers = () =>
   executeApiRequest<GetAllUsersResponse>({
@@ -33,20 +25,36 @@ export const getAuthToken = () =>
     method: "GET"
   })
 
-export const createUser = (payload: UserFormData) =>
+type CreateUserFromInvitationResponse = {
+  authToken: string
+}
+
+export const createUserFromInvitation = (payload: SignUpData) =>
+  executeApiRequest<CreateUserFromInvitationResponse>({
+    path: "/users/create-from-invitation",
+    method: "POST",
+    payload
+  })
+
+export const createUser = (payload: UserCreateData) =>
   executeApiRequest({
     path: "/users",
     method: "POST",
     payload
   })
 
-export const deleteUser = (uid: User["uid"]) =>
+type DeleteUserProps = {
+  id: RawUserListItem["id"]
+  email?: RawUserListItem["metadata"]["email"]
+}
+
+export const deleteUser = ({ id, email }: DeleteUserProps) =>
   executeApiRequest({
-    path: `/users?uid=${uid}`,
+    path: `/users?uid=${id}&email=${email}`,
     method: "DELETE"
   })
 
-export const updateUser = (payload: EditUserData) =>
+export const updateUser = (payload: UserEditData) =>
   executeApiRequest({
     path: "/users",
     method: "PUT",

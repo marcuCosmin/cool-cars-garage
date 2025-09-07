@@ -6,7 +6,7 @@ import { firebaseAuth } from "@/firebase/config"
 import { signOutUser } from "@/firebase/utils"
 
 import { useAppDispatch, useAppSelector } from "@/redux/config"
-import { clearUser, fetchUserMetadata, initUserData } from "@/redux/userSlice"
+import { initUserData } from "@/redux/userSlice"
 
 import { Router } from "@/routes/Router"
 
@@ -24,19 +24,8 @@ export const App = () => {
   const resetUserError = () => signOutUser()
 
   useEffect(() => {
-    const unsubscribeIdTokenListener = onIdTokenChanged(
-      firebaseAuth,
-      async user => {
-        if (!user) {
-          dispatch(clearUser())
-          return
-        }
-
-        const { uid, email, displayName } = user
-
-        await dispatch(fetchUserMetadata(uid))
-        dispatch(initUserData({ uid, email, displayName }))
-      }
+    const unsubscribeIdTokenListener = onIdTokenChanged(firebaseAuth, user =>
+      dispatch(initUserData(user))
     )
 
     return unsubscribeIdTokenListener
