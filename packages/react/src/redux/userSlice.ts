@@ -61,7 +61,7 @@ const userSlice = createSlice({
         return
       }
 
-      Object.assign(state, { ...payload })
+      Object.assign(state, { ...payload, isLoading: false, error: "" })
     })
     builder.addCase(initUserData.rejected, (state, action) => {
       state.error = action.error.message
