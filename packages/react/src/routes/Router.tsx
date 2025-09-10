@@ -21,8 +21,13 @@ const Layout = lazy(() =>
   import("./Layout").then(module => ({ default: module.Layout }))
 )
 const Reports = lazy(() =>
-  import("./Reports").then(module => ({
+  import("./Reports/Reports").then(module => ({
     default: module.Reports
+  }))
+)
+const ReportsAuth = lazy(() =>
+  import("./Reports/ReportsAuth").then(module => ({
+    default: module.ReportsAuth
   }))
 )
 const NotFound = lazy(() =>
@@ -37,7 +42,7 @@ export const Router = () => {
 
   const renderRoleBasedRoutes = () => {
     if (userRole === "driver") {
-      return <Route index path="/" element={<Home />} />
+      return <Route index path="/reports/auth" element={<ReportsAuth />} />
     }
 
     if (userRole === "manager") {
@@ -46,7 +51,7 @@ export const Router = () => {
         <>
           <Route index path="/" element={<Home />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route index path="/reports" element={<Reports />} />
         </>
       )
     }
@@ -55,7 +60,10 @@ export const Router = () => {
       <>
         <Route index path="/" element={<Home />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/reports" element={<Reports />} />
+        <Route path="/reports">
+          <Route index element={<Reports />} />
+          <Route path="/reports/auth" element={<ReportsAuth />} />
+        </Route>
       </>
     )
   }

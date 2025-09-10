@@ -64,9 +64,11 @@ const userSlice = createSlice({
       Object.assign(state, { ...payload, isLoading: false, error: "" })
     })
     builder.addCase(initUserData.rejected, (state, action) => {
-      state.error = action.error.message
-
-      state.isLoading = false
+      Object.assign(state, {
+        ...initialState,
+        error: action.error.message || "Failed to fetch user data",
+        isLoading: false
+      })
     })
   }
 })
