@@ -22,7 +22,7 @@ export const handleCreateRequest = async (
   req: Request<undefined, undefined, UserCreateData>,
   res: Response
 ) => {
-  const { errors, filteredData: signUpData } = getFormValidationResult({
+  const { errors, filteredData: userData } = getFormValidationResult({
     schema: userCreateFields,
     data: req.body
   })
@@ -36,7 +36,7 @@ export const handleCreateRequest = async (
     return
   }
 
-  const { email, firstName, lastName, role, ...userDocMetadata } = signUpData
+  const { email, firstName, lastName, role, ...userDocMetadata } = userData
 
   const userBaseProps: UserBaseProps = {
     firstName,

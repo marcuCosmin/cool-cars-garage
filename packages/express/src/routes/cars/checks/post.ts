@@ -113,6 +113,6 @@ export const handleCheckSubmission = async (
   // Send wapp message to Marius
 
   res.status(200).json({
-    message: "Check reported successfully"
+    checkId: createdCheck.id
   })
 }

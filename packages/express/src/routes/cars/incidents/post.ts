@@ -11,6 +11,7 @@ import { createReportsNotification } from "../utils"
 type ReqBody = {
   carId: string
   description: string
+  checkId: string
 }
 
 export const handleIncidentSubmission = async (
@@ -18,9 +19,9 @@ export const handleIncidentSubmission = async (
   res: Response
 ) => {
   const uid = req.uid as string
-  const { carId, description } = req.body
+  const { carId, description, checkId } = req.body
 
-  if (!carId || !description?.trim()) {
+  if (!carId || !description?.trim() || !checkId) {
     res.status(400).json({
       error: "Invalid request body"
     })
@@ -31,6 +32,17 @@ export const handleIncidentSubmission = async (
   if (description.length > 500) {
     res.status(400).json({
       error: "The incident description must be less than 500 characters"
+    })
+
+    return
+  }
+
+  const checksRef = firestore.collection("cars").doc(carId).collection("checks")
+  const checkDoc = await checksRef.doc(checkId).get()
+
+  if (!checkDoc.exists) {
+    res.status(400).json({
+      error: "Invalid check ID"
     })
 
     return
@@ -47,7 +59,8 @@ export const handleIncidentSubmission = async (
     description,
     driverId: uid,
     creationTimestamp,
-    status: "pending"
+    status: "pending",
+    checkId
   })
 
   await createReportsNotification({
