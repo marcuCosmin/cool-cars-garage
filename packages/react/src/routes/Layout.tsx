@@ -12,6 +12,7 @@ import { useAppSelector } from "@/redux/config"
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
+import { useEffect } from "react"
 
 export const Layout = () => {
   const userRole = useAppSelector(state => state.user.role)
@@ -20,6 +21,12 @@ export const Layout = () => {
   const { isLoading, mutate: signOutMutation } = useAppMutation({
     mutationFn: signOutUser
   })
+
+  useEffect(() => {
+    if (userRole === "driver") {
+      navigate("/reports/auth", { replace: true })
+    }
+  }, [userRole])
 
   const onLogoutClick = async () => {
     const { error } = await signOutMutation()
