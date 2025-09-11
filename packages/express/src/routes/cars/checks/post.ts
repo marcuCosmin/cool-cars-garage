@@ -7,23 +7,14 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import type { Request } from "@/models"
 
 import { createReportsNotification } from "../utils"
+import { CheckDoc } from "@/shared/firestore/firestore.model"
 
-type Answer = {
-  label: string
-  value: boolean
-}
-
-type OdoReading = {
-  unit: "km" | "miles"
-  value: string
-}
-
-type ReqBody = Partial<{
-  carId: string
-  interior: Answer[]
-  exterior: Answer[]
-  odoReading: OdoReading
-}>
+type ReqBody = Partial<
+  Omit<
+    CheckDoc,
+    "creationTimestamp" | "driverId" | "faultsCount" | "hasUnresolvedFaults"
+  >
+>
 
 export const handleCheckSubmission = async (
   req: Request<undefined, undefined, ReqBody>,
@@ -47,24 +38,31 @@ export const handleCheckSubmission = async (
     answer => answer.value === false
   )
 
-  const carRef = firestore.collection("cars").doc(carId)
-
-  const checkRef = carRef.collection("checks")
+  const checkRef = firestore.collection("checks")
   const creationTimestamp = getCurrentTimestamp()
+  const checkHasFaults = answersWithFaults.length > 0
 
-  const createdCheck = await checkRef.add({
+  const checkData: CheckDoc = {
+    carId,
     interior,
     exterior,
     odoReading,
     driverId: uid,
     creationTimestamp
-  })
+  }
+
+  if (checkHasFaults) {
+    checkData.faultsCount = answersWithFaults.length
+    checkData.hasUnresolvedFaults = true
+  }
+
+  const createdCheck = await checkRef.add(checkData)
 
   const faultsIds: string[] = []
 
-  if (answersWithFaults.length) {
+  if (checkHasFaults) {
     const faultsBatch = firestore.batch()
-    const faultsRef = carRef.collection("faults")
+    const faultsRef = firestore.collection("faults")
 
     answersWithFaults.forEach(answer => {
       const fault = {

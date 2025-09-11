@@ -43,3 +43,26 @@ export type NewUserInvitation = Pick<User, "email"> & UserDoc
 export type InvitationDoc = ExistingUserInvitation | NewUserInvitation
 
 export type DocWithID<T> = T & { id: string }
+
+type CheckAnswer = {
+  label: string
+  value: boolean
+}
+
+type CheckOdoReading = {
+  unit: "km" | "miles"
+  value: string
+}
+
+export type CheckDoc = {
+  carId: string
+  creationTimestamp: number
+  driverId: string
+  odoReading: CheckOdoReading
+  interior: CheckAnswer[]
+  exterior: CheckAnswer[]
+  faultsCount?: number
+  hasUnresolvedFaults?: boolean
+  incidentsCount?: number
+  hasUnresolvedIncidents?: boolean
+}

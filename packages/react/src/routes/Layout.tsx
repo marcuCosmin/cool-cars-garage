@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import {
   NavLink,
   Outlet,
@@ -12,7 +13,6 @@ import { useAppSelector } from "@/redux/config"
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
-import { useEffect } from "react"
 
 export const Layout = () => {
   const userRole = useAppSelector(state => state.user.role)

@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router"
 import { useAppSelector } from "@/redux/config"
 
 import { Loader } from "@/components/basic/Loader"
+import { ReportsLayout } from "./Reports/ReportsLayout"
 
 const Home = lazy(() =>
   import("./Home").then(module => ({ default: module.Home }))
@@ -65,7 +66,7 @@ export const Router = () => {
       <>
         <Route index path="/" element={<Home />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/reports">
+        <Route path="/reports" element={<ReportsLayout />}>
           <Route index element={<Reports />} />
           <Route path="/reports/auth" element={<ReportsAuth />} />
         </Route>

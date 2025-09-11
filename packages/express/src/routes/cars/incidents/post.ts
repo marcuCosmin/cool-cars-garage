@@ -6,6 +6,8 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
+import type { CheckDoc } from "@/shared/firestore/firestore.model"
+
 import { createReportsNotification } from "../utils"
 
 type ReqBody = {
@@ -37,7 +39,7 @@ export const handleIncidentSubmission = async (
     return
   }
 
-  const checksRef = firestore.collection("cars").doc(carId).collection("checks")
+  const checksRef = firestore.collection("checks")
   const checkDoc = await checksRef.doc(checkId).get()
 
   if (!checkDoc.exists) {
@@ -48,10 +50,9 @@ export const handleIncidentSubmission = async (
     return
   }
 
-  const incidentsRef = firestore
-    .collection("cars")
-    .doc(carId)
-    .collection("incidents")
+  const checkData = checkDoc.data() as CheckDoc
+
+  const incidentsRef = firestore.collection("incidents")
 
   const creationTimestamp = getCurrentTimestamp()
 
@@ -62,6 +63,10 @@ export const handleIncidentSubmission = async (
     status: "pending",
     checkId
   })
+
+  checkData.hasUnresolvedIncidents = true
+  checkData.incidentsCount = (checkData.incidentsCount ?? 0) + 1
+  await checksRef.doc(checkId).update(checkData)
 
   await createReportsNotification({
     carId,

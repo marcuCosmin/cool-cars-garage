@@ -1,3 +1,7 @@
 export const Reports = () => {
-  return <div>wtasdfa</div>
+  return (
+    <div>
+      <h1>Reports</h1>
+    </div>
+  )
 }

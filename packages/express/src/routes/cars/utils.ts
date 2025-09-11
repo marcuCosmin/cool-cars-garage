@@ -1,12 +1,11 @@
-import { Timestamp } from "firebase-admin/firestore"
-import { firestore } from "../../firebase/config"
+import { firestore } from "@/firebase/config"
 
-import { getCurrentTimestamp } from "../../utils/get-current-timestamp"
+import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 type ReportsNotificationType = "incident" | "check" | "fault"
 
 type ReportsNotification = {
-  creationTimestamp: Timestamp
+  creationTimestamp: number
   viewed: boolean
   carId: string
   bulkCount?: number
