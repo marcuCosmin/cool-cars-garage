@@ -53,7 +53,7 @@ export const DataView = <RawItem extends RawDataListItem>({
   })
 
   return (
-    <div className="h-[calc(100vh-64px)]">
+    <div className="flex flex-col overflow-hidden">
       <div className="p-5 flex flex-wrap items-end gap-5">
         {onAddButtonClick && (
           <button

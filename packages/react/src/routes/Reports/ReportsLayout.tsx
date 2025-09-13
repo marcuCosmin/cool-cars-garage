@@ -12,7 +12,7 @@ export const ReportsLayout = () => {
 
   return (
     <>
-      <ul className="w-full flex justify-center gap-5 mt-8">
+      <ul className="w-full flex justify-center gap-5 pt-8">
         {navigationLinks.map(({ label, path = "" }, index) => {
           const to = `/reports${path}`
 

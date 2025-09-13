@@ -69,7 +69,7 @@ export const Layout = () => {
         </button>
       </nav>
 
-      <main className="relative h-[calc(100vh-64px)]">
+      <main className="flex flex-col relative h-[calc(100vh-64px)]">
         <Outlet />
       </main>
     </>
