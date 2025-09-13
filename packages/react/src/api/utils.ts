@@ -10,11 +10,14 @@ import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 type GetAllUsersResponse = {
   usersList: RawUserListItem[]
 }
-export const getAllUsers = () =>
-  executeApiRequest<GetAllUsersResponse>({
+export const getAllUsers = async () => {
+  const response = await executeApiRequest<GetAllUsersResponse>({
     path: "/users",
     method: "GET"
   })
+
+  return response.usersList
+}
 
 type GetAuthTokenResponse = {
   authToken: string

@@ -1,4 +1,6 @@
-import { type SelectProps } from "@/components/basic/Select"
+import type { QueryFunctionContext } from "@tanstack/react-query"
+
+import type { SelectProps } from "@/components/basic/Select"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
@@ -79,3 +81,18 @@ export type FiltersState<RawItem extends RawDataListItem> = (
   | SelectFilterProps
   | ToggleFilterProps<RawItem>
 )[]
+
+export type QueryContext<RawItem extends RawDataListItem> =
+  QueryFunctionContext<(string | FiltersState<RawItem>)[], number | undefined>
+
+export type FetchItems<RawItem extends RawDataListItem> = (
+  queryContext?: QueryContext<RawItem>
+) => Promise<RawItem[]>
+
+export type OpenEditModalProps<RawItem extends RawDataListItem> = {
+  item: RawItem
+  onSuccess: (newItem: RawItem) => void
+}
+export type OpenEditModal<RawItem extends RawDataListItem> = (
+  props: OpenEditModalProps<RawItem>
+) => void

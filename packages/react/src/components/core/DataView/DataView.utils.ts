@@ -86,3 +86,132 @@ export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
       return null
   }
 }
+
+type GetQueryKeyProps<RawItem extends RawDataListItem> = {
+  queryName: string
+  searchQuery: string
+  filters: FiltersState<RawItem>
+  serverSideFetching: boolean
+}
+
+export const getQueryKey = <RawItem extends RawDataListItem>({
+  queryName,
+  searchQuery,
+  filters,
+  serverSideFetching
+}: GetQueryKeyProps<RawItem>) => {
+  if (serverSideFetching) {
+    return [queryName, searchQuery, filters]
+  }
+
+  return [queryName]
+}
+
+export const getNextPageParam = <RawItem extends RawDataListItem>(
+  result: RawItem[] | undefined[]
+) => {
+  const lastItem = result[result.length - 1]
+
+  if (!lastItem) {
+    return undefined
+  }
+
+  const pageParam = lastItem.metadata.creationTimestamp
+
+  return pageParam
+}
+
+type GetItemsBySearchQueryProps<RawItem extends RawDataListItem> = {
+  items: DataListItem<RawItem>[]
+  searchQuery: string
+}
+
+const getItemsBySearchQuery = <RawItem extends RawDataListItem>({
+  items,
+  searchQuery
+}: GetItemsBySearchQueryProps<RawItem>) => {
+  const parsedSearchQuery = parseSearchString(searchQuery)
+
+  if (!parsedSearchQuery) {
+    return items
+  }
+
+  const filteredItems = items.filter(item => {
+    const parsedTitle = parseSearchString(item.title)
+    const parsedSubtitle = parseSearchString(item.subtitle)
+
+    return (
+      parsedTitle.includes(parsedSearchQuery) ||
+      parsedSubtitle.includes(parsedSearchQuery)
+    )
+  })
+
+  return filteredItems
+}
+
+type GetItemsByFiltersProps<RawItem extends RawDataListItem> = {
+  items: DataListItem<RawItem>[]
+  filters: FiltersState<RawItem>
+}
+
+const getItemsByFilters = <RawItem extends RawDataListItem>({
+  items,
+  filters
+}: GetItemsByFiltersProps<RawItem>) => {
+  let filteredItems = items.slice()
+
+  filters.forEach(filter => {
+    const { type } = filter
+
+    if (type === "toggle") {
+      const { filterFn, value } = filter
+
+      if (!value) {
+        return
+      }
+
+      filteredItems = filteredItems.filter(filterFn)
+      return
+    }
+
+    const { value, field } = filter
+
+    if (!value.length) {
+      return
+    }
+
+    filteredItems = filteredItems.filter(item => {
+      const itemMetadata = item.metadata[field]
+
+      return value.some(v => v === itemMetadata.value)
+    })
+  })
+
+  return filteredItems
+}
+
+type GetFilteredItemsProps<RawItem extends RawDataListItem> = {
+  items: DataListItem<RawItem>[]
+  searchQuery: string
+  filters: FiltersState<RawItem>
+  serverSideFetching: boolean
+}
+
+export const getFilteredItems = <RawItem extends RawDataListItem>({
+  items,
+  searchQuery,
+  filters,
+  serverSideFetching
+}: GetFilteredItemsProps<RawItem>) => {
+  if (serverSideFetching) {
+    return items
+  }
+
+  const itemsBySearchQuery = getItemsBySearchQuery({ items, searchQuery })
+  const itemsByFilters = getItemsByFilters({
+    items: itemsBySearchQuery,
+    filters
+  })
+
+  return itemsByFilters
+}

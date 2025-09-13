@@ -13,7 +13,7 @@ const CarModalContent = lazy(() =>
   }))
 )
 const UserFrom = lazy(() =>
-  import("../UserForm").then(module => ({
+  import("../UserForm/UserForm").then(module => ({
     default: module.UserForm
   }))
 )

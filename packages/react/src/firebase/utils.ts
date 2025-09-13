@@ -4,6 +4,11 @@ import {
   getDoc,
   getDocs,
   deleteDoc,
+  orderBy,
+  startAfter,
+  limit,
+  query,
+  QueryConstraint,
   type DocumentData
 } from "firebase/firestore"
 import {
@@ -13,8 +18,16 @@ import {
 } from "firebase/auth"
 import { firebaseAuth, firestore } from "./config"
 
+import type { QueryContext } from "@/components/core/DataView/DataView.model"
+
 import type { SignInFormData } from "@/shared/forms/forms.const"
-import type { InvitationDoc, UserDoc } from "@/shared/firestore/firestore.model"
+import type {
+  CheckDoc,
+  DocWithID,
+  InvitationDoc,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
+import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -112,4 +125,36 @@ export const getInvitation = async (invitationId: string) => {
   const invitation = invitationSnapshot.data()
 
   return invitation as InvitationDoc
+}
+
+export const getChecksChunk = async ({
+  pageParam,
+  queryKey
+}: QueryContext<CheckRawListItem>): Promise<DocWithID<CheckDoc>[]> => {
+  const checksRef = collection(firestore, "checks")
+
+  const queryConstraints = [
+    orderBy("creationTimestamp", "desc"),
+    pageParam && startAfter(pageParam),
+    limit(30)
+  ].filter(Boolean) as QueryConstraint[]
+
+  const checksQuery = query(checksRef, ...queryConstraints)
+
+  const checksSnapshot = await getDocs(checksQuery)
+
+  if (checksSnapshot.empty) {
+    return []
+  }
+
+  const checks = checksSnapshot.docs.map(doc => {
+    const data = doc.data() as CheckDoc
+
+    return {
+      ...data,
+      id: doc.id
+    }
+  })
+
+  return checks
 }

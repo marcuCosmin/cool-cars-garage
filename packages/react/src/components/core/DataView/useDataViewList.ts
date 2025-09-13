@@ -1,28 +1,75 @@
-import { useEffect, useState } from "react"
+import { useLocation } from "react-router"
+import { useState } from "react"
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 
-import { filtersConfigToState, parseSearchString } from "./DataView.utils"
+import {
+  extendDataListItems,
+  filtersConfigToState,
+  getFilteredItems,
+  getNextPageParam,
+  getQueryKey
+} from "./DataView.utils"
 
 import type {
-  DataListItem,
+  DataListItemMetadataConfig,
+  FetchItems,
   FilterChangeHandler,
   FiltersConfig,
-  FiltersState
+  FiltersState,
+  OpenEditModal
 } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 type UseDataViewList<RawItem extends RawDataListItem> = {
-  data: DataListItem<RawItem>[]
   filtersConfig: FiltersConfig<RawItem>
+  fetchItems: FetchItems<RawItem>
+  openEditModal?: OpenEditModal<RawItem>
+  deleteItem?: (item: RawItem) => Promise<void>
+  serverSideFetching: boolean
+  itemMetadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
 export const useDataViewList = <RawItem extends RawDataListItem>({
-  data,
-  filtersConfig
+  filtersConfig,
+  fetchItems,
+  deleteItem,
+  openEditModal,
+  serverSideFetching,
+  itemMetadataConfig
 }: UseDataViewList<RawItem>) => {
-  const [items, setItems] = useState(data)
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
+  const queryClient = useQueryClient()
+
+  const location = useLocation()
+  const queryKey = getQueryKey({
+    queryName: location.pathname,
+    searchQuery,
+    filters,
+    serverSideFetching
+  })
+
+  const { data } = useInfiniteQuery({
+    queryKey,
+    queryFn: fetchItems,
+    initialPageParam: undefined,
+    getNextPageParam
+  })
+
+  const rawItems = data ? data.pages.flat() : []
+
+  const items = extendDataListItems({
+    items: rawItems,
+    metadataConfig: itemMetadataConfig
+  })
+
+  const filteredItems = getFilteredItems<RawItem>({
+    items,
+    searchQuery,
+    filters,
+    serverSideFetching
+  })
 
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
     const newFilters = filters.slice()
@@ -38,51 +85,69 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
   const onSearchChange = (searchQuery: string = "") =>
     setSearchQuery(searchQuery)
 
-  useEffect(() => {
-    let newData = data.slice()
-    const parsedSearchQuery = parseSearchString(searchQuery)
+  const onItemDelete = async (id: RawItem["id"]) => {
+    const rawItem = rawItems.find(item => item.id === id)
 
-    if (parsedSearchQuery) {
-      newData = newData.filter(item => {
-        const parsedTitle = parseSearchString(item.title)
-        const parsedSubtitle = parseSearchString(item.subtitle)
-
-        return (
-          parsedTitle.includes(parsedSearchQuery) ||
-          parsedSubtitle.includes(parsedSearchQuery)
-        )
-      })
+    if (!rawItem) {
+      return
     }
 
-    filters.forEach(filter => {
-      const { type } = filter
+    await deleteItem?.(rawItem)
 
-      if (type === "toggle") {
-        const { filterFn, value } = filter
+    queryClient.setQueriesData(
+      {
+        queryKey: [location.pathname],
+        exact: false
+      },
+      (data: RawItem[]) => {
+        const newData = data.slice()
+        const itemIndex = newData.findIndex(item => item.id === id)
 
-        if (!value) {
-          return
+        if (itemIndex !== -1) {
+          newData.splice(itemIndex, 1)
         }
 
-        newData = newData.filter(filterFn)
-        return
+        return newData
       }
+    )
+  }
 
-      const { value, field } = filter
+  const onEditSuccess = (newItem: RawItem) => {
+    queryClient.setQueriesData(
+      {
+        queryKey: [location.pathname],
+        exact: false
+      },
+      (data: RawItem[]) => {
+        const newData = data.slice()
+        const itemIndex = newData.findIndex(item => item.id === newItem.id)
 
-      if (value.length === 0) {
-        return
+        if (itemIndex !== -1) {
+          newData[itemIndex] = newItem
+        }
+
+        return newData
       }
+    )
+  }
 
-      newData = newData.filter(item => {
-        const itemMetadata = item.metadata[field]
+  const onItemEdit = (id: RawItem["id"]) => {
+    const rawItem = rawItems.find(item => item.id === id)
 
-        return value.some(v => v === itemMetadata.value)
-      })
-    })
+    if (!rawItem) {
+      return
+    }
 
-    setItems(newData)
-  }, [data, searchQuery, filters])
+    openEditModal?.({ item: rawItem, onSuccess: onEditSuccess })
+  }
 
-  return { items, searchQuery, onSearchChange, filters, onFilterChange }
+  return {
+    items: filteredItems,
+    searchQuery,
+    onSearchChange,
+    filters,
+    onFilterChange,
+    onItemDelete,
+    onItemEdit
+  }
 }

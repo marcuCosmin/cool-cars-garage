@@ -7,38 +7,63 @@ import { useDataViewList } from "./useDataViewList"
 import { DataCard } from "./DataCard"
 import { Filters } from "./Filters"
 
-import type { FiltersConfig, DataListItem } from "./DataView.model"
+import type {
+  FiltersConfig,
+  FetchItems,
+  DataListItemMetadataConfig,
+  OpenEditModal
+} from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 type DataViewProps<RawItem extends RawDataListItem> = {
-  data: DataListItem<RawItem>[]
+  itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   filtersConfig: FiltersConfig<RawItem>
-  onAddButtonClick: () => void
-  onItemEdit: (id: string) => void
-  onItemDelete: (id: string) => Promise<void>
+  serverSideFetching?: boolean
+  onAddButtonClick?: () => void
+  openEditModal?: OpenEditModal<RawItem>
+  deleteItem?: (item: RawItem) => Promise<void>
+  fetchItems: FetchItems<RawItem>
 }
 
 export const DataView = <RawItem extends RawDataListItem>({
   filtersConfig,
-  data,
-  onItemDelete,
+  serverSideFetching = false,
+  itemMetadataConfig,
+  deleteItem,
   onAddButtonClick,
-  onItemEdit
+  openEditModal,
+  fetchItems
 }: DataViewProps<RawItem>) => {
-  const { items, searchQuery, onSearchChange, filters, onFilterChange } =
-    useDataViewList({ data, filtersConfig })
+  const {
+    items,
+    searchQuery,
+    onSearchChange,
+    filters,
+    onFilterChange,
+    onItemDelete,
+    onItemEdit
+  } = useDataViewList({
+    filtersConfig,
+    fetchItems,
+    serverSideFetching,
+    itemMetadataConfig,
+    deleteItem,
+    openEditModal
+  })
 
   return (
     <div className="h-[calc(100vh-64px)]">
       <div className="p-5 flex flex-wrap items-end gap-5">
-        <button
-          className="w-fit h-fit bg-transparent border-0 p-0 text-primary ring-0"
-          type="button"
-          onClick={onAddButtonClick}
-        >
-          <PlusCircleFill size={40} />
-        </button>
+        {onAddButtonClick && (
+          <button
+            className="w-fit h-fit bg-transparent border-0 p-0 text-primary ring-0"
+            type="button"
+            onClick={onAddButtonClick}
+          >
+            <PlusCircleFill size={40} />
+          </button>
+        )}
 
         <Input
           label="Search"
@@ -55,8 +80,8 @@ export const DataView = <RawItem extends RawDataListItem>({
 
       <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar">
         {items.map(({ title, subtitle, id, metadata }) => {
-          const onEdit = () => onItemEdit(id)
-          const onDelete = () => onItemDelete(id)
+          const onEdit = openEditModal ? () => onItemEdit(id) : undefined
+          const onDelete = deleteItem ? () => onItemDelete(id) : undefined
 
           return (
             <DataCard

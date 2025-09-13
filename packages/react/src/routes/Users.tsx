@@ -1,6 +1,3 @@
-import { toast } from "react-toastify"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
-
 import { deleteUser, getAllUsers } from "@/api/utils"
 
 import { useAppDispatch } from "@/redux/config"
@@ -9,14 +6,11 @@ import { openModal } from "@/redux/modalSlice"
 import { DataView } from "@/components/core/DataView/DataView"
 import {
   type DataListItemMetadataConfig,
-  type FiltersConfig
+  type FiltersConfig,
+  type OpenEditModal
 } from "@/components/core/DataView/DataView.model"
-import { extendDataListItems } from "@/components/core/DataView/DataView.utils"
-import { Loader } from "@/components/basic/Loader"
 
-import { type UserEditData } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
-import type { User } from "@/shared/firestore/firestore.model"
 
 const filtersConfig: FiltersConfig<RawUserListItem> = [
   {
@@ -45,64 +39,26 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
 
 export const Users = () => {
   const dispatch = useAppDispatch()
-  const queryClient = useQueryClient()
-
-  const { isLoading, data } = useQuery({
-    queryKey: ["users"],
-    queryFn: getAllUsers
-  })
 
   const onAddButtonClick = () => dispatch(openModal({ type: "user" }))
 
-  const onItemDelete = async (id: RawUserListItem["id"]) => {
-    const deletedItem = data?.usersList.find(user => user.id === id)
-
-    const response = await deleteUser({
+  const deleteItem = ({ id, metadata }: RawUserListItem) =>
+    deleteUser({
       id,
-      email: deletedItem?.metadata.email
+      email: metadata.email
     })
 
-    await queryClient.invalidateQueries({ queryKey: ["users"] })
-
-    toast.success(response.message)
-  }
-  const onItemEdit = (uid: User["uid"]) => {
-    const { metadata, title, subtitle, id } = data?.usersList.find(
-      user => user.id === uid
-    ) as RawUserListItem
-
-    const [firstName, lastName] = title.split(" ")
-
-    const userEditData: UserEditData = {
-      uid: id,
-      email: metadata.email,
-      firstName,
-      lastName,
-      birthDate: metadata.birthDate,
-      role: subtitle as User["role"],
-      dbsUpdate: metadata.dbsUpdate,
-      isTaxiDriver: metadata.isTaxiDriver,
-      badgeNumber: metadata.badgeNumber,
-      badgeExpirationDate: metadata.badgeExpirationDate,
-      isPSVDriver: metadata.isPSVDriver
-    }
-    dispatch(openModal({ type: "user", props: { user: userEditData } }))
-  }
-
-  if (isLoading) {
-    return <Loader enableOverlay text="Loading users data" />
-  }
+  const openEditModal: OpenEditModal<RawUserListItem> = editModalProps =>
+    dispatch(openModal({ type: "user", props: editModalProps }))
 
   return (
     <DataView
-      data={extendDataListItems({
-        items: data?.usersList || [],
-        metadataConfig: usersDataItemsMetadataConfig
-      })}
+      fetchItems={getAllUsers}
+      itemMetadataConfig={usersDataItemsMetadataConfig}
       filtersConfig={filtersConfig}
       onAddButtonClick={onAddButtonClick}
-      onItemDelete={onItemDelete}
-      onItemEdit={onItemEdit}
+      deleteItem={deleteItem}
+      openEditModal={openEditModal}
     />
   )
 }

@@ -1,7 +1,16 @@
-import type { DriverMetadata, User } from "../firestore/firestore.model"
+import type {
+  CheckDoc,
+  DriverMetadata,
+  User
+} from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
-type DefaultDataListItemMetadata = Record<string, FormFieldValue | undefined>
+type DefaultDataListItemMetadata = Record<
+  string,
+  FormFieldValue | undefined
+> & {
+  creationTimestamp: number
+}
 
 export type RawDataListItem<
   Metadata extends DefaultDataListItemMetadata = DefaultDataListItemMetadata
@@ -20,5 +29,15 @@ export type RawUserListItem = RawDataListItem<
     "uid" | "firstName" | "lastName" | "role"
   > & {
     invitationPending?: boolean
+  }
+>
+
+export type CheckRawListItem = RawDataListItem<
+  Omit<
+    CheckDoc,
+    "carId" | "odoReading" | "interior" | "exterior" | "driverId"
+  > & {
+    odoReading: string
+    driver: string
   }
 >

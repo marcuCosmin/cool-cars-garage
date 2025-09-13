@@ -29,8 +29,8 @@ type DataCardProps = Pick<
   "title" | "subtitle"
 > & {
   metadata: DataListItem<RawDataListItem>["metadata"]
-  onDelete: () => Promise<void>
-  onEdit: () => void
+  onDelete?: () => Promise<void>
+  onEdit?: () => void
 }
 
 export const DataCard = ({
@@ -47,7 +47,7 @@ export const DataCard = ({
       openModal({
         type: "confirmation",
         props: {
-          onConfirm: onDelete,
+          onConfirm: onDelete!,
           text: `Are you sure you want to delete ${title}?`
         }
       })
@@ -62,23 +62,29 @@ export const DataCard = ({
           {subtitle}
         </p>
 
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="bg-transparent w-fit p-0 text-primary"
-            onClick={onEdit}
-          >
-            <PencilSquare width={20} height={20} />
-          </button>
+        {(onEdit || onDelete) && (
+          <div className="flex items-center gap-4">
+            {onEdit && (
+              <button
+                type="button"
+                className="bg-transparent w-fit p-0 text-primary"
+                onClick={onEdit}
+              >
+                <PencilSquare width={20} height={20} />
+              </button>
+            )}
 
-          <button
-            type="button"
-            className="bg-transparent w-fit p-0 text-primary"
-            onClick={onDeleteClick}
-          >
-            <Trash3Fill width={20} height={20} />
-          </button>
-        </div>
+            {onDeleteClick && (
+              <button
+                type="button"
+                className="bg-transparent w-fit p-0 text-primary"
+                onClick={onDeleteClick}
+              >
+                <Trash3Fill width={20} height={20} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <hr />
