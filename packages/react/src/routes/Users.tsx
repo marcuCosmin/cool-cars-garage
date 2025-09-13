@@ -40,13 +40,12 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
 export const Users = () => {
   const dispatch = useAppDispatch()
 
-  const onAddButtonClick = () => dispatch(openModal({ type: "user" }))
-
-  const deleteItem = ({ id, metadata }: RawUserListItem) =>
-    deleteUser({
+  const deleteItem = async ({ id, metadata }: RawUserListItem) => {
+    await deleteUser({
       id,
       email: metadata.email
     })
+  }
 
   const openEditModal: OpenEditModal<RawUserListItem> = editModalProps =>
     dispatch(openModal({ type: "user", props: editModalProps }))
@@ -56,7 +55,6 @@ export const Users = () => {
       fetchItems={getAllUsers}
       itemMetadataConfig={usersDataItemsMetadataConfig}
       filtersConfig={filtersConfig}
-      onAddButtonClick={onAddButtonClick}
       deleteItem={deleteItem}
       openEditModal={openEditModal}
     />
