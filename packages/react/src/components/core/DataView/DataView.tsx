@@ -1,11 +1,12 @@
 import { PlusCircleFill, Search } from "react-bootstrap-icons"
 
 import { Input } from "@/components/basic/Input"
+import { Loader } from "@/components/basic/Loader"
 
 import { useDataViewList } from "./useDataViewList"
 
-import { DataCard } from "./DataCard"
 import { Filters } from "./Filters"
+import { DataViewList } from "./DataViewList/DataViewList"
 
 import type {
   FiltersConfig,
@@ -20,29 +21,33 @@ type DataViewProps<RawItem extends RawDataListItem> = {
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   filtersConfig: FiltersConfig<RawItem>
   serverSideFetching?: boolean
+  showSearch?: boolean
+  fetchItems: FetchItems<RawItem>
   onAddButtonClick?: () => void
   openEditModal?: OpenEditModal<RawItem>
   deleteItem?: (item: RawItem) => Promise<void>
-  fetchItems: FetchItems<RawItem>
 }
 
 export const DataView = <RawItem extends RawDataListItem>({
   filtersConfig,
   serverSideFetching = false,
   itemMetadataConfig,
+  showSearch = true,
   deleteItem,
   onAddButtonClick,
   openEditModal,
   fetchItems
 }: DataViewProps<RawItem>) => {
   const {
+    isLoading,
     items,
     searchQuery,
     onSearchChange,
     filters,
     onFilterChange,
     onItemDelete,
-    onItemEdit
+    onItemEdit,
+    onScrollEnd
   } = useDataViewList({
     filtersConfig,
     fetchItems,
@@ -51,6 +56,10 @@ export const DataView = <RawItem extends RawDataListItem>({
     deleteItem,
     openEditModal
   })
+
+  if (isLoading) {
+    return <Loader enableOverlay />
+  }
 
   return (
     <div className="flex flex-col overflow-hidden">
@@ -65,36 +74,27 @@ export const DataView = <RawItem extends RawDataListItem>({
           </button>
         )}
 
-        <Input
-          label="Search"
-          type="text"
-          value={searchQuery}
-          onChange={onSearchChange}
-          endAdornment={
-            <Search className="fill-primary" width={20} height={20} />
-          }
-        />
+        {showSearch && (
+          <Input
+            label="Search"
+            type="text"
+            value={searchQuery}
+            onChange={onSearchChange}
+            endAdornment={
+              <Search className="fill-primary" width={20} height={20} />
+            }
+          />
+        )}
 
         <Filters filters={filters} onFilterChange={onFilterChange} />
       </div>
 
-      <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar">
-        {items.map(({ title, subtitle, id, metadata }) => {
-          const onEdit = openEditModal ? () => onItemEdit(id) : undefined
-          const onDelete = deleteItem ? () => onItemDelete(id) : undefined
-
-          return (
-            <DataCard
-              key={id}
-              title={title}
-              subtitle={subtitle}
-              metadata={metadata}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          )
-        })}
-      </ul>
+      <DataViewList
+        items={items}
+        onItemDelete={onItemDelete}
+        onItemEdit={onItemEdit}
+        onScrollEnd={onScrollEnd}
+      />
     </div>
   )
 }

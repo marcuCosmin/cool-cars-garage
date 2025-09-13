@@ -13,9 +13,9 @@ import { openModal } from "@/redux/modalSlice"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-import { getParsedItemMetadataValue } from "./DataView.utils"
+import { getParsedItemMetadataValue } from "../DataView.utils"
 
-import type { DataListItem, ItemMetadata } from "./DataView.model"
+import type { DataListItem, ItemMetadata } from "../DataView.model"
 
 const metadataIconsMap: Record<ItemMetadata["type"], Icon> = {
   text: InfoCircle,
@@ -33,7 +33,7 @@ type DataCardProps = Pick<
   onEdit?: () => void
 }
 
-export const DataCard = ({
+export const DataListViewItem = ({
   title,
   subtitle,
   metadata,
@@ -97,8 +97,6 @@ export const DataCard = ({
           )
           .map(props => {
             const parsedValue = getParsedItemMetadataValue(props)
-            console.log(props)
-            console.log(parsedValue)
 
             const { label, type } = props
 

@@ -50,9 +50,11 @@ export const Reports = () => {
 
   return (
     <DataView
+      showSearch={false}
       filtersConfig={[]}
       fetchItems={fetchItems}
       itemMetadataConfig={checkDataListItemMetadataConfig}
+      serverSideFetching
     />
   )
 }

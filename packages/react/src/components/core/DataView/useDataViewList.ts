@@ -50,12 +50,13 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
     serverSideFetching
   })
 
-  const { data } = useInfiniteQuery({
-    queryKey,
-    queryFn: fetchItems,
-    initialPageParam: undefined,
-    getNextPageParam
-  })
+  const { isFetching, data, isFetchingNextPage, fetchNextPage } =
+    useInfiniteQuery({
+      queryKey,
+      queryFn: fetchItems,
+      initialPageParam: undefined,
+      getNextPageParam
+    })
 
   const rawItems = data ? data.pages.flat() : []
 
@@ -142,12 +143,15 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
   }
 
   return {
+    isLoading: isFetching && !isFetchingNextPage,
+    isLoadingNextChunk: isFetchingNextPage,
     items: filteredItems,
     searchQuery,
     onSearchChange,
     filters,
     onFilterChange,
-    onItemDelete,
-    onItemEdit
+    onScrollEnd: serverSideFetching ? fetchNextPage : undefined,
+    onItemDelete: deleteItem ? onItemDelete : undefined,
+    onItemEdit: openEditModal ? onItemEdit : undefined
   }
 }
