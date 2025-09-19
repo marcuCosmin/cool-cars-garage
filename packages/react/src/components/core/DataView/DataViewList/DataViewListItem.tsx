@@ -5,8 +5,10 @@ import {
   Calendar2Week,
   CheckCircle,
   BoxArrowUp,
-  InfoCircle
+  InfoCircle,
+  BoxArrowInUpRight
 } from "react-bootstrap-icons"
+import { Link } from "react-router"
 
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
@@ -29,6 +31,7 @@ type DataCardProps = Pick<
   "title" | "subtitle"
 > & {
   metadata: DataListItem<RawDataListItem>["metadata"]
+  detailedViewPath?: string
   onDelete?: () => Promise<void>
   onEdit?: () => void
 }
@@ -37,32 +40,35 @@ export const DataListViewItem = ({
   title,
   subtitle,
   metadata,
+  detailedViewPath,
   onDelete,
   onEdit
 }: DataCardProps) => {
   const dispatch = useAppDispatch()
 
-  const onDeleteClick = () =>
-    dispatch(
-      openModal({
-        type: "confirmation",
-        props: {
-          onConfirm: onDelete!,
-          text: `Are you sure you want to delete ${title}?`
-        }
-      })
-    )
+  const onDeleteClick = onDelete
+    ? () =>
+        dispatch(
+          openModal({
+            type: "confirmation",
+            props: {
+              onConfirm: onDelete,
+              text: `Are you sure you want to delete ${title}?`
+            }
+          })
+        )
+    : undefined
 
   return (
     <li className="relative flex flex-col w-full gap-4 p-5 max-w-sm border-primary border shadow-sm rounded-md">
       <div className="flex justify-between items-center">
-        <p className="font-bold text-primary">{title}</p>
+        {title && <p className="font-bold text-primary">{title}</p>}
 
         <p className="text-sm font-bold bg-primary text-white rounded-md py-1 px-4 capitalize w-fit">
           {subtitle}
         </p>
 
-        {(onEdit || onDelete) && (
+        {(onEdit || onDelete || detailedViewPath) && (
           <div className="flex items-center gap-4">
             {onEdit && (
               <button
@@ -82,6 +88,12 @@ export const DataListViewItem = ({
               >
                 <Trash3Fill width={20} height={20} />
               </button>
+            )}
+
+            {detailedViewPath && (
+              <Link to={detailedViewPath} className="h-fit">
+                <BoxArrowInUpRight width={20} height={20} />
+              </Link>
             )}
           </div>
         )}

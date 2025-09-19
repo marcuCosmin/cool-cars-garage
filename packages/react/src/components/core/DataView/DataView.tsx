@@ -5,7 +5,7 @@ import { Loader } from "@/components/basic/Loader"
 
 import { useDataViewList } from "./useDataViewList"
 
-import { Filters } from "./Filters"
+import { DataViewFilters } from "./DataViewFilters"
 import { DataViewList } from "./DataViewList/DataViewList"
 
 import type {
@@ -21,6 +21,7 @@ type DataViewProps<RawItem extends RawDataListItem> = {
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   filtersConfig: FiltersConfig<RawItem>
   serverSideFetching?: boolean
+  itemDetailedViewBasePath?: string
   showSearch?: boolean
   fetchItems: FetchItems<RawItem>
   onAddButtonClick?: () => void
@@ -33,12 +34,14 @@ export const DataView = <RawItem extends RawDataListItem>({
   serverSideFetching = false,
   itemMetadataConfig,
   showSearch = true,
+  itemDetailedViewBasePath,
   deleteItem,
   onAddButtonClick,
   openEditModal,
   fetchItems
 }: DataViewProps<RawItem>) => {
   const {
+    error,
     isLoading,
     items,
     searchQuery,
@@ -59,6 +62,14 @@ export const DataView = <RawItem extends RawDataListItem>({
 
   if (isLoading) {
     return <Loader enableOverlay />
+  }
+
+  if (error) {
+    return (
+      <div className="text-xl mt-10 max-w-5xl font-bold m-auto break-all">
+        {error.message}
+      </div>
+    )
   }
 
   return (
@@ -86,10 +97,11 @@ export const DataView = <RawItem extends RawDataListItem>({
           />
         )}
 
-        <Filters filters={filters} onFilterChange={onFilterChange} />
+        <DataViewFilters filters={filters} onFilterChange={onFilterChange} />
       </div>
 
       <DataViewList
+        itemDetailedViewBasePath={itemDetailedViewBasePath}
         items={items}
         onItemDelete={onItemDelete}
         onItemEdit={onItemEdit}

@@ -9,7 +9,8 @@ import {
   limit,
   query,
   QueryConstraint,
-  type DocumentData
+  type DocumentData,
+  where
 } from "firebase/firestore"
 import {
   signInWithCustomToken,
@@ -18,16 +19,24 @@ import {
 } from "firebase/auth"
 import { firebaseAuth, firestore } from "./config"
 
-import type { QueryContext } from "@/components/core/DataView/DataView.model"
+import type {
+  FiltersState,
+  QueryContext
+} from "@/components/core/DataView/DataView.model"
 
 import type { SignInFormData } from "@/shared/forms/forms.const"
 import type {
   CheckDoc,
   DocWithID,
+  FaultDoc,
+  IncidentDoc,
   InvitationDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
-import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
+import type {
+  CheckRawListItem,
+  RawDataListItem
+} from "@/shared/dataLists/dataLists.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -127,14 +136,84 @@ export const getInvitation = async (invitationId: string) => {
   return invitation as InvitationDoc
 }
 
+export const getAllUsersDocs = async () => {
+  const usersRef = collection(firestore, "users")
+  const usersSnapshot = await getDocs(usersRef)
+
+  if (usersSnapshot.empty) {
+    return []
+  }
+
+  const users = usersSnapshot.docs.map(doc => {
+    const data = doc.data() as UserDoc
+
+    return {
+      ...data,
+      id: doc.id
+    }
+  })
+
+  return users
+}
+
+const getQueryConstraintsFromQueryKey = <RawItem extends RawDataListItem>(
+  queryKey: QueryContext<RawItem>["queryKey"]
+) => {
+  const filters = queryKey[2] as FiltersState<RawItem>
+
+  const filtersQueryConstraints: (QueryConstraint | null)[] = filters.map(
+    filter => {
+      const { type } = filter
+
+      if (type === "select") {
+        const { field, value } = filter
+
+        if (value.length === 0) {
+          return null
+        }
+
+        return where(field as string, "in", value)
+      }
+
+      if (type === "toggle") {
+        const { filterOptions, value } = filter
+
+        if (!value) {
+          return null
+        }
+
+        const { field, operator, value: filterValue } = filterOptions
+
+        return where(field as string, operator, filterValue)
+      }
+
+      if (type === "date") {
+        const { field, value } = filter
+
+        if (!value) {
+          return null
+        }
+
+        return where(field as string, filter.operator, value)
+      }
+
+      return null
+    }
+  )
+
+  return filtersQueryConstraints.filter(Boolean) as QueryConstraint[]
+}
+
 export const getChecksChunk = async ({
   pageParam,
   queryKey
 }: QueryContext<CheckRawListItem>): Promise<DocWithID<CheckDoc>[]> => {
+  const filtersQueryConstraints = getQueryConstraintsFromQueryKey(queryKey)
   const checksRef = collection(firestore, "checks")
 
   const queryConstraints = [
     orderBy("creationTimestamp", "desc"),
+    ...filtersQueryConstraints,
     pageParam && startAfter(pageParam),
     limit(30)
   ].filter(Boolean) as QueryConstraint[]
@@ -157,4 +236,48 @@ export const getChecksChunk = async ({
   })
 
   return checks
+}
+
+export const getFullCheck = async (checkId: string) => {
+  const checkRef = doc(firestore, "checks", checkId)
+  const checkSnapshot = await getDoc(checkRef)
+
+  if (!checkSnapshot.exists()) {
+    return null
+  }
+
+  const check = checkSnapshot.data() as CheckDoc
+
+  const faultsRef = collection(firestore, "faults")
+  const faultsQuery = query(faultsRef, where("checkId", "==", checkId))
+  const faultsSnapshot = await getDocs(faultsQuery)
+
+  const faults = faultsSnapshot.docs.map(doc => {
+    const data = doc.data() as FaultDoc
+
+    return {
+      ...data,
+      id: doc.id
+    }
+  })
+
+  const incidentsRef = collection(firestore, "incidents")
+  const incidentsQuery = query(incidentsRef, where("checkId", "==", checkId))
+  const incidentsSnapshot = await getDocs(incidentsQuery)
+
+  const incidents = incidentsSnapshot.docs.map(doc => {
+    const data = doc.data() as IncidentDoc
+
+    return {
+      ...data,
+      id: doc.id
+    }
+  })
+
+  return {
+    ...check,
+    id: checkId,
+    faults,
+    incidents
+  }
 }

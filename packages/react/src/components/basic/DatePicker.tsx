@@ -11,14 +11,17 @@ type ValuePiece = Date | null
 
 type Value = ValuePiece | [ValuePiece, ValuePiece]
 
-export type DatePickerProps = FormFieldComponentProps<number>
+export type DatePickerProps = FormFieldComponentProps<number | undefined> & {
+  includeEndOfDay?: boolean
+}
 
 export const DatePicker = ({
   label,
   value,
   onChange,
   error,
-  onBlur
+  onBlur,
+  includeEndOfDay = false
 }: DatePickerProps) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const calendarRef = useRef<HTMLDivElement>(null)
@@ -38,6 +41,12 @@ export const DatePicker = ({
   const onClick = () => setIsPopupOpen(!isPopupOpen)
   const handleDateChange = (date: Value) => {
     if (date instanceof Date) {
+      if (includeEndOfDay) {
+        date.setHours(23, 59, 59, 999)
+      } else {
+        date.setHours(0, 0, 0, 0)
+      }
+
       const value = date.getTime()
       onChange(value)
       return

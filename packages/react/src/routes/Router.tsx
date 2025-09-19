@@ -4,7 +4,6 @@ import { BrowserRouter, Route, Routes } from "react-router"
 import { useAppSelector } from "@/redux/config"
 
 import { Loader } from "@/components/basic/Loader"
-import { ReportsLayout } from "./Reports/ReportsLayout"
 
 const Home = lazy(() =>
   import("./Home").then(module => ({ default: module.Home }))
@@ -26,18 +25,28 @@ const UnauthorizedLayout = lazy(() =>
     default: module.UnauthorizedLayout
   }))
 )
+const ReportsLayout = lazy(() =>
+  import("./reports/Layout").then(module => ({
+    default: module.ReportsLayout
+  }))
+)
 const Reports = lazy(() =>
-  import("./Reports/Reports").then(module => ({
+  import("./reports").then(module => ({
     default: module.Reports
   }))
 )
 const ReportsAuth = lazy(() =>
-  import("./Reports/ReportsAuth").then(module => ({
+  import("./reports/auth").then(module => ({
     default: module.ReportsAuth
   }))
 )
+const ReportsCheck = lazy(() =>
+  import("./reports/[checkId]").then(module => ({
+    default: module.ReportsCheck
+  }))
+)
 const NotFound = lazy(() =>
-  import("./NotFound").then(module => ({
+  import("../components/core/NotFound").then(module => ({
     default: module.NotFound
   }))
 )
@@ -68,6 +77,7 @@ export const Router = () => {
         <Route path="/users" element={<Users />} />
         <Route path="/reports" element={<ReportsLayout />}>
           <Route index element={<Reports />} />
+          <Route path="/reports/:checkId" element={<ReportsCheck />} />
           <Route path="/reports/auth" element={<ReportsAuth />} />
         </Route>
       </>

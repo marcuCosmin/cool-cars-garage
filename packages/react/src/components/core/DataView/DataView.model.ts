@@ -3,6 +3,8 @@ import type { QueryFunctionContext } from "@tanstack/react-query"
 import type { SelectProps } from "@/components/basic/Select"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { FormFieldValue } from "@/shared/forms/forms.models"
+import { DatePickerProps } from "@/components/basic/DatePicker"
 
 type ItemTextMetadata = {
   type: "text"
@@ -51,7 +53,7 @@ export type DataListItem<RawItem extends RawDataListItem> = Omit<
 > & { metadata: { [key in keyof RawItem["metadata"]]: ItemMetadata } }
 
 export type FilterChangeHandler = (props: {
-  value: string[] | boolean
+  value?: string[] | boolean | number
   index: number
 }) => void
 
@@ -59,27 +61,42 @@ type ComponentFilterProps = {
   label: string
 }
 
-type SelectFilterProps = {
+type SelectFilterProps<RawItem extends RawDataListItem> = {
   type: "select"
   options: SelectProps["options"]
   value: string[]
-  field: string
+  field: keyof RawItem["metadata"]
 } & ComponentFilterProps
 
 type ToggleFilterProps<RawItem extends RawDataListItem> = {
   type: "toggle"
-  filterFn: (item: DataListItem<RawItem>) => boolean
+  filterOptions: {
+    field: keyof RawItem["metadata"]
+    operator: "==" | "!=" | ">" | "<" | ">=" | "<="
+    value: FormFieldValue
+  }
   value: boolean
 } & ComponentFilterProps
 
+type DateFilterProps<RawItem extends RawDataListItem> = Pick<
+  DatePickerProps,
+  "value" | "includeEndOfDay"
+> & {
+  type: "date"
+  operator: ">=" | "<="
+  field: keyof RawItem["metadata"]
+} & ComponentFilterProps
+
 export type FiltersConfig<RawItem extends RawDataListItem> = (
-  | Omit<SelectFilterProps, "value">
+  | Omit<SelectFilterProps<RawItem>, "value">
   | Omit<ToggleFilterProps<RawItem>, "value">
+  | Omit<DateFilterProps<RawItem>, "value">
 )[]
 
 export type FiltersState<RawItem extends RawDataListItem> = (
-  | SelectFilterProps
+  | SelectFilterProps<RawItem>
   | ToggleFilterProps<RawItem>
+  | DateFilterProps<RawItem>
 )[]
 
 export type QueryContext<RawItem extends RawDataListItem> =

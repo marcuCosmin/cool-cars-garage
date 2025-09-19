@@ -66,3 +66,22 @@ export type CheckDoc = {
   incidentsCount?: number
   hasUnresolvedIncidents?: boolean
 }
+
+type ReportsIssueStatus = "pending" | "resolved"
+
+export type FaultDoc = {
+  description: string
+  driverId: string
+  status: ReportsIssueStatus
+  checkId: string
+  creationTimestamp: number
+  carId: string
+}
+
+export type IncidentDoc = {
+  description: string
+  driverId: string
+  creationTimestamp: number
+  status: ReportsIssueStatus
+  checkId: string
+}

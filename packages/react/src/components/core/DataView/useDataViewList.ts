@@ -50,7 +50,7 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
     serverSideFetching
   })
 
-  const { isFetching, data, isFetchingNextPage, fetchNextPage } =
+  const { isFetching, data, isFetchingNextPage, fetchNextPage, error } =
     useInfiniteQuery({
       queryKey,
       queryFn: fetchItems,
@@ -60,16 +60,16 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
 
   const rawItems = data ? data.pages.flat() : []
 
-  const items = extendDataListItems({
+  const filteredRawItems = getFilteredItems<RawItem>({
     items: rawItems,
-    metadataConfig: itemMetadataConfig
-  })
-
-  const filteredItems = getFilteredItems<RawItem>({
-    items,
     searchQuery,
     filters,
     serverSideFetching
+  })
+
+  const items = extendDataListItems({
+    items: filteredRawItems,
+    metadataConfig: itemMetadataConfig
   })
 
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
@@ -143,9 +143,10 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
   }
 
   return {
+    error,
     isLoading: isFetching && !isFetchingNextPage,
     isLoadingNextChunk: isFetchingNextPage,
-    items: filteredItems,
+    items,
     searchQuery,
     onSearchChange,
     filters,

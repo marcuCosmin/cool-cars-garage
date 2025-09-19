@@ -8,6 +8,7 @@ import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 type DataViewListProps<RawItem extends RawDataListItem> = {
   items: DataListItem<RawItem>[]
+  itemDetailedViewBasePath?: string
   onScrollEnd?: () => void
   onItemEdit?: (id: string) => void
   onItemDelete?: (id: string) => Promise<void>
@@ -15,6 +16,7 @@ type DataViewListProps<RawItem extends RawDataListItem> = {
 
 export const DataViewList = <RawItem extends RawDataListItem>({
   items,
+  itemDetailedViewBasePath,
   onItemEdit,
   onItemDelete,
   onScrollEnd
@@ -26,11 +28,15 @@ export const DataViewList = <RawItem extends RawDataListItem>({
       {items.map(({ title, subtitle, id, metadata }) => {
         const onEdit = onItemEdit ? () => onItemEdit(id) : undefined
         const onDelete = onItemDelete ? () => onItemDelete(id) : undefined
+        const detailedViewPath = itemDetailedViewBasePath
+          ? `${itemDetailedViewBasePath}/${id}`
+          : undefined
 
         return (
           <DataListViewItem
             key={id}
             title={title}
+            detailedViewPath={detailedViewPath}
             subtitle={subtitle}
             metadata={metadata}
             onEdit={onEdit}

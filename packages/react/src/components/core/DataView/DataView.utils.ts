@@ -30,6 +30,12 @@ export const filtersConfigToState = <RawItem extends RawDataListItem>(
           value: false
         }
       }
+      case "date": {
+        return {
+          ...filterProps,
+          value: undefined
+        }
+      }
     }
   })
 
@@ -122,7 +128,7 @@ export const getNextPageParam = <RawItem extends RawDataListItem>(
 }
 
 type GetItemsBySearchQueryProps<RawItem extends RawDataListItem> = {
-  items: DataListItem<RawItem>[]
+  items: RawItem[]
   searchQuery: string
 }
 
@@ -150,7 +156,7 @@ const getItemsBySearchQuery = <RawItem extends RawDataListItem>({
 }
 
 type GetItemsByFiltersProps<RawItem extends RawDataListItem> = {
-  items: DataListItem<RawItem>[]
+  items: RawItem[]
   filters: FiltersState<RawItem>
 }
 
@@ -164,34 +170,72 @@ const getItemsByFilters = <RawItem extends RawDataListItem>({
     const { type } = filter
 
     if (type === "toggle") {
-      const { filterFn, value } = filter
+      const { filterOptions, value } = filter
 
       if (!value) {
         return
       }
 
-      filteredItems = filteredItems.filter(filterFn)
+      filteredItems = filteredItems.filter(item => {
+        const filterFieldValue = (item.metadata as RawItem["metadata"])[
+          filterOptions.field
+        ]
+
+        const filterExpression = [
+          String(filterFieldValue),
+          filterOptions.operator,
+          filterOptions.value
+        ].join(" ")
+
+        const isMatch = eval(filterExpression)
+
+        return isMatch
+      })
       return
     }
 
-    const { value, field } = filter
+    if (type === "select") {
+      const { value, field } = filter
 
-    if (!value.length) {
-      return
+      if (!value.length) {
+        return
+      }
+
+      filteredItems = filteredItems.filter(item => {
+        const itemMetadata = (item.metadata as RawItem["metadata"])[field]
+
+        return value.some(v => v === itemMetadata)
+      })
     }
 
-    filteredItems = filteredItems.filter(item => {
-      const itemMetadata = item.metadata[field]
+    if (type === "date") {
+      const { field, operator, value } = filter
 
-      return value.some(v => v === itemMetadata.value)
-    })
+      if (!value) {
+        return
+      }
+
+      filteredItems = filteredItems.filter(item => {
+        const itemMetadata = (item.metadata as RawItem["metadata"])[field]
+
+        const filterExpression = [
+          String(itemMetadata),
+          operator,
+          String(value)
+        ].join(" ")
+
+        const isMatch = eval(filterExpression)
+
+        return isMatch
+      })
+    }
   })
 
   return filteredItems
 }
 
 type GetFilteredItemsProps<RawItem extends RawDataListItem> = {
-  items: DataListItem<RawItem>[]
+  items: RawItem[]
   searchQuery: string
   filters: FiltersState<RawItem>
   serverSideFetching: boolean

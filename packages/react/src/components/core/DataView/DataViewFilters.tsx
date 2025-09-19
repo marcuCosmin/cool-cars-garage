@@ -1,19 +1,20 @@
 import { Select, type SelectProps } from "@/components/basic/Select"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
+import { DatePicker, type DatePickerProps } from "@/components/basic/DatePicker"
 
 import type { FiltersState, FilterChangeHandler } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-type FiltersProps<RawItem extends RawDataListItem> = {
+type DataViewFiltersProps<RawItem extends RawDataListItem> = {
   filters: FiltersState<RawItem>
   onFilterChange: FilterChangeHandler
 }
 
-export const Filters = <RawItem extends RawDataListItem>({
+export const DataViewFilters = <RawItem extends RawDataListItem>({
   filters,
   onFilterChange
-}: FiltersProps<RawItem>) =>
+}: DataViewFiltersProps<RawItem>) =>
   filters.map((filterProps, index) => {
     const { type, label } = filterProps
 
@@ -25,6 +26,7 @@ export const Filters = <RawItem extends RawDataListItem>({
 
         return (
           <Select
+            key={index}
             label={label}
             isMulti
             onChange={onSelectChange}
@@ -33,12 +35,36 @@ export const Filters = <RawItem extends RawDataListItem>({
           />
         )
       }
+
       case "toggle": {
         const { value } = filterProps
         const onToggleChange: ToggleProps["onChange"] = value =>
           onFilterChange({ value: !!value, index })
 
-        return <Toggle label={label} value={value} onChange={onToggleChange} />
+        return (
+          <Toggle
+            key={index}
+            label={label}
+            value={value}
+            onChange={onToggleChange}
+          />
+        )
+      }
+
+      case "date": {
+        const { value, includeEndOfDay } = filterProps
+        const onDateChange: DatePickerProps["onChange"] = value =>
+          onFilterChange({ value, index })
+
+        return (
+          <DatePicker
+            key={index}
+            label={label}
+            value={value}
+            onChange={onDateChange}
+            includeEndOfDay={includeEndOfDay}
+          />
+        )
       }
     }
   })
