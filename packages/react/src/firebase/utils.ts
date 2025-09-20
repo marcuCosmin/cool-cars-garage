@@ -33,10 +33,6 @@ import type {
   InvitationDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
-import type {
-  CheckRawListItem,
-  RawDataListItem
-} from "@/shared/dataLists/dataLists.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -156,10 +152,10 @@ export const getAllUsersDocs = async () => {
   return users
 }
 
-const getQueryConstraintsFromQueryKey = <RawItem extends RawDataListItem>(
-  queryKey: QueryContext<RawItem>["queryKey"]
+const getQueryConstraintsFromQueryKey = <Document extends DocumentData>(
+  queryKey: QueryContext<Document, true>["queryKey"]
 ) => {
-  const filters = queryKey[2] as FiltersState<RawItem>
+  const filters = queryKey[2] as FiltersState<Document, true>
 
   const filtersQueryConstraints: (QueryConstraint | null)[] = filters.map(
     filter => {
@@ -207,7 +203,7 @@ const getQueryConstraintsFromQueryKey = <RawItem extends RawDataListItem>(
 export const getChecksChunk = async ({
   pageParam,
   queryKey
-}: QueryContext<CheckRawListItem>): Promise<DocWithID<CheckDoc>[]> => {
+}: QueryContext<CheckDoc, true>): Promise<DocWithID<CheckDoc>[]> => {
   const filtersQueryConstraints = getQueryConstraintsFromQueryKey(queryKey)
   const checksRef = collection(firestore, "checks")
 

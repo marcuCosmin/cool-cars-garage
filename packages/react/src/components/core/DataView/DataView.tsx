@@ -1,5 +1,7 @@
 import { PlusCircleFill, Search } from "react-bootstrap-icons"
 
+import { type DocumentData } from "firebase/firestore"
+
 import { Input } from "@/components/basic/Input"
 import { Loader } from "@/components/basic/Loader"
 
@@ -17,21 +19,33 @@ import type {
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-type DataViewProps<RawItem extends RawDataListItem> = {
+type DataViewProps<
+  RawItem extends RawDataListItem,
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+> = {
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
-  filtersConfig: FiltersConfig<RawItem>
-  serverSideFetching?: boolean
+  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
+  serverSideFetching?: ServerSideFetching
   itemDetailedViewBasePath?: string
   showSearch?: boolean
-  fetchItems: FetchItems<RawItem>
+  fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
   onAddButtonClick?: () => void
   openEditModal?: OpenEditModal<RawItem>
   deleteItem?: (item: RawItem) => Promise<void>
 }
 
-export const DataView = <RawItem extends RawDataListItem>({
+export const DataView = <
+  RawItem extends RawDataListItem,
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean = false
+>({
   filtersConfig,
-  serverSideFetching = false,
+  serverSideFetching = false as ServerSideFetching,
   itemMetadataConfig,
   showSearch = true,
   itemDetailedViewBasePath,
@@ -39,7 +53,7 @@ export const DataView = <RawItem extends RawDataListItem>({
   onAddButtonClick,
   openEditModal,
   fetchItems
-}: DataViewProps<RawItem>) => {
+}: DataViewProps<RawItem, FilterItem, ServerSideFetching>) => {
   const {
     error,
     isLoading,

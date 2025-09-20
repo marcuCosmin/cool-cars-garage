@@ -11,7 +11,11 @@ import {
 } from "@/components/core/DataView/DataView.model"
 
 import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
-import type { DocWithID, UserDoc } from "@/shared/firestore/firestore.model"
+import type {
+  CheckDoc,
+  DocWithID,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
 
 const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListItem> =
   {
@@ -42,10 +46,10 @@ export const Reports = () => {
     return <div></div>
   }
 
-  const filtersConfig: FiltersConfig<CheckRawListItem> = [
+  const filtersConfig: FiltersConfig<CheckDoc, true> = [
     {
       label: "Driver",
-      field: "driver",
+      field: "driverId",
       type: "select",
       options: users.map(({ firstName, lastName, id }) => ({
         label: `${firstName} ${lastName}`,
@@ -103,7 +107,11 @@ export const Reports = () => {
     }
   ]
 
-  const fetchItems: FetchItems<CheckRawListItem> = async queryContext => {
+  const fetchItems: FetchItems<
+    CheckRawListItem,
+    CheckDoc,
+    true
+  > = async queryContext => {
     const checks = await getChecksChunk(queryContext!)
 
     return checks.map(check => {

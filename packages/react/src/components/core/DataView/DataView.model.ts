@@ -5,6 +5,7 @@ import type { SelectProps } from "@/components/basic/Select"
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 import type { FormFieldValue } from "@/shared/forms/forms.models"
 import { DatePickerProps } from "@/components/basic/DatePicker"
+import { DocumentData } from "firebase/firestore"
 
 type ItemTextMetadata = {
   type: "text"
@@ -61,50 +62,83 @@ type ComponentFilterProps = {
   label: string
 }
 
-type SelectFilterProps<RawItem extends RawDataListItem> = {
+type SelectFilterProps<Item extends Record<string, any>> = {
   type: "select"
   options: SelectProps["options"]
   value: string[]
-  field: keyof RawItem["metadata"]
+  field: keyof Item
 } & ComponentFilterProps
 
-type ToggleFilterProps<RawItem extends RawDataListItem> = {
+type ToggleFilterProps<Item extends Record<string, any>> = {
   type: "toggle"
   filterOptions: {
-    field: keyof RawItem["metadata"]
+    field: keyof Item
     operator: "==" | "!=" | ">" | "<" | ">=" | "<="
     value: FormFieldValue
   }
   value: boolean
 } & ComponentFilterProps
 
-type DateFilterProps<RawItem extends RawDataListItem> = Pick<
+type DateFilterProps<Item extends Record<string, any>> = Pick<
   DatePickerProps,
   "value" | "includeEndOfDay"
 > & {
   type: "date"
   operator: ">=" | "<="
-  field: keyof RawItem["metadata"]
+  field: keyof Item
 } & ComponentFilterProps
 
-export type FiltersConfig<RawItem extends RawDataListItem> = (
-  | Omit<SelectFilterProps<RawItem>, "value">
-  | Omit<ToggleFilterProps<RawItem>, "value">
-  | Omit<DateFilterProps<RawItem>, "value">
-)[]
+type ClientFiltersConfig<RawItem extends RawDataListItem> =
+  | Omit<SelectFilterProps<RawItem["metadata"]>, "value">
+  | Omit<ToggleFilterProps<RawItem["metadata"]>, "value">
+  | Omit<DateFilterProps<RawItem["metadata"]>, "value">
 
-export type FiltersState<RawItem extends RawDataListItem> = (
-  | SelectFilterProps<RawItem>
-  | ToggleFilterProps<RawItem>
-  | DateFilterProps<RawItem>
-)[]
+type ServerFiltersConfig<Document extends DocumentData> =
+  | Omit<SelectFilterProps<Document>, "value">
+  | Omit<ToggleFilterProps<Document>, "value">
+  | Omit<DateFilterProps<Document>, "value">
 
-export type QueryContext<RawItem extends RawDataListItem> =
-  QueryFunctionContext<(string | FiltersState<RawItem>)[], number | undefined>
+export type FiltersConfig<
+  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  ServerSideFetching extends boolean = false
+> = ServerSideFetching extends true
+  ? ServerFiltersConfig<Extract<Item, DocumentData>>[]
+  : ClientFiltersConfig<Extract<Item, RawDataListItem>>[]
 
-export type FetchItems<RawItem extends RawDataListItem> = (
-  queryContext?: QueryContext<RawItem>
-) => Promise<RawItem[]>
+type ClientFiltersState<RawItem extends RawDataListItem> =
+  | SelectFilterProps<RawItem["metadata"]>
+  | ToggleFilterProps<RawItem["metadata"]>
+  | DateFilterProps<RawItem["metadata"]>
+
+type ServerFiltersState<Document extends DocumentData> =
+  | SelectFilterProps<Document>
+  | ToggleFilterProps<Document>
+  | DateFilterProps<Document>
+
+export type FiltersState<
+  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  ServerSideFetching extends boolean
+> = ServerSideFetching extends true
+  ? ServerFiltersState<Extract<Item, DocumentData>>[]
+  : ClientFiltersState<Extract<Item, RawDataListItem>>[]
+
+export type QueryContext<
+  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  ServerSideFetching extends boolean
+> = QueryFunctionContext<
+  (string | FiltersState<Item, ServerSideFetching>)[],
+  number | undefined
+>
+
+export type FetchItems<
+  Item extends RawDataListItem,
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+> = (
+  queryContext?: QueryContext<FilterItem, ServerSideFetching>
+) => Promise<Item[]>
 
 export type OpenEditModalProps<RawItem extends RawDataListItem> = {
   item: RawItem

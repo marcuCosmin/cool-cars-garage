@@ -12,16 +12,7 @@ import {
 
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
-const filtersConfig: FiltersConfig<RawUserListItem> = [
-  {
-    label: "Council",
-    field: "council",
-    type: "select",
-    options: ["Wolverhampton", "Cornwall", "PSV", "Portsmouth", "Other"].map(
-      option => ({ label: option, value: option })
-    )
-  }
-]
+const filtersConfig: FiltersConfig<RawUserListItem, false> = []
 
 const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> =
   {

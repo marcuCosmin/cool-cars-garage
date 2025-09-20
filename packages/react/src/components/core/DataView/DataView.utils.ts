@@ -1,3 +1,5 @@
+import { type DocumentData } from "firebase/firestore"
+
 import type {
   FiltersConfig,
   FiltersState,
@@ -11,9 +13,14 @@ import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 export const parseSearchString = (searchString: string) =>
   searchString.trim().toLowerCase()
 
-export const filtersConfigToState = <RawItem extends RawDataListItem>(
-  filtersConfig: FiltersConfig<RawItem>
-): FiltersState<RawItem> =>
+export const filtersConfigToState = <
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+>(
+  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
+): FiltersState<FilterItem, ServerSideFetching> =>
   filtersConfig.map(filterProps => {
     const { type } = filterProps
 
@@ -37,7 +44,7 @@ export const filtersConfigToState = <RawItem extends RawDataListItem>(
         }
       }
     }
-  })
+  }) as FiltersState<FilterItem, ServerSideFetching>
 
 type ExtendDataListItemsProps<RawItem extends RawDataListItem> = {
   items: RawItem[]
@@ -93,19 +100,25 @@ export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
   }
 }
 
-type GetQueryKeyProps<RawItem extends RawDataListItem> = {
+type GetQueryKeyProps<
+  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  ServerSideFetching extends boolean
+> = {
   queryName: string
   searchQuery: string
-  filters: FiltersState<RawItem>
-  serverSideFetching: boolean
+  filters: FiltersState<Item, ServerSideFetching>
+  serverSideFetching: ServerSideFetching
 }
 
-export const getQueryKey = <RawItem extends RawDataListItem>({
+export const getQueryKey = <
+  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  ServerSideFetching extends boolean
+>({
   queryName,
   searchQuery,
   filters,
   serverSideFetching
-}: GetQueryKeyProps<RawItem>) => {
+}: GetQueryKeyProps<Item, ServerSideFetching>) => {
   if (serverSideFetching) {
     return [queryName, searchQuery, filters]
   }
@@ -157,7 +170,7 @@ const getItemsBySearchQuery = <RawItem extends RawDataListItem>({
 
 type GetItemsByFiltersProps<RawItem extends RawDataListItem> = {
   items: RawItem[]
-  filters: FiltersState<RawItem>
+  filters: FiltersState<RawItem, false>
 }
 
 const getItemsByFilters = <RawItem extends RawDataListItem>({
@@ -237,20 +250,14 @@ const getItemsByFilters = <RawItem extends RawDataListItem>({
 type GetFilteredItemsProps<RawItem extends RawDataListItem> = {
   items: RawItem[]
   searchQuery: string
-  filters: FiltersState<RawItem>
-  serverSideFetching: boolean
+  filters: FiltersState<RawItem, false>
 }
 
 export const getFilteredItems = <RawItem extends RawDataListItem>({
   items,
   searchQuery,
-  filters,
-  serverSideFetching
+  filters
 }: GetFilteredItemsProps<RawItem>) => {
-  if (serverSideFetching) {
-    return items
-  }
-
   const itemsBySearchQuery = getItemsBySearchQuery({ items, searchQuery })
   const itemsByFilters = getItemsByFilters({
     items: itemsBySearchQuery,

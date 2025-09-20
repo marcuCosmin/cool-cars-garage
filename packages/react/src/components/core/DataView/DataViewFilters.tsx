@@ -1,3 +1,5 @@
+import { type DocumentData } from "firebase/firestore"
+
 import { Select, type SelectProps } from "@/components/basic/Select"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
 import { DatePicker, type DatePickerProps } from "@/components/basic/DatePicker"
@@ -6,15 +8,25 @@ import type { FiltersState, FilterChangeHandler } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-type DataViewFiltersProps<RawItem extends RawDataListItem> = {
-  filters: FiltersState<RawItem>
+type DataViewFiltersProps<
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+> = {
+  filters: FiltersState<FilterItem, ServerSideFetching>
   onFilterChange: FilterChangeHandler
 }
 
-export const DataViewFilters = <RawItem extends RawDataListItem>({
+export const DataViewFilters = <
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+>({
   filters,
   onFilterChange
-}: DataViewFiltersProps<RawItem>) =>
+}: DataViewFiltersProps<FilterItem, ServerSideFetching>) =>
   filters.map((filterProps, index) => {
     const { type, label } = filterProps
 

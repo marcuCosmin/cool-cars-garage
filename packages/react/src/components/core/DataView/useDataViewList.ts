@@ -2,6 +2,8 @@ import { useLocation } from "react-router"
 import { useState } from "react"
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
 
+import { type DocumentData } from "firebase/firestore"
+
 import {
   extendDataListItems,
   filtersConfigToState,
@@ -21,33 +23,45 @@ import type {
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-type UseDataViewList<RawItem extends RawDataListItem> = {
-  filtersConfig: FiltersConfig<RawItem>
-  fetchItems: FetchItems<RawItem>
+type UseDataViewList<
+  RawItem extends RawDataListItem,
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+> = {
+  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
+  fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
   openEditModal?: OpenEditModal<RawItem>
   deleteItem?: (item: RawItem) => Promise<void>
   serverSideFetching: boolean
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
-export const useDataViewList = <RawItem extends RawDataListItem>({
+export const useDataViewList = <
+  RawItem extends RawDataListItem,
+  FilterItem extends ServerSideFetching extends true
+    ? DocumentData
+    : RawDataListItem,
+  ServerSideFetching extends boolean
+>({
   filtersConfig,
   fetchItems,
   deleteItem,
   openEditModal,
   serverSideFetching,
   itemMetadataConfig
-}: UseDataViewList<RawItem>) => {
+}: UseDataViewList<RawItem, FilterItem, ServerSideFetching>) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
   const queryClient = useQueryClient()
 
   const location = useLocation()
-  const queryKey = getQueryKey({
+  const queryKey = getQueryKey<FilterItem, ServerSideFetching>({
     queryName: location.pathname,
     searchQuery,
     filters,
-    serverSideFetching
+    serverSideFetching: serverSideFetching as ServerSideFetching
   })
 
   const { isFetching, data, isFetchingNextPage, fetchNextPage, error } =
@@ -60,12 +74,13 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
 
   const rawItems = data ? data.pages.flat() : []
 
-  const filteredRawItems = getFilteredItems<RawItem>({
-    items: rawItems,
-    searchQuery,
-    filters,
-    serverSideFetching
-  })
+  const filteredRawItems = !serverSideFetching
+    ? getFilteredItems<RawItem>({
+        items: rawItems,
+        searchQuery,
+        filters: filters as FiltersState<RawItem, false>
+      })
+    : rawItems
 
   const items = extendDataListItems({
     items: filteredRawItems,
@@ -73,12 +88,15 @@ export const useDataViewList = <RawItem extends RawDataListItem>({
   })
 
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
-    const newFilters = filters.slice()
+    const newFilters = filters.slice() as FiltersState<
+      FilterItem,
+      ServerSideFetching
+    >
 
     newFilters[index] = {
       ...newFilters[index],
       value
-    } as FiltersState<RawItem>[number]
+    } as FiltersState<FilterItem, ServerSideFetching>[number]
 
     setFilters(newFilters)
   }
