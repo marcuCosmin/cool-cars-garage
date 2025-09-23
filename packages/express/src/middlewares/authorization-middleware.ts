@@ -8,7 +8,8 @@ import type { Request } from "@/models"
 const publicPathsConfig = {
   "/": ["GET"],
   "/mail": ["POST"],
-  "/users": ["POST"]
+  "/users": ["POST"],
+  "/wapp-webhook": ["GET", "POST"]
 }
 
 const usersPublicPathsConfig = {
