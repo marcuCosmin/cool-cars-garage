@@ -234,7 +234,15 @@ export const getChecksChunk = async ({
   return checks
 }
 
-export const getFullCheck = async (checkId: string) => {
+export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
+  driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
+  faults: DocWithID<FaultDoc>[]
+  incidents: DocWithID<IncidentDoc>[]
+}
+
+export const getFullCheck = async (
+  checkId: string
+): Promise<FullCheck | null> => {
   const checkRef = doc(firestore, "checks", checkId)
   const checkSnapshot = await getDoc(checkRef)
 
@@ -242,7 +250,16 @@ export const getFullCheck = async (checkId: string) => {
     return null
   }
 
-  const check = checkSnapshot.data() as CheckDoc
+  const { driverId, ...check } = checkSnapshot.data() as CheckDoc
+
+  const userDocRef = doc(firestore, "users", driverId)
+  const userDocSnapshot = await getDoc(userDocRef)
+
+  if (!userDocSnapshot.exists()) {
+    throw new Error("Driver not found")
+  }
+
+  const user = userDocSnapshot.data() as UserDoc
 
   const faultsRef = collection(firestore, "faults")
   const faultsQuery = query(faultsRef, where("checkId", "==", checkId))
@@ -272,6 +289,11 @@ export const getFullCheck = async (checkId: string) => {
 
   return {
     ...check,
+    driver: {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      id: driverId
+    },
     id: checkId,
     faults,
     incidents

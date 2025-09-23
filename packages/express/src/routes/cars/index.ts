@@ -4,6 +4,7 @@ import cors from "cors"
 import { updateCheckPointDate } from "./services/update-checkpoint-date"
 import { handleIncidentSubmission } from "./incidents/post"
 import { handleCheckSubmission } from "./checks/post"
+import { handleFaultsPatch } from "./faults/patch"
 
 export const carsRouter = Router()
 
@@ -19,3 +20,13 @@ carsRouter.post("/incidents", cors(), handleIncidentSubmission)
 
 carsRouter.options("/checks", cors())
 carsRouter.post("/checks", cors(), handleCheckSubmission)
+
+carsRouter.options(
+  "/checks/faults",
+  cors({ origin: process.env.ALLOWED_ORIGIN })
+)
+carsRouter.patch(
+  "/checks/faults",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleFaultsPatch
+)

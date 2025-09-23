@@ -40,9 +40,9 @@ const ReportsAuth = lazy(() =>
     default: module.ReportsAuth
   }))
 )
-const ReportsCheck = lazy(() =>
+const ReportsCheckPage = lazy(() =>
   import("./reports/[checkId]").then(module => ({
-    default: module.ReportsCheck
+    default: module.ReportsCheckPage
   }))
 )
 const NotFound = lazy(() =>
@@ -77,7 +77,7 @@ export const Router = () => {
         <Route path="/users" element={<Users />} />
         <Route path="/reports" element={<ReportsLayout />}>
           <Route index element={<Reports />} />
-          <Route path="/reports/:checkId" element={<ReportsCheck />} />
+          <Route path="/reports/:checkId" element={<ReportsCheckPage />} />
           <Route path="/reports/auth" element={<ReportsAuth />} />
         </Route>
       </>

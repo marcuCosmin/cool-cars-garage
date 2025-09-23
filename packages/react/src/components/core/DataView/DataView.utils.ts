@@ -1,5 +1,7 @@
 import { type DocumentData } from "firebase/firestore"
 
+import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
+
 import type {
   FiltersConfig,
   FiltersState,
@@ -92,7 +94,7 @@ export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
     case "boolean":
       return value ? "Yes" : "No"
     case "date":
-      return new Date(value).toLocaleDateString("en-GB")
+      return parseTimestampForDisplay(value)
     case "link":
       return value
     default:

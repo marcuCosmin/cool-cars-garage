@@ -7,6 +7,7 @@
     --color-black: #000000;
     --color-white: #ffffff;
     --color-secondary: #d1d5dc;
+    --color-success: #28a745;
     --color-error: #dc2626;
     --text-base: 15px;
     --height-input: 40px;
@@ -27,7 +28,7 @@
     }
 
     h2 {
-        @apply text-lg font-bold;
+        @apply text-2xl text-primary font-bold;
     }
 
     hr {
@@ -52,6 +53,28 @@
     a {
         @apply text-primary font-bold cursor-pointer transition-opacity hover:opacity-80;
     }
+
+    table {
+       @apply border-separate border border-primary rounded-sm border-spacing-0;
+    }
+
+    thead {
+        @apply sticky top-0 left-0 bg-white dark:bg-black text-primary text-xl font-bold;
+    }
+
+    tr {
+        @apply border-0;
+    }
+
+    tr:last-child td {
+        @apply border-b-0;
+    }
+
+    th, td {
+        @apply p-2 not-last:border-r border-primary border-b text-center;
+    }
+
+
 }
 
 @layer components {
@@ -132,7 +155,7 @@
     }
 
     .react-tiny-popover-container {
-        @apply max-w-sm bg-white dark:bg-black rounded-sm z-[9999];
+        @apply max-w-sm rounded-sm z-[9999];
     }
 
     .react-select__menu-portal {

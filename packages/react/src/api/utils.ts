@@ -6,6 +6,7 @@ import type {
   SignUpData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
+import type { MarkFaultsAsResolvedPayload } from "@/shared/requests/requests.model"
 
 type GetAllUsersResponse = {
   usersList: RawUserListItem[]
@@ -61,5 +62,12 @@ export const updateUser = (payload: UserEditData) =>
   executeApiRequest({
     path: "/users",
     method: "PUT",
+    payload
+  })
+
+export const markFaultsAsResolved = (payload: MarkFaultsAsResolvedPayload) =>
+  executeApiRequest({
+    path: "/cars/checks/faults",
+    method: "PATCH",
     payload
   })

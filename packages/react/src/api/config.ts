@@ -1,18 +1,20 @@
 import { firebaseAuth } from "@/firebase/config"
 
 import type { UserCreateData, SignUpData } from "@/shared/forms/forms.const"
+import type { MarkFaultsAsResolvedPayload } from "@/shared/requests/requests.model"
 
 const baseUrl = import.meta.env.VITE_API_URL
 
 type ExecuteApiRequestProps = {
-  method: "POST" | "GET" | "DELETE" | "PUT"
+  method: "POST" | "GET" | "DELETE" | "PUT" | "PATCH"
   path:
     | "/users"
     | "/users/invite"
     | "/users/generate-auth-token"
     | `/users?${string}`
     | "/users/create-from-invitation"
-  payload?: UserCreateData | SignUpData
+    | "/cars/checks/faults"
+  payload?: UserCreateData | SignUpData | MarkFaultsAsResolvedPayload
 }
 
 type ApiErrorResponse = {

@@ -24,7 +24,7 @@ export const DataViewList = <RawItem extends RawDataListItem>({
   const { sentinelRef } = useInfiniteScroll(onScrollEnd)
 
   return (
-    <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar">
+    <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar justify-center">
       {items.map(({ title, subtitle, id, metadata }) => {
         const onEdit = onItemEdit ? () => onItemEdit(id) : undefined
         const onDelete = onItemDelete ? () => onItemDelete(id) : undefined

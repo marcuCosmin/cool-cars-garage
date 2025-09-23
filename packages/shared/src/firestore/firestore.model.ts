@@ -44,7 +44,7 @@ export type InvitationDoc = ExistingUserInvitation | NewUserInvitation
 
 export type DocWithID<T> = T & { id: string }
 
-type CheckAnswer = {
+export type CheckAnswer = {
   label: string
   value: boolean
 }

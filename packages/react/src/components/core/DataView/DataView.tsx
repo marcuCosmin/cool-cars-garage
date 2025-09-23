@@ -114,6 +114,8 @@ export const DataView = <
         <DataViewFilters filters={filters} onFilterChange={onFilterChange} />
       </div>
 
+      <hr className="w-[95%] sm:w-[98%] mx-auto my-5" />
+
       <DataViewList
         itemDetailedViewBasePath={itemDetailedViewBasePath}
         items={items}

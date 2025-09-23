@@ -6,8 +6,9 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
-import { createReportsNotification } from "../utils"
 import { CheckDoc } from "@/shared/firestore/firestore.model"
+
+import { createReportsNotification } from "../utils"
 
 type ReqBody = Partial<
   Omit<

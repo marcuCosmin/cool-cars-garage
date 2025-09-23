@@ -5,8 +5,9 @@ import { getFullCheck } from "@/firebase/utils"
 
 import { NotFound } from "@/components/core/NotFound"
 import { Loader } from "@/components/basic/Loader"
+import { ReportsCheck } from "@/components/core/ReportsCheck/ReportsCheck"
 
-export const ReportsCheck = () => {
+export const ReportsCheckPage = () => {
   const { checkId } = useParams()
   const { data: check, isLoading } = useQuery({
     queryKey: ["/reports", checkId],
@@ -21,5 +22,5 @@ export const ReportsCheck = () => {
     return <NotFound />
   }
 
-  return <div>Check Report</div>
+  return <ReportsCheck check={check} />
 }

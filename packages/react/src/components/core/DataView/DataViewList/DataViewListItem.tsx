@@ -13,6 +13,8 @@ import { Link } from "react-router"
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 
+import { Tooltip } from "@/components/basic/Tooltip"
+
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 import { getParsedItemMetadataValue } from "../DataView.utils"
@@ -91,9 +93,11 @@ export const DataListViewItem = ({
             )}
 
             {detailedViewPath && (
-              <Link to={detailedViewPath} className="h-fit">
-                <BoxArrowInUpRight width={20} height={20} />
-              </Link>
+              <Tooltip label="Detailed view">
+                <Link to={detailedViewPath} className="h-fit">
+                  <BoxArrowInUpRight width={20} height={20} />
+                </Link>
+              </Tooltip>
             )}
           </div>
         )}
