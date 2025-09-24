@@ -41,19 +41,23 @@ export const handleFaultsPatch = async (
     })
   }
 
-  const { carId, driverId } = checkDoc.data() as CheckDoc
+  const checkData = checkDoc.data() as CheckDoc
+  const { carId, driverId } = checkData
+  let { faultsCount } = checkData
 
   const faultsRef = firestore.collection("faults")
-  const faultsQuery = faultsRef.where("checkId", "==", checkId)
-  const faultsSnapshot = await faultsQuery.get()
+  const pendingFaultsQuery = faultsRef
+    .where("checkId", "==", checkId)
+    .where("status", "==", "pending")
+  const pendingFaultsSnapshot = await pendingFaultsQuery.get()
 
-  if (faultsSnapshot.empty) {
+  if (pendingFaultsSnapshot.empty) {
     res.status(400).json({
       error: "No faults found for this check"
     })
   }
 
-  const existingFaultsIds = faultsSnapshot.docs.map(doc => doc.id)
+  const existingFaultsIds = pendingFaultsSnapshot.docs.map(doc => doc.id)
 
   const invalidFaultsIds = faultsIds.filter(
     faultId => !existingFaultsIds.includes(faultId)
@@ -71,6 +75,7 @@ export const handleFaultsPatch = async (
 
   faultsIds.forEach(faultId => {
     const faultRef = faultsRef.doc(faultId)
+    faultsCount = (faultsCount as number) - 1
 
     batch.update(faultRef, {
       status: "resolved",
@@ -80,6 +85,16 @@ export const handleFaultsPatch = async (
 
   await batch.commit()
 
+  const remainingFaults = existingFaultsIds.filter(
+    faultId => !faultsIds.includes(faultId)
+  )
+
+  if (!remainingFaults.length) {
+    await checksRef.update({
+      hasUnresolvedFaults: false
+    })
+  }
+
   await createReportsNotification({
     carId,
     uid: driverId,
@@ -87,7 +102,10 @@ export const handleFaultsPatch = async (
     reference: { id: checkId, path: "check" }
   })
 
+  const resolvedMultipleFaults = faultsIds.length > 1
+  const message = `${resolvedMultipleFaults ? "Faults" : "Fault"} marked as resolved`
+
   res.status(200).json({
-    message: "Faults updated successfully"
+    message
   })
 }

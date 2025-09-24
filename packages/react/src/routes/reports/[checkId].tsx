@@ -11,7 +11,8 @@ export const ReportsCheckPage = () => {
   const { checkId } = useParams()
   const { data: check, isLoading } = useQuery({
     queryKey: ["/reports", checkId],
-    queryFn: () => getFullCheck(checkId as string)
+    queryFn: () => getFullCheck(checkId as string),
+    staleTime: Infinity
   })
 
   if (isLoading) {

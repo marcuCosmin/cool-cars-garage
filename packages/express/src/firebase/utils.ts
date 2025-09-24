@@ -2,7 +2,7 @@ import { type FirebaseError } from "firebase-admin"
 
 import { firebaseAuth, firestore } from "./config"
 
-import type { UserMetadata } from "@/models"
+import type { UserDoc } from "@/shared/firestore/firestore.model"
 
 export const getUserMetadata = async (uid: string) => {
   const userRef = firestore.collection("users").doc(uid)
@@ -12,7 +12,7 @@ export const getUserMetadata = async (uid: string) => {
     return null
   }
 
-  return userDoc.data() as UserMetadata
+  return userDoc.data() as UserDoc
 }
 
 export const isEmailUsed = async (email: string) => {

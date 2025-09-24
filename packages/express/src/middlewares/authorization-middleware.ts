@@ -12,10 +12,18 @@ const publicPathsConfig = {
   "/wapp-webhook": ["GET", "POST"]
 }
 
-const usersPublicPathsConfig = {
-  "/users/generate-auth-token": ["GET"],
-  "/cars/incidents": ["POST"],
-  "/cars/checks": ["POST"]
+const roleBasedPathsConfig: Record<
+  "driver" | "manager",
+  Record<string, string[]>
+> = {
+  driver: {
+    "/users/generate-auth-token": ["GET"],
+    "/cars/incidents": ["POST"],
+    "/cars/checks": ["POST"]
+  },
+  manager: {
+    "/cars/checks/faults": ["PATCH"]
+  }
 }
 
 export const authorizationMiddleware = async (
@@ -32,8 +40,6 @@ export const authorizationMiddleware = async (
   }
 
   try {
-    const usersPublicPathConfig =
-      usersPublicPathsConfig[req.path as keyof typeof usersPublicPathsConfig]
     const authorizationHeader = req.headers.authorization
     const idToken = authorizationHeader?.split("Bearer ")[1]
 
@@ -49,14 +55,15 @@ export const authorizationMiddleware = async (
 
     const userMetadata = await getUserMetadata(uid)
 
-    const isUserPublicRequest = usersPublicPathConfig?.includes(req.method)
+    const role = userMetadata?.role
 
-    const isAuthorizedPublicRequest =
-      isUserPublicRequest && !!userMetadata?.role
+    const pathConfig =
+      role !== "admin" && role ? roleBasedPathsConfig[role] : null
+    const pathConfigMethod = pathConfig?.[req.path]
 
-    const isAuthorizedProtectedRequest = userMetadata?.role === "admin"
+    const isAuthorized = pathConfigMethod?.includes(req.method)
 
-    if (!isAuthorizedProtectedRequest && !isAuthorizedPublicRequest) {
+    if (role !== "admin" && !isAuthorized) {
       res.status(403).json({
         error: "Unauthorized"
       })

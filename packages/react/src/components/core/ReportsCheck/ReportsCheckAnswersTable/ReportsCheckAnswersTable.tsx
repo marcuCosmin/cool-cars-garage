@@ -38,8 +38,8 @@ export const ReportsCheckAnswersTable = ({
   const pendingFaults = faults.filter(({ status }) => status === "pending")
   const hasPendingFaults = !!pendingFaults.length
 
-  const faultsIds = faults.map(({ id }) => id)
-  const headerCheckboxValue = selectedFaults.length === faultsIds.length
+  const pendingFaultsIds = pendingFaults.map(({ id }) => id)
+  const headerCheckboxValue = selectedFaults.length === pendingFaultsIds.length
 
   const onHeaderCheckboxChange = () => {
     if (headerCheckboxValue) {
@@ -47,7 +47,7 @@ export const ReportsCheckAnswersTable = ({
       return
     }
 
-    setSelectedFaults(faultsIds)
+    setSelectedFaults(pendingFaultsIds)
   }
   const onTableCheckboxChange = (faultId?: string) => {
     if (!faultId) {
@@ -63,21 +63,30 @@ export const ReportsCheckAnswersTable = ({
   }
 
   const onResolveButtonClick = async () => {
-    await handleMarkFaultsAsResolved({
+    const response = await handleMarkFaultsAsResolved({
       checkId,
       faultsIds: selectedFaults
     })
 
+    if (response.error) {
+      return
+    }
+
     queryClient.setQueryData(["/reports", checkId], (data: FullCheck) => {
-      data.faults = data.faults.map(fault => {
+      faults = data.faults.map(fault => {
         if (selectedFaults.includes(fault.id)) {
           return { ...fault, status: "resolved" }
         }
         return fault
       })
 
-      return data
+      return {
+        ...data,
+        faults
+      }
     })
+
+    setSelectedFaults([])
   }
 
   return (
