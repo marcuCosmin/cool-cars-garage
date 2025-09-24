@@ -46,7 +46,7 @@ export const Layout = () => {
       <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-primary font-bold z-[9000]">
         <NavLink className="logo" to="/" end />
 
-        {userRole !== "driver" && (
+        {userRole === "admin" && (
           <div className="flex gap-5 m-auto">
             <NavLink className={navLinkClassName} to="/" end>
               Home

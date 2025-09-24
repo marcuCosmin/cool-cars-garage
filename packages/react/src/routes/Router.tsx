@@ -61,12 +61,13 @@ export const Router = () => {
     }
 
     if (userRole === "manager") {
-      // TODO: Implement manager routes
       return (
         <>
           <Route index path="/" element={<Home />} />
-          <Route path="/users" element={<Users />} />
-          <Route index path="/reports" element={<Reports />} />
+          <Route path="/reports" element={<ReportsLayout />}>
+            <Route index element={<Reports />} />
+            <Route path="/reports/:checkId" element={<ReportsCheckPage />} />
+          </Route>
         </>
       )
     }
