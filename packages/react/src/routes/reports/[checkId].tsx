@@ -19,6 +19,10 @@ export const ReportsCheckPage = () => {
   }
 
   if (!check) {
+    //eslint-disable-next-line no-console
+    console.log("checkId:", checkId)
+    //eslint-disable-next-line no-console
+    console.log("check is undefined based on fetch")
     return <NotFound />
   }
 

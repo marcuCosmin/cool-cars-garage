@@ -247,6 +247,8 @@ export const getFullCheck = async (
   const checkSnapshot = await getDoc(checkRef)
 
   if (!checkSnapshot.exists()) {
+    //eslint-disable-next-line no-console
+    console.log("Check not found")
     return null
   }
 
