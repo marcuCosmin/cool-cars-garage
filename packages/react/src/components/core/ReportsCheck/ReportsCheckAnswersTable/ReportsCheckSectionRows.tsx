@@ -12,9 +12,9 @@ import { Checkbox } from "@/components/basic/Checkbox"
 
 import { capitalize } from "@/utils/capitalize"
 
-import type { CheckAnswer } from "@/shared/firestore/firestore.model"
+import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
-const iconsSize = 25
+import type { CheckAnswer } from "@/shared/firestore/firestore.model"
 
 type ReportsCheckSectionRowsProps = Pick<FullCheck, "faults"> & {
   section: "Interior" | "Exterior"
@@ -70,9 +70,15 @@ export const ReportsCheckSectionRows = ({
                 label={value ? "Passed" : "Failed"}
               >
                 {value ? (
-                  <CheckCircle className="fill-success" size={iconsSize} />
+                  <CheckCircle
+                    className="fill-success"
+                    size={reportsChecksIconsSize}
+                  />
                 ) : (
-                  <XCircle className="fill-error" size={iconsSize} />
+                  <XCircle
+                    className="fill-error"
+                    size={reportsChecksIconsSize}
+                  />
                 )}
               </Tooltip>
             </td>
@@ -85,9 +91,15 @@ export const ReportsCheckSectionRows = ({
                   }}
                 >
                   {fault.status === "pending" ? (
-                    <PatchExclamation size={iconsSize} className="fill-error" />
+                    <PatchExclamation
+                      size={reportsChecksIconsSize}
+                      className="fill-error"
+                    />
                   ) : (
-                    <PatchCheck size={iconsSize} className="fill-success" />
+                    <PatchCheck
+                      size={reportsChecksIconsSize}
+                      className="fill-success"
+                    />
                   )}
                 </Tooltip>
               )}

@@ -2,7 +2,12 @@ import { firestore } from "@/firebase/config"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
-type ReportsNotificationType = "incident" | "check" | "fault" | "fault-resolved"
+type ReportsNotificationType =
+  | "incident"
+  | "check"
+  | "fault"
+  | "fault-resolved"
+  | "incident-resolved"
 
 type ReportsNotification = {
   creationTimestamp: number

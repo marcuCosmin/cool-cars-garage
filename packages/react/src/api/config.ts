@@ -1,7 +1,10 @@
 import { firebaseAuth } from "@/firebase/config"
 
 import type { UserCreateData, SignUpData } from "@/shared/forms/forms.const"
-import type { MarkFaultsAsResolvedPayload } from "@/shared/requests/requests.model"
+import type {
+  MarkFaultsAsResolvedPayload,
+  MarkIncidentAsResolvedPayload
+} from "@/shared/requests/requests.model"
 
 const baseUrl = import.meta.env.VITE_API_URL
 
@@ -14,7 +17,12 @@ type ExecuteApiRequestProps = {
     | `/users?${string}`
     | "/users/create-from-invitation"
     | "/cars/checks/faults"
-  payload?: UserCreateData | SignUpData | MarkFaultsAsResolvedPayload
+    | "/cars/checks/incidents"
+  payload?:
+    | UserCreateData
+    | SignUpData
+    | MarkFaultsAsResolvedPayload
+    | MarkIncidentAsResolvedPayload
 }
 
 type ApiErrorResponse = {

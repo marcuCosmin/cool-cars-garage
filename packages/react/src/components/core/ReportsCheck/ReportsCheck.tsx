@@ -6,19 +6,23 @@ import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
 
 import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
 
+import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"
+
 type CheckProps = {
   check: FullCheck
 }
 
 export const ReportsCheck = ({ check }: CheckProps) => {
   const {
+    id,
     carId,
     creationTimestamp,
     exterior,
     interior,
     faults,
     driver,
-    odoReading
+    odoReading,
+    incidents
   } = check
 
   return (
@@ -41,13 +45,15 @@ export const ReportsCheck = ({ check }: CheckProps) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-10 mt-10">
+      <div className="flex flex-wrap justify-center xl:justify-start xl:flex-nowrap w-full gap-10 mt-10 p-5 items-start">
         <ReportsCheckAnswersTable
           interior={interior}
           exterior={exterior}
           faults={faults}
-          checkId={check.id}
+          checkId={id}
         />
+
+        <ReportsCheckIncidentsList checkId={id} incidents={incidents} />
       </div>
     </div>
   )

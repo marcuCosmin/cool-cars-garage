@@ -76,6 +76,7 @@ export type FaultDoc = {
   checkId: string
   creationTimestamp: number
   carId: string
+  resolutionTimestamp?: number
 }
 
 export type IncidentDoc = {
@@ -84,4 +85,5 @@ export type IncidentDoc = {
   creationTimestamp: number
   status: ReportsIssueStatus
   checkId: string
+  resolutionTimestamp?: number
 }

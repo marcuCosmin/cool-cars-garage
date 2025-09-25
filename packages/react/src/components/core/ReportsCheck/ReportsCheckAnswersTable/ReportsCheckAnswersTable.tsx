@@ -14,6 +14,8 @@ import { Loader } from "@/components/basic/Loader"
 
 import { ReportsCheckSectionRows } from "./ReportsCheckSectionRows"
 
+import { reportsChecksIconsSize } from "../ReportsCheck.const"
+
 type ReportsCheckAnswersTableProps = Pick<
   FullCheck,
   "interior" | "exterior" | "faults"
@@ -90,63 +92,66 @@ export const ReportsCheckAnswersTable = ({
   }
 
   return (
-    <table className="max-w-5xl">
-      <thead>
-        <tr>
-          {hasPendingFaults && (
-            <th colSpan={5}>
-              <div className="min-h-5 w-fit">
-                {!!selectedFaults.length &&
-                  (isMutationLoading ? (
-                    <Loader size="sm" />
-                  ) : (
-                    <Tooltip
-                      label="Resolve selected faults"
-                      containerTag="button"
-                      containerProps={{
-                        onClick: onResolveButtonClick,
-                        className: "w-fit p-0 bg-transparent text-primary"
-                      }}
-                    >
-                      <Clipboard2Check size={25} />
-                    </Tooltip>
-                  ))}
-              </div>
-            </th>
-          )}
-        </tr>
-        <tr>
-          {hasPendingFaults && (
-            <th>
-              <Checkbox
-                value={headerCheckboxValue}
-                onChange={onHeaderCheckboxChange}
-              />
-            </th>
-          )}
-          <th>Question</th>
-          <th>Answer</th>
-          <th>Issue Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ReportsCheckSectionRows
-          section="Interior"
-          faults={faults}
-          answers={interior}
-          selectedFaultsIds={selectedFaults}
-          onTableCheckboxChange={onTableCheckboxChange}
-          showCheckboxesHeader={hasPendingFaults}
-        />
-        <ReportsCheckSectionRows
-          faults={faults}
-          section="Exterior"
-          answers={exterior}
-          selectedFaultsIds={selectedFaults}
-          onTableCheckboxChange={onTableCheckboxChange}
-          showCheckboxesHeader={hasPendingFaults}
-        />
-      </tbody>
-    </table>
+    <div className="md:min-w-xl xl:min-w-3xl w-full">
+      <h2 className="text-center mb-5">Questions</h2>
+      <table>
+        <thead>
+          <tr>
+            {hasPendingFaults && (
+              <th colSpan={5}>
+                <div className="min-h-5 w-fit">
+                  {!!selectedFaults.length &&
+                    (isMutationLoading ? (
+                      <Loader size="sm" />
+                    ) : (
+                      <Tooltip
+                        label="Resolve selected faults"
+                        containerTag="button"
+                        containerProps={{
+                          onClick: onResolveButtonClick,
+                          className: "w-fit p-0 bg-transparent text-primary"
+                        }}
+                      >
+                        <Clipboard2Check size={reportsChecksIconsSize} />
+                      </Tooltip>
+                    ))}
+                </div>
+              </th>
+            )}
+          </tr>
+          <tr>
+            {hasPendingFaults && (
+              <th>
+                <Checkbox
+                  value={headerCheckboxValue}
+                  onChange={onHeaderCheckboxChange}
+                />
+              </th>
+            )}
+            <th>Question</th>
+            <th>Answer</th>
+            <th>Issue Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ReportsCheckSectionRows
+            section="Interior"
+            faults={faults}
+            answers={interior}
+            selectedFaultsIds={selectedFaults}
+            onTableCheckboxChange={onTableCheckboxChange}
+            showCheckboxesHeader={hasPendingFaults}
+          />
+          <ReportsCheckSectionRows
+            faults={faults}
+            section="Exterior"
+            answers={exterior}
+            selectedFaultsIds={selectedFaults}
+            onTableCheckboxChange={onTableCheckboxChange}
+            showCheckboxesHeader={hasPendingFaults}
+          />
+        </tbody>
+      </table>
+    </div>
   )
 }

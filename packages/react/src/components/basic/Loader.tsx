@@ -1,18 +1,25 @@
-import { clsx } from "clsx"
+import { mergeClassNames } from "@/utils/mergeClassNames"
 
 type LoaderProps = {
   enableOverlay?: boolean
   text?: string
   size?: "sm" | "md" | "lg"
+  className?: string
 }
 
-export const Loader = ({ enableOverlay, text, size = "md" }: LoaderProps) => {
-  const loaderClassName = `loader loader-${size}`
+export const Loader = ({
+  enableOverlay,
+  text,
+  size = "md",
+  className
+}: LoaderProps) => {
+  const loaderClassName = `loader loader-${size} ${className}`
 
   if (enableOverlay || text) {
-    const containerClassName = clsx(
+    const containerClassName = mergeClassNames(
       text && "flex flex-col gap-3 items-center",
-      enableOverlay && "overlay"
+      enableOverlay && "overlay",
+      className
     )
 
     return (

@@ -1,1 +1,1 @@
-export const reportsChecksTableIconsSize = 25
+export const reportsChecksIconsSize = 25
