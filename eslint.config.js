@@ -31,7 +31,7 @@ export default tseslint.config({
     "func-style": ["error", "expression"],
     "curly": ["error", "all"],
     "eqeqeq": "error",
-    "camelcase": "error",
+    "camelcase": "off",
     "import/no-default-export": "error",
     "import/default": "off",
     "no-case-declarations": "off"

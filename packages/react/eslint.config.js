@@ -30,6 +30,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "@typescript-eslint/no-explicit-any": "off",
       "no-console": "error",
+      "camelcase": "error",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true }
