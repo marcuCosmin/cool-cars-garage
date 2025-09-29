@@ -50,6 +50,11 @@ const NotFound = lazy(() =>
     default: module.NotFound
   }))
 )
+const PrivacyPolicy = lazy(() =>
+  import("./privacy-policy").then(module => ({
+    default: module.PrivacyPolicy
+  }))
+)
 
 export const Router = () => {
   const uid = useAppSelector(state => state.user.uid)
@@ -101,6 +106,7 @@ export const Router = () => {
               <Route path="*" element={<NotFound />} />
             </Route>
           )}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

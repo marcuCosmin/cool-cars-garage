@@ -31,6 +31,10 @@
         @apply text-2xl text-primary font-bold;
     }
 
+    h3 {
+        @apply text-xl text-primary font-bold;
+    }
+
     hr {
         @apply w-full h-px text-primary
     }
@@ -231,6 +235,26 @@
 
         svg {
             @apply w-4 h-4;
+        }
+    }
+
+    .privacy-policy {
+        @apply w-full flex flex-col items-center gap-5 p-10 max-w-7xl m-auto;
+
+        ul {
+            @apply list-disc pl-6;
+        }
+
+        ol {
+            @apply list-decimal pl-6;
+        }
+
+        p {
+            @apply text-black dark:text-white;
+        }
+
+        li {
+            @apply text-black dark:text-white;
         }
     }
 }
