@@ -23,7 +23,7 @@ const getBodyTemplate = (template: SendWappMessageProps["template"]) => {
   return {
     name: template.type,
     language: {
-      code: "en_US"
+      code: "en"
     },
     components: [
       {
@@ -40,17 +40,26 @@ export const sendWappMessage = async ({
 }: SendWappMessageProps) => {
   const bodyTemplate = getBodyTemplate(template)
 
-  await fetch("https://graph.facebook.com/v22.0/832911756563437/messages", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.WAPP_API_ACCESS_TOKEN}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      messaging_product: "whatsapp",
-      to,
-      type: "template",
-      template: bodyTemplate
-    })
-  })
+  const response = await fetch(
+    "https://graph.facebook.com/v22.0/832911756563437/messages",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.WAPP_API_ACCESS_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to,
+        type: "template",
+        template: bodyTemplate
+      })
+    }
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(data)
+  }
 }

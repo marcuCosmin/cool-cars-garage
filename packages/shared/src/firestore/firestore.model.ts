@@ -87,3 +87,23 @@ export type IncidentDoc = {
   checkId: string
   resolutionTimestamp?: number
 }
+
+export type CarDoc = {
+  driverId: string
+  make: string
+  motExpiryTimestamp: number
+  motStatus:
+    | "No details held by DVLA"
+    | "No results returned"
+    | "Not valid"
+    | "Valid"
+  roadTaxExpiryTimestamp: number
+  roadTaxStatus: "Not Taxed for on Road Use" | "SORN" | "Taxed" | "Untaxed"
+  color: string
+  fuelType: string
+  co2Emissions: number
+  engineCapacity: number
+  lastIssuedV5CTimestamp: number
+  monthOfFirstRegistration: string
+  isOffRoad: boolean
+}

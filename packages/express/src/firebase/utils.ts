@@ -2,7 +2,7 @@ import { type FirebaseError } from "firebase-admin"
 
 import { firebaseAuth, firestore } from "./config"
 
-import type { UserDoc } from "@/shared/firestore/firestore.model"
+import type { CarDoc, UserDoc } from "@/shared/firestore/firestore.model"
 
 export const getUserMetadata = async (uid: string) => {
   const userRef = firestore.collection("users").doc(uid)
@@ -46,4 +46,22 @@ export const deleteUser = async (uid: string) => {
 
     throw error
   }
+}
+
+export const getOnRoadPsvCars = async () => {
+  const carsRef = firestore.collection("cars")
+  const carsQuery = await carsRef
+    .where("council", "==", "PSV")
+    .where("isOffRoad", "==", false)
+    .get()
+
+  if (carsQuery.empty) {
+    throw new Error("No PSV on-road cars found")
+  }
+
+  return carsQuery.docs.map(doc => {
+    const data = doc.data() as CarDoc
+
+    return { id: doc.id, ...data }
+  })
 }

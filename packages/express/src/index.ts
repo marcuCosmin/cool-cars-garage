@@ -7,7 +7,6 @@ import { wappWebhook } from "./routes/wapp-webhook"
 
 import { authorizationMiddleware } from "@/middlewares/authorization-middleware"
 import { errorMiddleware } from "@/middlewares/error-middleware"
-import { sendWappMessage } from "./utils/send-wapp-message"
 
 const app = express()
 const port = process.env.PORT
@@ -21,18 +20,7 @@ app.use("/cars", carsRouter)
 app.use("/mail", mailRouter)
 app.use("/wapp-webhook", wappWebhook)
 
-app.get("/", async (req, res) => {
-  await sendWappMessage({
-    to: "+40743100368",
-    template: {
-      type: "missing_check",
-      params: {
-        driver_name: "Marcus",
-        car_reg_number: "AB12CDE"
-      }
-    }
-  })
-
+app.get("/", (req, res) => {
   res.send("Cool Cars Garage API is running!")
 })
 
