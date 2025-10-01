@@ -1,10 +1,11 @@
 import { firestore } from "@/firebase/config"
 import { getOnRoadPsvCars } from "@/firebase/utils"
 
+import { sendWappMessage } from "@/utils/send-wapp-message"
+
 import type { CheckDoc, UserDoc } from "@/shared/firestore/firestore.model"
 
 import { getCarsDriverData, getTimestampRanges } from "./utils"
-import { sendWappMessage } from "@/utils/send-wapp-message"
 
 type Notification = {
   car_reg_number: string
@@ -52,6 +53,11 @@ export const sendMissingChecksNotifications = async () => {
       })
     }
   })
+
+  if (!notificationsToSend.length) {
+    console.log("No missing checks notifications to send")
+    return
+  }
 
   for (const notification of notificationsToSend) {
     await sendWappMessage({
