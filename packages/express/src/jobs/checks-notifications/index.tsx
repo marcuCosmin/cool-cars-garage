@@ -61,7 +61,7 @@ export const sendMissingChecksNotifications = async () => {
 
   for (const notification of notificationsToSend) {
     await sendWappMessage({
-      to: "+40743100368",
+      to: "+447387267400",
       template: {
         type: "missing_check",
         params: {
