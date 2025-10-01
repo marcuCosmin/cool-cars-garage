@@ -25,9 +25,6 @@ jobs:
       - name: Build Project
         run: npm install && npm run build:express
 
-      - name: Copy node_modules
-        run: cp -r node_modules packages/express/dist/node_modules
-
       - name: FTP Upload
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
