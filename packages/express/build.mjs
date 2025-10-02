@@ -1,6 +1,6 @@
 import * as esbuild from "esbuild"
 
-import { copyUnbundableDeps } from "./copyUnbundableDeps.js"
+import { copyUnbundableDeps } from "./copyUnbundableDeps.mjs"
 
 await copyUnbundableDeps()
 

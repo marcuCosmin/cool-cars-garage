@@ -1,3 +1,6 @@
+import path from "path"
+import fs from "fs/promises"
+
 const rootNodeModulesPath = path.resolve("../../node_modules")
 
 const copyPdfkitFonts = async () => {
