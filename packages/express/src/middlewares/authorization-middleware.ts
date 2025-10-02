@@ -22,7 +22,8 @@ const roleBasedPathsConfig: Record<
     "/cars/checks": ["POST"]
   },
   manager: {
-    "/cars/checks/faults": ["PATCH"]
+    "/cars/checks/faults": ["PATCH"],
+    "/cars/checks/exports": ["GET"]
   }
 }
 
