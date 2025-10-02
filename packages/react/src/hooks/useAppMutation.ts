@@ -24,7 +24,7 @@ export const useAppMutation = <T extends DefaultMutationFn>({
     try {
       const response = await mutateAsync(...args)
 
-      if (response.message && showToast) {
+      if (response?.message && showToast) {
         toast.success(response.message)
       }
 

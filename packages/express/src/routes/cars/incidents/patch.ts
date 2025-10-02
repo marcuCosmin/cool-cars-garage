@@ -10,13 +10,13 @@ import type { Request } from "@/models"
 
 import type {
   MarkIncidentAsResolvedPayload,
-  MarkIncidentAsResolvedResponse
+  MarkDefectAsResolvedResponse
 } from "@/shared/requests/requests.model"
 import type { CheckDoc } from "@/shared/firestore/firestore.model"
 
 export const handleIncidentPatch = async (
   req: Request<undefined, undefined, MarkIncidentAsResolvedPayload>,
-  res: Response<MarkIncidentAsResolvedResponse | { error: string }>
+  res: Response<MarkDefectAsResolvedResponse | { error: string }>
 ) => {
   const { incidentId, checkId } = req.body
 

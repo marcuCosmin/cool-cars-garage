@@ -7,7 +7,10 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import type { Request } from "@/models"
 
 import type { CheckDoc } from "@/shared/firestore/firestore.model"
-import type { MarkFaultsAsResolvedPayload } from "@/shared/requests/requests.model"
+import type {
+  MarkDefectAsResolvedResponse,
+  MarkFaultsAsResolvedPayload
+} from "@/shared/requests/requests.model"
 
 import { createReportsNotification } from "../utils"
 
@@ -15,7 +18,7 @@ type ReqBody = Partial<MarkFaultsAsResolvedPayload>
 
 export const handleFaultsPatch = async (
   req: Request<undefined, undefined, ReqBody>,
-  res: Response
+  res: Response<MarkDefectAsResolvedResponse | { error: string }>
 ) => {
   const { faultsIds, checkId } = req.body
 
@@ -72,6 +75,7 @@ export const handleFaultsPatch = async (
   }
 
   const batch = firestore.batch()
+  const resolutionTimestamp = getCurrentTimestamp()
 
   faultsIds.forEach(faultId => {
     const faultRef = faultsRef.doc(faultId)
@@ -79,7 +83,7 @@ export const handleFaultsPatch = async (
 
     batch.update(faultRef, {
       status: "resolved",
-      resolutionTimestamp: getCurrentTimestamp()
+      resolutionTimestamp
     })
   })
 
@@ -106,6 +110,7 @@ export const handleFaultsPatch = async (
   const message = `${resolvedMultipleFaults ? "Faults" : "Fault"} marked as resolved`
 
   res.status(200).json({
-    message
+    message,
+    resolutionTimestamp
   })
 }

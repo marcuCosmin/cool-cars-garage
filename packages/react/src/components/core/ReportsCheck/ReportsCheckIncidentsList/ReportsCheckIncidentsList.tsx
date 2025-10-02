@@ -45,15 +45,19 @@ export const ReportsCheckIncidentsList = ({
     <div className="w-full">
       <h2 className="text-center mb-5">Incidents</h2>
 
-      <ul className="w-full flex flex-wrap gap-5 justify-center xl:justify-start">
-        {incidents.map(incident => (
-          <ReportsCheckIncidentsListItem
-            {...incident}
-            onMarkAsResolved={onMarkAsResolved}
-            key={incident.id}
-          />
-        ))}
-      </ul>
+      {incidents.length ? (
+        <ul className="w-full flex flex-wrap gap-5 justify-center xl:justify-start">
+          {incidents.map(incident => (
+            <ReportsCheckIncidentsListItem
+              {...incident}
+              onMarkAsResolved={onMarkAsResolved}
+              key={incident.id}
+            />
+          ))}
+        </ul>
+      ) : (
+        <p className="text-center">No incidents reported.</p>
+      )}
     </div>
   )
 }

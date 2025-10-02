@@ -1,6 +1,10 @@
 import { firebaseAuth } from "@/firebase/config"
 
-import type { UserCreateData, SignUpData } from "@/shared/forms/forms.const"
+import type {
+  UserCreateData,
+  SignUpData,
+  UserEditData
+} from "@/shared/forms/forms.const"
 import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload
@@ -8,22 +12,48 @@ import type {
 
 const baseUrl = import.meta.env.VITE_API_URL
 
-type ExecuteApiRequestProps = {
-  method: "POST" | "GET" | "DELETE" | "PUT" | "PATCH"
-  path:
-    | "/users"
-    | "/users/invite"
-    | "/users/generate-auth-token"
-    | `/users?${string}`
-    | "/users/create-from-invitation"
-    | "/cars/checks/faults"
-    | "/cars/checks/incidents"
-  payload?:
-    | UserCreateData
-    | SignUpData
-    | MarkFaultsAsResolvedPayload
-    | MarkIncidentAsResolvedPayload
-}
+type ExecuteApiRequestProps =
+  | {
+      method: "GET"
+      path: "/users"
+    }
+  | {
+      path: "/users"
+      method: "PUT"
+      payload: UserEditData
+    }
+  | {
+      path: "/users"
+      method: "POST"
+      payload: UserCreateData
+    }
+  | {
+      path: "/users/generate-auth-token"
+      method: "GET"
+    }
+  | {
+      path: "/users/create-from-invitation"
+      method: "POST"
+      payload: SignUpData
+    }
+  | {
+      path: `/users?uid=${string}&email=${string}`
+      method: "DELETE"
+    }
+  | {
+      path: "/cars/checks/faults"
+      method: "PATCH"
+      payload: MarkFaultsAsResolvedPayload
+    }
+  | {
+      path: "/cars/checks/incidents"
+      method: "PATCH"
+      payload: MarkIncidentAsResolvedPayload
+    }
+  | {
+      path: `/cars/checks/exports?${string}`
+      method: "GET"
+    }
 
 type ApiErrorResponse = {
   error: string
@@ -43,13 +73,10 @@ type ApiRequestOptions = {
 }
 
 export const usersUrl = `${baseUrl}/users`
-export const executeApiRequest = async <
-  T extends Record<string, unknown> = ApiDataResponse
->({
-  path,
-  method,
-  payload
-}: ExecuteApiRequestProps) => {
+export const executeApiRequest = async <T = ApiDataResponse>(
+  props: ExecuteApiRequestProps
+) => {
+  const { path, method } = props
   const idToken = await firebaseAuth.currentUser?.getIdToken()
 
   const options: ApiRequestOptions = {
@@ -59,8 +86,8 @@ export const executeApiRequest = async <
     }
   }
 
-  if (method !== "GET") {
-    options.body = JSON.stringify(payload)
+  if (method !== "GET" && method !== "DELETE") {
+    options.body = JSON.stringify(props.payload)
   }
 
   if (idToken) {
@@ -68,6 +95,14 @@ export const executeApiRequest = async <
   }
 
   const response = await fetch(`${baseUrl}${path}`, options)
+
+  const contentType = response.headers.get("Content-Type")
+
+  if (contentType === "application/pdf") {
+    const file = await response.blob()
+
+    return file as T
+  }
 
   const data: T | ApiErrorResponse = await response.json()
 

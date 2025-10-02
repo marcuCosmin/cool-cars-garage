@@ -8,7 +8,18 @@ export type MarkIncidentAsResolvedPayload = {
   checkId: string
 }
 
-export type MarkIncidentAsResolvedResponse = {
+export type MarkDefectAsResolvedResponse = {
   resolutionTimestamp: number
   message: string
 }
+
+export type CarsCheckExportURLQuery =
+  | {
+      checkId: string
+      type: "individual"
+    }
+  | {
+      startTimestamp?: number
+      endTimestamp?: number
+      type: "bulk"
+    }

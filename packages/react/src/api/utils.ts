@@ -9,7 +9,8 @@ import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload,
-  MarkIncidentAsResolvedResponse
+  MarkDefectAsResolvedResponse,
+  CarsCheckExportURLQuery
 } from "@/shared/requests/requests.model"
 
 type GetAllUsersResponse = {
@@ -70,7 +71,7 @@ export const updateUser = (payload: UserEditData) =>
   })
 
 export const markFaultsAsResolved = (payload: MarkFaultsAsResolvedPayload) =>
-  executeApiRequest({
+  executeApiRequest<MarkDefectAsResolvedResponse>({
     path: "/cars/checks/faults",
     method: "PATCH",
     payload
@@ -79,8 +80,43 @@ export const markFaultsAsResolved = (payload: MarkFaultsAsResolvedPayload) =>
 export const markIncidentAsResolved = (
   payload: MarkIncidentAsResolvedPayload
 ) =>
-  executeApiRequest<MarkIncidentAsResolvedResponse>({
+  executeApiRequest<MarkDefectAsResolvedResponse>({
     path: "/cars/checks/incidents",
     method: "PATCH",
     payload
   })
+
+const getExportChecksQueryParams = (payload: CarsCheckExportURLQuery) => {
+  const params = new URLSearchParams()
+
+  params.append("type", payload.type)
+
+  if (payload.type === "individual") {
+    params.append("checkId", payload.checkId)
+
+    return params.toString()
+  }
+
+  if (payload.type === "bulk") {
+    if (payload.startTimestamp) {
+      params.append("startTimestamp", payload.startTimestamp.toString())
+    }
+
+    if (payload.endTimestamp) {
+      params.append("endTimestamp", payload.endTimestamp.toString())
+    }
+  }
+
+  return params.toString()
+}
+
+export const exportChecks = async (payload: CarsCheckExportURLQuery) => {
+  const queryParams = getExportChecksQueryParams(payload)
+
+  const response = await executeApiRequest<Blob>({
+    path: `/cars/checks/exports?${queryParams}`,
+    method: "GET"
+  })
+
+  return response
+}

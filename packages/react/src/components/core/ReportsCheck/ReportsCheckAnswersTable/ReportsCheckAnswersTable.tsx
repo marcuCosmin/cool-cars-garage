@@ -1,6 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
-import { Clipboard2Check } from "react-bootstrap-icons"
 
 import { markFaultsAsResolved } from "@/api/utils"
 
@@ -8,13 +7,10 @@ import { type FullCheck } from "@/firebase/utils"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 
-import { Tooltip } from "@/components/basic/Tooltip"
 import { Checkbox } from "@/components/basic/Checkbox"
 import { Loader } from "@/components/basic/Loader"
 
 import { ReportsCheckSectionRows } from "./ReportsCheckSectionRows"
-
-import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
 type ReportsCheckAnswersTableProps = Pick<
   FullCheck,
@@ -65,19 +61,23 @@ export const ReportsCheckAnswersTable = ({
   }
 
   const onResolveButtonClick = async () => {
-    const response = await handleMarkFaultsAsResolved({
+    const result = await handleMarkFaultsAsResolved({
       checkId,
       faultsIds: selectedFaults
     })
 
-    if (response.error) {
+    if (result.error) {
       return
     }
 
     queryClient.setQueryData(["/reports", checkId], (data: FullCheck) => {
       faults = data.faults.map(fault => {
         if (selectedFaults.includes(fault.id)) {
-          return { ...fault, status: "resolved" }
+          return {
+            ...fault,
+            status: "resolved",
+            resolutionTimestamp: result.response?.resolutionTimestamp
+          }
         }
         return fault
       })
@@ -100,21 +100,18 @@ export const ReportsCheckAnswersTable = ({
             {hasPendingFaults && (
               <th colSpan={5}>
                 <div className="min-h-5 w-fit">
-                  {!!selectedFaults.length &&
-                    (isMutationLoading ? (
-                      <Loader size="sm" />
-                    ) : (
-                      <Tooltip
-                        label="Resolve selected faults"
-                        containerTag="button"
-                        containerProps={{
-                          onClick: onResolveButtonClick,
-                          className: "w-fit p-0 bg-transparent text-primary"
-                        }}
-                      >
-                        <Clipboard2Check size={reportsChecksIconsSize} />
-                      </Tooltip>
-                    ))}
+                  {isMutationLoading ? (
+                    <Loader size="sm" />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onResolveButtonClick}
+                      disabled={!selectedFaults.length}
+                      className="text-base px-2 py-0 font-normal"
+                    >
+                      Resolve faults
+                    </button>
+                  )}
                 </div>
               </th>
             )}

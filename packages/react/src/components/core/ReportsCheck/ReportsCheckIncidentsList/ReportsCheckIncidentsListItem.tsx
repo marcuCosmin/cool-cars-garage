@@ -11,12 +11,12 @@ import { capitalize } from "@/utils/capitalize"
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
 import type { DocWithID, IncidentDoc } from "@/shared/firestore/firestore.model"
-import type { MarkIncidentAsResolvedResponse } from "@/shared/requests/requests.model"
+import type { MarkDefectAsResolvedResponse } from "@/shared/requests/requests.model"
 
 type ReportsCheckIncidentsListItemProps = DocWithID<IncidentDoc> & {
   onMarkAsResolved: (
     incidentId: string
-  ) => Promise<MarkIncidentAsResolvedResponse>
+  ) => Promise<MarkDefectAsResolvedResponse>
 }
 
 export const ReportsCheckIncidentsListItem = ({

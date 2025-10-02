@@ -11,6 +11,7 @@ import { Tooltip } from "@/components/basic/Tooltip"
 import { Checkbox } from "@/components/basic/Checkbox"
 
 import { capitalize } from "@/utils/capitalize"
+import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
@@ -102,6 +103,12 @@ export const ReportsCheckSectionRows = ({
                     />
                   )}
                 </Tooltip>
+              )}
+
+              {fault?.resolutionTimestamp && (
+                <p className="text-sm mt-2">
+                  {parseTimestampForDisplay(fault.resolutionTimestamp)}
+                </p>
               )}
             </td>
           </tr>

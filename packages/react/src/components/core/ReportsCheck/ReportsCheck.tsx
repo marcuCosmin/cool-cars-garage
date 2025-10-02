@@ -7,6 +7,9 @@ import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
 import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
 
 import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"
+import { useAppMutation } from "@/hooks/useAppMutation"
+import { exportChecks } from "@/api/utils"
+import { Loader } from "@/components/basic/Loader"
 
 type CheckProps = {
   check: FullCheck
@@ -25,12 +28,43 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     incidents
   } = check
 
+  const displayedDate = parseTimestampForDisplay(creationTimestamp)
+
+  const onExportCheck = async () => {
+    const blob = await exportChecks({ checkId: id, type: "individual" })
+
+    const url = URL.createObjectURL(blob)
+
+    const linkElement = document.createElement("a")
+    linkElement.href = url
+    linkElement.download = `Check Report - ${carId} - ${displayedDate}.pdf`
+
+    linkElement.click()
+
+    URL.revokeObjectURL(url)
+  }
+
+  const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({
+    mutationFn: onExportCheck,
+    showToast: true
+  })
+
   return (
     <div className="flex flex-col items-center w-full mt-10">
+      <div className="flex w-full flex-start px-5">
+        {isExporting ? (
+          <Loader size="sm" />
+        ) : (
+          <button type="button" className="w-fit" onClick={handleCheckExport}>
+            Export as PDF
+          </button>
+        )}
+      </div>
+
       <div className="flex flex-col items-center gap-3 text-primary font-bold text-xl">
         <h1>Check Report - {carId}</h1>
 
-        <p>{parseTimestampForDisplay(creationTimestamp)}</p>
+        <p>{displayedDate}</p>
 
         <div className="flex justify-center items-center gap-2">
           <PersonCircle size={25} />

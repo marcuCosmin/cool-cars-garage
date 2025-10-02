@@ -46,8 +46,9 @@
 
     button {
        @apply p-2 font-semibold bg-primary text-white rounded-sm w-full cursor-pointer outline-0 transition-opacity;
-       @apply hover:opacity-75;
+       @apply hover:opacity-80;
        @apply focus-visible:bg-primary/80 focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white;
+       @apply disabled:opacity-50 disabled:cursor-auto;
     }
 
     label {
