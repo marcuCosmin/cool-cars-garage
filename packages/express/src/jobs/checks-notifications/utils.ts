@@ -2,7 +2,9 @@ import { firestore } from "@/firebase/config"
 
 import type {
   CarDoc,
+  CheckDoc,
   DocWithID,
+  NotificationConfigDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
 
@@ -26,7 +28,7 @@ export const getCarsDriverData = async (cars: DocWithID<CarDoc>[]) => {
   })
 }
 
-export const getTimestampRanges = () => {
+const getTimestampRanges = () => {
   const currentDate = new Date()
   currentDate.setHours(0, 0, 0, 0)
   const startTimestamp = currentDate.getTime()
@@ -34,4 +36,45 @@ export const getTimestampRanges = () => {
   const endTimestamp = currentDate.getTime()
 
   return { startTimestamp, endTimestamp }
+}
+
+export const getChecksInTimestampRange = async () => {
+  const { startTimestamp, endTimestamp } = getTimestampRanges()
+
+  const checksRef = firestore.collection("checks")
+  const checksSnapshot = await checksRef
+    .where("creationTimestamp", ">=", startTimestamp)
+    .where("creationTimestamp", "<=", endTimestamp)
+    .get()
+
+  const checksData = checksSnapshot.docs.reduce(
+    (acc, doc) => {
+      const { carId, ...data } = doc.data() as CheckDoc
+      acc[carId] = data
+      return acc
+    },
+    {} as Record<string, Omit<CheckDoc, "carId">>
+  )
+
+  return checksData
+}
+
+export const getReceiversPhoneNumbers = async () => {
+  const notifiicationsConfigRef = firestore.collection("notifications-config")
+  const notificationsConfigSnapshot = await notifiicationsConfigRef.get()
+
+  if (notificationsConfigSnapshot.empty) {
+    throw new Error("Notifications config not found")
+  }
+
+  const notificationsConfig = notificationsConfigSnapshot.docs.map(doc => {
+    const data = doc.data() as NotificationConfigDoc
+    return { phoneNumber: doc.id, ...data }
+  })
+
+  const phoneNumbers = notificationsConfig
+    .filter(({ checks }) => checks)
+    .map(({ phoneNumber }) => phoneNumber)
+
+  return phoneNumbers
 }

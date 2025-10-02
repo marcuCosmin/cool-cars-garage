@@ -1,15 +1,14 @@
-import { firestore } from "@/firebase/config"
 import { getOnRoadPsvCars } from "@/firebase/utils"
 
 import { sendWappMessage } from "@/utils/send-wapp-message"
 
-import type {
-  CheckDoc,
-  NotificationConfigDoc,
-  UserDoc
-} from "@/shared/firestore/firestore.model"
+import type { UserDoc } from "@/shared/firestore/firestore.model"
 
-import { getCarsDriverData, getTimestampRanges } from "./utils"
+import {
+  getCarsDriverData,
+  getChecksInTimestampRange,
+  getReceiversPhoneNumbers
+} from "./utils"
 
 type Notification = {
   car_reg_number: string
@@ -19,6 +18,7 @@ type Notification = {
 export const sendMissingChecksNotifications = async () => {
   const psvCarsData = await getOnRoadPsvCars()
   const driversData = await getCarsDriverData(psvCarsData)
+
   const psvCars = psvCarsData.map(({ driverId, ...car }) => {
     const driver = driversData.find(driver => driver.id === driverId) as UserDoc
 
@@ -28,56 +28,27 @@ export const sendMissingChecksNotifications = async () => {
     }
   })
 
-  const { startTimestamp, endTimestamp } = getTimestampRanges()
+  const checksData = await getChecksInTimestampRange()
 
-  const checksRef = firestore.collection("checks")
-  const checksSnapshot = await checksRef
-    .where("creationTimestamp", ">=", startTimestamp)
-    .where("creationTimestamp", "<=", endTimestamp)
-    .get()
-
-  const checksData = checksSnapshot.docs.reduce(
-    (acc, doc) => {
-      const { carId, ...data } = doc.data() as CheckDoc
-      acc[carId] = data
-      return acc
-    },
-    {} as Record<string, Omit<CheckDoc, "carId">>
-  )
-
-  const notificationsToSend: Notification[] = []
-
-  psvCars.forEach(({ id, driver }) => {
-    if (!checksData[id]) {
-      notificationsToSend.push({
-        car_reg_number: id,
-        driver_name: driver
-          ? `${driver.firstName} ${driver.lastName}`
+  const notificationsToSend: Notification[] = psvCars.reduce((acc, car) => {
+    if (!checksData[car.id]) {
+      acc.push({
+        car_reg_number: car.id,
+        driver_name: car.driver
+          ? `${car.driver.firstName} ${car.driver.lastName}`
           : "Unknown"
       })
     }
-  })
+
+    return acc
+  }, [] as Notification[])
 
   if (!notificationsToSend.length) {
     console.log("No missing checks notifications to send")
     return
   }
 
-  const notifiicationsConfigRef = firestore.collection("notifications-config")
-  const notificationsConfigSnapshot = await notifiicationsConfigRef.get()
-
-  if (notificationsConfigSnapshot.empty) {
-    throw new Error("Notifications config not found")
-  }
-
-  const notificationsConfig = notificationsConfigSnapshot.docs.map(doc => ({
-    phoneNumber: doc.id,
-    ...(doc.data() as NotificationConfigDoc)
-  }))
-
-  const phoneNumbers = notificationsConfig
-    .filter(({ checks }) => checks)
-    .map(({ phoneNumber }) => phoneNumber)
+  const phoneNumbers = await getReceiversPhoneNumbers()
 
   for (const notification of notificationsToSend) {
     for (const phoneNumber of phoneNumbers) {
