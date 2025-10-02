@@ -3,7 +3,11 @@ import { getOnRoadPsvCars } from "@/firebase/utils"
 
 import { sendWappMessage } from "@/utils/send-wapp-message"
 
-import type { CheckDoc, UserDoc } from "@/shared/firestore/firestore.model"
+import type {
+  CheckDoc,
+  NotificationConfigDoc,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
 
 import { getCarsDriverData, getTimestampRanges } from "./utils"
 
@@ -59,17 +63,35 @@ export const sendMissingChecksNotifications = async () => {
     return
   }
 
+  const notifiicationsConfigRef = firestore.collection("notifications-config")
+  const notificationsConfigSnapshot = await notifiicationsConfigRef.get()
+
+  if (notificationsConfigSnapshot.empty) {
+    throw new Error("Notifications config not found")
+  }
+
+  const notificationsConfig = notificationsConfigSnapshot.docs.map(doc => ({
+    phoneNumber: doc.id,
+    ...(doc.data() as NotificationConfigDoc)
+  }))
+
+  const phoneNumbers = notificationsConfig
+    .filter(({ checks }) => checks)
+    .map(({ phoneNumber }) => phoneNumber)
+
   for (const notification of notificationsToSend) {
-    await sendWappMessage({
-      to: "+447387267400",
-      template: {
-        type: "missing_check",
-        params: {
-          driver_name: notification.driver_name,
-          car_reg_number: notification.car_reg_number
+    for (const phoneNumber of phoneNumbers) {
+      await sendWappMessage({
+        to: phoneNumber,
+        template: {
+          type: "missing_check",
+          params: {
+            driver_name: notification.driver_name,
+            car_reg_number: notification.car_reg_number
+          }
         }
-      }
-    })
+      })
+    }
   }
 }
 

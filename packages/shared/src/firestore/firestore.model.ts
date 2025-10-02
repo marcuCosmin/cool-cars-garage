@@ -107,3 +107,7 @@ export type CarDoc = {
   monthOfFirstRegistration: string
   isOffRoad: boolean
 }
+
+export type NotificationConfigDoc = {
+  checks: true
+}
