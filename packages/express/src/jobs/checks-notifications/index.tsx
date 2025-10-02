@@ -1,14 +1,13 @@
-import { getOnRoadPsvCars } from "@/firebase/utils"
+import {
+  getChecksNotificationsPhoneNumbers,
+  getOnRoadPsvCars
+} from "@/firebase/utils"
 
 import { sendWappMessage } from "@/utils/send-wapp-message"
 
 import type { UserDoc } from "@/shared/firestore/firestore.model"
 
-import {
-  getCarsDriverData,
-  getChecksInTimestampRange,
-  getReceiversPhoneNumbers
-} from "./utils"
+import { getCarsDriverData, getChecksInTimestampRange } from "./utils"
 
 type Notification = {
   car_reg_number: string
@@ -48,7 +47,7 @@ export const sendMissingChecksNotifications = async () => {
     return
   }
 
-  const phoneNumbers = await getReceiversPhoneNumbers()
+  const phoneNumbers = await getChecksNotificationsPhoneNumbers()
 
   for (const notification of notificationsToSend) {
     for (const phoneNumber of phoneNumbers) {

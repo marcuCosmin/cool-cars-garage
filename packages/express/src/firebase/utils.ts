@@ -65,3 +65,18 @@ export const getOnRoadPsvCars = async () => {
     return { id: doc.id, ...data }
   })
 }
+
+export const getChecksNotificationsPhoneNumbers = async () => {
+  const notificationsConfigQuery = firestore
+    .collection("notifications-config")
+    .where("checks", "==", true)
+  const notificationsConfigSnapshot = await notificationsConfigQuery.get()
+
+  if (notificationsConfigSnapshot.empty) {
+    throw new Error("Notifications config not found")
+  }
+
+  const phoneNumbers = notificationsConfigSnapshot.docs.map(({ id }) => id)
+
+  return phoneNumbers
+}

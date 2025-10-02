@@ -4,7 +4,6 @@ import type {
   CarDoc,
   CheckDoc,
   DocWithID,
-  NotificationConfigDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
 
@@ -57,24 +56,4 @@ export const getChecksInTimestampRange = async () => {
   )
 
   return checksData
-}
-
-export const getReceiversPhoneNumbers = async () => {
-  const notifiicationsConfigRef = firestore.collection("notifications-config")
-  const notificationsConfigSnapshot = await notifiicationsConfigRef.get()
-
-  if (notificationsConfigSnapshot.empty) {
-    throw new Error("Notifications config not found")
-  }
-
-  const notificationsConfig = notificationsConfigSnapshot.docs.map(doc => {
-    const data = doc.data() as NotificationConfigDoc
-    return { phoneNumber: doc.id, ...data }
-  })
-
-  const phoneNumbers = notificationsConfig
-    .filter(({ checks }) => checks)
-    .map(({ phoneNumber }) => phoneNumber)
-
-  return phoneNumbers
 }
