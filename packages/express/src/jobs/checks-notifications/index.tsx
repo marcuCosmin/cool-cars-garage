@@ -3,16 +3,16 @@ import {
   getOnRoadPsvCars
 } from "@/firebase/utils"
 
-import { sendWappMessage } from "@/utils/send-wapp-message"
+import {
+  sendWappMessages,
+  type MissingCheckTemplate
+} from "@/utils/send-wapp-message"
 
 import type { UserDoc } from "@/shared/firestore/firestore.model"
 
 import { getCarsDriverData, getChecksInTimestampRange } from "./utils"
 
-type Notification = {
-  car_reg_number: string
-  driver_name: string
-}
+type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 
 export const sendMissingChecksNotifications = async () => {
   const psvCarsData = await getOnRoadPsvCars()
@@ -29,40 +29,40 @@ export const sendMissingChecksNotifications = async () => {
 
   const checksData = await getChecksInTimestampRange()
 
-  const notificationsToSend: Notification[] = psvCars.reduce((acc, car) => {
-    if (!checksData[car.id]) {
-      acc.push({
-        car_reg_number: car.id,
-        driver_name: car.driver
-          ? `${car.driver.firstName} ${car.driver.lastName}`
-          : "Unknown"
-      })
-    }
+  const templateParams: MissingCheckTemplateParams[] = psvCars.reduce(
+    (acc, car) => {
+      if (!checksData[car.id]) {
+        acc.push({
+          car_reg_number: car.id,
+          driver_name: car.driver
+            ? `${car.driver.firstName} ${car.driver.lastName}`
+            : "Unknown"
+        })
+      }
 
-    return acc
-  }, [] as Notification[])
+      return acc
+    },
+    [] as MissingCheckTemplateParams[]
+  )
 
-  if (!notificationsToSend.length) {
+  if (!templateParams.length) {
     console.log("No missing checks notifications to send")
     return
   }
 
   const phoneNumbers = await getChecksNotificationsPhoneNumbers()
 
-  for (const notification of notificationsToSend) {
-    for (const phoneNumber of phoneNumbers) {
-      await sendWappMessage({
-        to: phoneNumber,
-        template: {
-          type: "missing_check",
-          params: {
-            driver_name: notification.driver_name,
-            car_reg_number: notification.car_reg_number
-          }
-        }
-      })
-    }
-  }
+  const messagesPromises = templateParams.map(params =>
+    sendWappMessages({
+      phoneNumbers,
+      template: {
+        type: "missing_check",
+        params
+      }
+    })
+  )
+
+  await Promise.all(messagesPromises)
 }
 
 sendMissingChecksNotifications()

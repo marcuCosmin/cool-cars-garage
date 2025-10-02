@@ -1,4 +1,4 @@
-type MissingCheckTemplate = {
+export type MissingCheckTemplate = {
   type: "missing_check"
   params: {
     driver_name: string
@@ -8,7 +8,7 @@ type MissingCheckTemplate = {
 
 type SendWappMessageProps = {
   template: MissingCheckTemplate
-  to: string
+  phoneNumber: string
 }
 
 const getBodyTemplate = (template: SendWappMessageProps["template"]) => {
@@ -34,8 +34,8 @@ const getBodyTemplate = (template: SendWappMessageProps["template"]) => {
   }
 }
 
-export const sendWappMessage = async ({
-  to,
+const sendWappMessage = async ({
+  phoneNumber,
   template
 }: SendWappMessageProps) => {
   const bodyTemplate = getBodyTemplate(template)
@@ -50,7 +50,7 @@ export const sendWappMessage = async ({
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
-        to,
+        to: phoneNumber,
         type: "template",
         template: bodyTemplate
       })
@@ -58,8 +58,26 @@ export const sendWappMessage = async ({
   )
 
   const data = await response.json()
-  console.log(data)
+
   if (!response.ok) {
     throw new Error(data)
   }
+}
+
+type SendWappMessagesProps = Pick<SendWappMessageProps, "template"> & {
+  phoneNumbers: string[]
+}
+
+export const sendWappMessages = async ({
+  phoneNumbers,
+  template
+}: SendWappMessagesProps) => {
+  const messagesPromises = phoneNumbers.map(phoneNumber =>
+    sendWappMessage({
+      phoneNumber,
+      template
+    })
+  )
+
+  await Promise.all(messagesPromises)
 }
