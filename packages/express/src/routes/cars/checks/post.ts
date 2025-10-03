@@ -117,7 +117,7 @@ export const handleCheckSubmission = async (
       bulkCount: faultsIds.length
     })
 
-    const phoneNumbers = await getNotificationPhoneNumbers("faults")
+    const phoneNumbers = await getNotificationPhoneNumbers("faults-reported")
 
     await sendWappMessages({
       phoneNumbers,
