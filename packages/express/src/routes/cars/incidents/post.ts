@@ -1,12 +1,16 @@
 import { type Response } from "express"
 
+import { FieldValue } from "firebase-admin/firestore"
 import { firestore } from "@/firebase/config"
+import { getNotificationPhoneNumbers, getUserDoc } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
+import { sendWappMessages } from "@/utils/send-wapp-messages"
+
 import type { Request } from "@/models"
 
-import type { CheckDoc } from "@/shared/firestore/firestore.model"
+import type { UserDoc } from "@/shared/firestore/firestore.model"
 
 import { createReportsNotification } from "../utils"
 
@@ -40,33 +44,21 @@ export const handleIncidentSubmission = async (
   }
 
   const checksRef = firestore.collection("checks")
-  const checkDoc = await checksRef.doc(checkId).get()
-
-  if (!checkDoc.exists) {
-    res.status(400).json({
-      error: "Invalid check ID"
-    })
-
-    return
-  }
-
-  const checkData = checkDoc.data() as CheckDoc
+  await checksRef.doc(checkId).update({
+    hasUnresolvedIncidents: true,
+    incidentsCount: FieldValue.increment(1)
+  })
 
   const incidentsRef = firestore.collection("incidents")
-
-  const creationTimestamp = getCurrentTimestamp()
-
   const createdIncident = await incidentsRef.add({
     description,
     driverId: uid,
-    creationTimestamp,
+    creationTimestamp: getCurrentTimestamp(),
     status: "pending",
     checkId
   })
 
-  checkData.hasUnresolvedIncidents = true
-  checkData.incidentsCount = (checkData.incidentsCount ?? 0) + 1
-  await checksRef.doc(checkId).update(checkData)
+  const { firstName, lastName } = (await getUserDoc(uid)) as UserDoc
 
   await createReportsNotification({
     carId,
@@ -79,7 +71,19 @@ export const handleIncidentSubmission = async (
     }
   })
 
-  // Send wapp message to Marius
+  const phoneNumbers = await getNotificationPhoneNumbers("incident-reported")
+
+  await sendWappMessages({
+    phoneNumbers,
+    template: {
+      type: "incident_reported",
+      params: {
+        driver_name: `${firstName} ${lastName}`,
+        car_reg_number: carId
+      },
+      check_id: checkId
+    }
+  })
 
   res.status(200).json({
     message: "Incident reported successfully"

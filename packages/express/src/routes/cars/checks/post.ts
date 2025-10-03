@@ -4,7 +4,7 @@ import { firestore } from "@/firebase/config"
 import { getNotificationPhoneNumbers, getUserDoc } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
-import { sendWappMessages } from "@/utils/send-wapp-message"
+import { sendWappMessages } from "@/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 

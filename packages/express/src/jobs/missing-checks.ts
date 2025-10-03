@@ -8,7 +8,7 @@ import {
 import {
   sendWappMessages,
   type MissingCheckTemplate
-} from "@/utils/send-wapp-message"
+} from "@/utils/send-wapp-messages"
 
 import type { UserDoc } from "@/shared/firestore/firestore.model"
 

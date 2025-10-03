@@ -17,7 +17,7 @@ type FaultsSubmittedTemplate = {
 }
 
 type IncidentSubmittedTemplate = {
-  type: "incident_submitted"
+  type: "incident_reported"
   params: {
     driver_name: string
     car_reg_number: string
@@ -51,7 +51,7 @@ const getBodyComponent = (template: SendWappMessageProps["template"]) => {
 const getURLComponent = (template: SendWappMessageProps["template"]) => {
   if (
     template.type !== "faults_reported" &&
-    template.type !== "incident_submitted"
+    template.type !== "incident_reported"
   ) {
     return null
   }
