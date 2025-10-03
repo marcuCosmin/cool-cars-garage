@@ -2,7 +2,7 @@ name: Run Check Notifications Job
 
 on:
   schedule:
-    - cron: "45 16 * * *"
+    - cron: "00 17 * * *"
 
 jobs:
   run-notifications:
@@ -24,4 +24,4 @@ jobs:
         run: npm install && npm run build:express
 
       - name: Run notifications script
-        run: node ./packages/express/dist/jobs/checks-notifications/index.js
+        run: node ./packages/express/dist/jobs/missing-checks.js

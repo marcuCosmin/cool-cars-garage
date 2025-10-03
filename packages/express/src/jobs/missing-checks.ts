@@ -1,4 +1,9 @@
-import { getNotificationPhoneNumbers, getOnRoadPsvCars } from "@/firebase/utils"
+import {
+  getCarsDriverData,
+  getChecksFromToday,
+  getNotificationPhoneNumbers,
+  getOnRoadPsvCars
+} from "@/firebase/utils"
 
 import {
   sendWappMessages,
@@ -6,8 +11,6 @@ import {
 } from "@/utils/send-wapp-message"
 
 import type { UserDoc } from "@/shared/firestore/firestore.model"
-
-import { getCarsDriverData, getChecksInTimestampRange } from "./utils"
 
 type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 
@@ -24,11 +27,13 @@ const sendMissingChecksNotifications = async () => {
     }
   })
 
-  const checksData = await getChecksInTimestampRange()
+  const checksData = await getChecksFromToday()
 
   const templateParams: MissingCheckTemplateParams[] = psvCars.reduce(
     (acc, car) => {
-      if (!checksData[car.id]) {
+      const matchingCheck = checksData.find(({ carId }) => carId === car.id)
+
+      if (!matchingCheck) {
         acc.push({
           car_reg_number: car.id,
           driver_name: car.driver

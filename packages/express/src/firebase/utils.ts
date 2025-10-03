@@ -4,6 +4,8 @@ import { firebaseAuth, firestore } from "./config"
 
 import type {
   CarDoc,
+  CheckDoc,
+  DocWithID,
   PhoneNumberDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
@@ -87,4 +89,45 @@ export const getNotificationPhoneNumbers = async (notificationType: string) => {
   })
 
   return phoneNumbers
+}
+
+export const getCarsDriverData = async (cars: DocWithID<CarDoc>[]) => {
+  const flattenedDriversIds = cars.map(car => car.driverId).filter(Boolean)
+  const driversIdsSet = new Set(flattenedDriversIds)
+  const driversIds = Array.from(driversIdsSet)
+
+  const usersRefs = driversIds.map(id => firestore.collection("users").doc(id))
+
+  if (!usersRefs.length) {
+    return []
+  }
+
+  const usersSnapshots = await firestore.getAll(...usersRefs)
+
+  return usersSnapshots.map(snapshot => {
+    const userData = snapshot.data() as UserDoc
+
+    return { id: snapshot.id, ...userData }
+  })
+}
+
+export const getChecksFromToday = async () => {
+  const currentDate = new Date()
+  currentDate.setHours(0, 0, 0, 0)
+  const startTimestamp = currentDate.getTime()
+  currentDate.setHours(23, 59, 59, 999)
+  const endTimestamp = currentDate.getTime()
+
+  const checksRef = firestore.collection("checks")
+  const checksSnapshot = await checksRef
+    .where("creationTimestamp", ">=", startTimestamp)
+    .where("creationTimestamp", "<=", endTimestamp)
+    .get()
+
+  const checksData = checksSnapshot.docs.map(doc => {
+    const data = doc.data() as CheckDoc
+    return { id: doc.id, ...data }
+  })
+
+  return checksData
 }
