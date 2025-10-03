@@ -1,7 +1,4 @@
-import {
-  getChecksNotificationsPhoneNumbers,
-  getOnRoadPsvCars
-} from "@/firebase/utils"
+import { getNotificationPhoneNumbers, getOnRoadPsvCars } from "@/firebase/utils"
 
 import {
   sendWappMessages,
@@ -14,7 +11,7 @@ import { getCarsDriverData, getChecksInTimestampRange } from "./utils"
 
 type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 
-export const sendMissingChecksNotifications = async () => {
+const sendMissingChecksNotifications = async () => {
   const psvCarsData = await getOnRoadPsvCars()
   const driversData = await getCarsDriverData(psvCarsData)
 
@@ -50,7 +47,12 @@ export const sendMissingChecksNotifications = async () => {
     return
   }
 
-  const phoneNumbers = await getChecksNotificationsPhoneNumbers()
+  const phoneNumbers = await getNotificationPhoneNumbers("missing-checks")
+
+  if (!phoneNumbers.length) {
+    console.log("No phone numbers found for missing checks notifications")
+    return
+  }
 
   const messagesPromises = templateParams.map(params =>
     sendWappMessages({

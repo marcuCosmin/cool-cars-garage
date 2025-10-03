@@ -6,12 +6,34 @@ export type MissingCheckTemplate = {
   }
 }
 
+type FaultsSubmittedTemplate = {
+  type: "faults_reported"
+  params: {
+    driver_name: string
+    faults_count: string
+    car_reg_number: string
+  }
+  check_id: string
+}
+
+type IncidentSubmittedTemplate = {
+  type: "incident_submitted"
+  params: {
+    driver_name: string
+    car_reg_number: string
+  }
+  check_id: string
+}
+
 type SendWappMessageProps = {
-  template: MissingCheckTemplate
+  template:
+    | MissingCheckTemplate
+    | FaultsSubmittedTemplate
+    | IncidentSubmittedTemplate
   phoneNumber: string
 }
 
-const getBodyTemplate = (template: SendWappMessageProps["template"]) => {
+const getBodyComponent = (template: SendWappMessageProps["template"]) => {
   const componentsBodyParams = Object.entries(template.params).map(
     ([key, value]) => ({
       type: "text",
@@ -21,14 +43,27 @@ const getBodyTemplate = (template: SendWappMessageProps["template"]) => {
   )
 
   return {
-    name: template.type,
-    language: {
-      code: "en"
-    },
-    components: [
+    type: "body",
+    parameters: componentsBodyParams
+  }
+}
+
+const getURLComponent = (template: SendWappMessageProps["template"]) => {
+  if (
+    template.type !== "faults_reported" &&
+    template.type !== "incident_submitted"
+  ) {
+    return null
+  }
+
+  return {
+    type: "button",
+    sub_type: "url",
+    index: "0",
+    parameters: [
       {
-        type: "body",
-        parameters: componentsBodyParams
+        type: "text",
+        text: template.check_id
       }
     ]
   }
@@ -38,7 +73,8 @@ const sendWappMessage = async ({
   phoneNumber,
   template
 }: SendWappMessageProps) => {
-  const bodyTemplate = getBodyTemplate(template)
+  const bodyComponent = getBodyComponent(template)
+  const urlComponent = getURLComponent(template)
 
   const response = await fetch(
     "https://graph.facebook.com/v22.0/832911756563437/messages",
@@ -52,7 +88,13 @@ const sendWappMessage = async ({
         messaging_product: "whatsapp",
         to: phoneNumber,
         type: "template",
-        template: bodyTemplate
+        template: {
+          name: template.type,
+          language: {
+            code: "en"
+          },
+          components: [bodyComponent, urlComponent]
+        }
       })
     }
   )
@@ -60,7 +102,8 @@ const sendWappMessage = async ({
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data)
+    console.log(data)
+    throw new Error(data.message)
   }
 }
 

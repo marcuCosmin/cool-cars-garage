@@ -2,9 +2,13 @@ import { type FirebaseError } from "firebase-admin"
 
 import { firebaseAuth, firestore } from "./config"
 
-import type { CarDoc, UserDoc } from "@/shared/firestore/firestore.model"
+import type {
+  CarDoc,
+  PhoneNumberDoc,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
 
-export const getUserMetadata = async (uid: string) => {
+export const getUserDoc = async (uid: string) => {
   const userRef = firestore.collection("users").doc(uid)
   const userDoc = await userRef.get()
 
@@ -66,17 +70,21 @@ export const getOnRoadPsvCars = async () => {
   })
 }
 
-export const getChecksNotificationsPhoneNumbers = async () => {
-  const notificationsConfigQuery = firestore
-    .collection("notifications-config")
-    .where("checks", "==", true)
-  const notificationsConfigSnapshot = await notificationsConfigQuery.get()
+export const getNotificationPhoneNumbers = async (notificationType: string) => {
+  const notificationsConfigRef = firestore
+    .collection("phone-numbers")
+    .where("notifications", "array-contains", notificationType)
+  const notificationsConfigSnapshot = await notificationsConfigRef.get()
 
   if (notificationsConfigSnapshot.empty) {
-    throw new Error("Notifications config not found")
+    return []
   }
 
-  const phoneNumbers = notificationsConfigSnapshot.docs.map(({ id }) => id)
+  const phoneNumbers = notificationsConfigSnapshot.docs.map(doc => {
+    const data = doc.data() as PhoneNumberDoc
+
+    return data.value
+  })
 
   return phoneNumbers
 }

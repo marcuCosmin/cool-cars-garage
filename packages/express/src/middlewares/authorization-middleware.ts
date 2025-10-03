@@ -1,7 +1,7 @@
 import { type Response, type NextFunction } from "express"
 
 import { firebaseAuth } from "@/firebase/config"
-import { getUserMetadata } from "@/firebase/utils"
+import { getUserDoc } from "@/firebase/utils"
 
 import type { Request } from "@/models"
 
@@ -54,7 +54,7 @@ export const authorizationMiddleware = async (
 
     const { uid } = await firebaseAuth.verifyIdToken(idToken)
 
-    const userMetadata = await getUserMetadata(uid)
+    const userMetadata = await getUserDoc(uid)
 
     const role = userMetadata?.role
 

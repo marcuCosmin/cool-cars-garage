@@ -2,7 +2,7 @@ name: Run Check Notifications Job
 
 on:
   schedule:
-    - cron: "00 07 * * *"
+    - cron: "45 16 * * *"
 
 jobs:
   run-notifications:

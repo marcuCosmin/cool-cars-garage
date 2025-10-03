@@ -1,8 +1,10 @@
 import { type Response } from "express"
 
 import { firestore } from "@/firebase/config"
+import { getNotificationPhoneNumbers, getUserDoc } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
+import { sendWappMessages } from "@/utils/send-wapp-message"
 
 import type { Request } from "@/models"
 
@@ -33,6 +35,13 @@ export const handleCheckSubmission = async (
   }
 
   // handle proper validation
+
+  const driverDoc = await getUserDoc(uid)
+
+  if (!driverDoc) {
+    res.status(404).json({ error: "Driver not found" })
+    return
+  }
 
   const combinedSections = [...interior, ...exterior]
   const answersWithFaults = combinedSections.filter(
@@ -107,9 +116,22 @@ export const handleCheckSubmission = async (
       type: "fault",
       bulkCount: faultsIds.length
     })
-  }
 
-  // Send wapp message to Marius
+    const phoneNumbers = await getNotificationPhoneNumbers("faults")
+
+    await sendWappMessages({
+      phoneNumbers,
+      template: {
+        type: "faults_reported",
+        params: {
+          driver_name: `${driverDoc.firstName} ${driverDoc.lastName}`,
+          car_reg_number: carId,
+          faults_count: faultsIds.length.toString()
+        },
+        check_id: createdCheck.id
+      }
+    })
+  }
 
   res.status(200).json({
     checkId: createdCheck.id

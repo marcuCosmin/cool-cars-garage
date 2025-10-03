@@ -111,3 +111,9 @@ export type CarDoc = {
 export type NotificationConfigDoc = {
   checks: true
 }
+
+export type PhoneNumberDoc = {
+  value: string
+  label: string
+  notifications: string[]
+}
