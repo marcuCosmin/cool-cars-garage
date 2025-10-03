@@ -2,14 +2,14 @@ import { PersonCircle, Speedometer } from "react-bootstrap-icons"
 
 import { type FullCheck } from "@/firebase/utils"
 
-import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
-
-import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
-
-import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"
 import { useAppMutation } from "@/hooks/useAppMutation"
 import { exportChecks } from "@/api/utils"
 import { Loader } from "@/components/basic/Loader"
+
+import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+
+import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
+import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"
 
 type CheckProps = {
   check: FullCheck

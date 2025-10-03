@@ -5,13 +5,13 @@ import { useAppMutation } from "@/hooks/useAppMutation"
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Loader } from "@/components/basic/Loader"
 
-import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
-import { capitalize } from "@/utils/capitalize"
-
-import { reportsChecksIconsSize } from "../ReportsCheck.const"
+import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+import { capitalize } from "@/shared/utils/capitalize"
 
 import type { DocWithID, IncidentDoc } from "@/shared/firestore/firestore.model"
 import type { MarkDefectAsResolvedResponse } from "@/shared/requests/requests.model"
+
+import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
 type ReportsCheckIncidentsListItemProps = DocWithID<IncidentDoc> & {
   onMarkAsResolved: (

@@ -10,12 +10,12 @@ import { FullCheck } from "@/firebase/utils"
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Checkbox } from "@/components/basic/Checkbox"
 
-import { capitalize } from "@/utils/capitalize"
-import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
-
-import { reportsChecksIconsSize } from "../ReportsCheck.const"
+import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+import { capitalize } from "@/shared/utils/capitalize"
 
 import type { CheckAnswer } from "@/shared/firestore/firestore.model"
+
+import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
 type ReportsCheckSectionRowsProps = Pick<FullCheck, "faults"> & {
   section: "Interior" | "Exterior"

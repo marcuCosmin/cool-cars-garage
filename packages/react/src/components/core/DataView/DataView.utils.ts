@@ -1,6 +1,8 @@
 import { type DocumentData } from "firebase/firestore"
 
-import { parseTimestampForDisplay } from "@/utils/parseTimestampForDisplay"
+import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 import type {
   FiltersConfig,
@@ -9,8 +11,6 @@ import type {
   DataListItemMetadataConfig,
   DataListItem
 } from "./DataView.model"
-
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 export const parseSearchString = (searchString: string) =>
   searchString.trim().toLowerCase()
