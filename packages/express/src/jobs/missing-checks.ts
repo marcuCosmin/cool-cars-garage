@@ -24,7 +24,9 @@ const sendMissingChecksNotifications = async () => {
     ]
   })
 
-  const psvCarsdriversIds = new Set(psvCarsData.map(car => car.driverId))
+  const psvCarsdriversIds = new Set(
+    psvCarsData.map(car => car.driverId).filter(Boolean)
+  )
 
   const driversData = await getFirestoreDocs<UserDoc>({
     collection: "users",
