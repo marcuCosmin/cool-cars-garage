@@ -1,12 +1,13 @@
 import { type Response } from "express"
 
 import { firestore } from "@/firebase/config"
+import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
-import type { CheckDoc } from "@/shared/firestore/firestore.model"
+import { FaultDoc, type CheckDoc } from "@/shared/firestore/firestore.model"
 import type {
   MarkDefectAsResolvedResponse,
   MarkFaultsAsResolvedPayload
@@ -35,35 +36,39 @@ export const handleFaultsPatch = async (
     return
   }
 
-  const checksRef = firestore.collection("checks").doc(checkId)
-  const checkDoc = await checksRef.get()
+  const checkData = await getFirestoreDoc<CheckDoc>({
+    collection: "checks",
+    docId: checkId
+  })
 
-  if (!checkDoc.exists) {
+  if (!checkData) {
     res.status(404).json({
       error: "Check not found"
     })
+    return
   }
 
-  const checkData = checkDoc.data() as CheckDoc
   const { carId, driverId } = checkData
-  let { faultsCount } = checkData
 
-  const faultsRef = firestore.collection("faults")
-  const pendingFaultsQuery = faultsRef
-    .where("checkId", "==", checkId)
-    .where("status", "==", "pending")
-  const pendingFaultsSnapshot = await pendingFaultsQuery.get()
+  const pendingFaults = await getFirestoreDocs<FaultDoc>({
+    collection: "faults",
+    queries: [
+      ["carId", "==", carId],
+      ["status", "==", "pending"]
+    ]
+  })
 
-  if (pendingFaultsSnapshot.empty) {
+  if (!pendingFaults.length) {
     res.status(400).json({
       error: "No faults found for this check"
     })
+    return
   }
 
-  const existingFaultsIds = pendingFaultsSnapshot.docs.map(doc => doc.id)
+  const pendingFaultsIds = pendingFaults.map(doc => doc.id)
 
   const invalidFaultsIds = faultsIds.filter(
-    faultId => !existingFaultsIds.includes(faultId)
+    faultId => !pendingFaultsIds.includes(faultId)
   )
 
   if (invalidFaultsIds.length) {
@@ -78,8 +83,7 @@ export const handleFaultsPatch = async (
   const resolutionTimestamp = getCurrentTimestamp()
 
   faultsIds.forEach(faultId => {
-    const faultRef = faultsRef.doc(faultId)
-    faultsCount = (faultsCount as number) - 1
+    const faultRef = firestore.collection("faults").doc(faultId)
 
     batch.update(faultRef, {
       status: "resolved",
@@ -89,12 +93,12 @@ export const handleFaultsPatch = async (
 
   await batch.commit()
 
-  const remainingFaults = existingFaultsIds.filter(
+  const remainingFaults = pendingFaultsIds.filter(
     faultId => !faultsIds.includes(faultId)
   )
 
   if (!remainingFaults.length) {
-    await checksRef.update({
+    await firestore.collection("checks").doc(checkId).update({
       hasUnresolvedFaults: false
     })
   }

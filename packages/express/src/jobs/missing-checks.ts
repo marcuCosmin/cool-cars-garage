@@ -1,22 +1,35 @@
-import {
-  getCarsDriverData,
-  getChecksFromToday,
-  getNotificationPhoneNumbers,
-  getOnRoadPsvCars
-} from "@/firebase/utils"
+import { getFirestoreDocs, getNotificationPhoneNumbers } from "@/firebase/utils"
 
 import {
   sendWappMessages,
   type MissingCheckTemplate
 } from "@/utils/send-wapp-messages"
 
-import type { UserDoc } from "@/shared/firestore/firestore.model"
+import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
+
+import {
+  type CarDoc,
+  type CheckDoc,
+  type UserDoc
+} from "@/shared/firestore/firestore.model"
 
 type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 
 const sendMissingChecksNotifications = async () => {
-  const psvCarsData = await getOnRoadPsvCars()
-  const driversData = await getCarsDriverData(psvCarsData)
+  const psvCarsData = await getFirestoreDocs<CarDoc>({
+    collection: "cars",
+    queries: [
+      ["council", "==", "PSV"],
+      ["isOffRoad", "==", false]
+    ]
+  })
+
+  const psvCarsdriversIds = new Set(psvCarsData.map(car => car.driverId))
+
+  const driversData = await getFirestoreDocs<UserDoc>({
+    collection: "users",
+    ids: Array.from(psvCarsdriversIds)
+  })
 
   const psvCars = psvCarsData.map(({ driverId, ...car }) => {
     const driver = driversData.find(driver => driver.id === driverId) as UserDoc
@@ -27,7 +40,15 @@ const sendMissingChecksNotifications = async () => {
     }
   })
 
-  const checksData = await getChecksFromToday()
+  const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()
+
+  const checksData = await getFirestoreDocs<CheckDoc>({
+    collection: "checks",
+    queries: [
+      ["creationTimestamp", ">=", startTimestamp],
+      ["creationTimestamp", "<=", endTimestamp]
+    ]
+  })
 
   const templateParams: MissingCheckTemplateParams[] = psvCars.reduce(
     (acc, car) => {

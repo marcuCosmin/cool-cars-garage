@@ -1,24 +1,94 @@
+import {
+  CollectionReference,
+  Query,
+  type WhereFilterOp
+} from "firebase-admin/firestore"
 import { type FirebaseError } from "firebase-admin"
 
 import { firebaseAuth, firestore } from "./config"
 
 import type {
-  CarDoc,
-  CheckDoc,
   DocWithID,
-  PhoneNumberDoc,
-  UserDoc
+  PhoneNumberDoc
 } from "@/shared/firestore/firestore.model"
 
-export const getUserDoc = async (uid: string) => {
-  const userRef = firestore.collection("users").doc(uid)
-  const userDoc = await userRef.get()
+type GetFirestoreDocProps = {
+  collection: string
+  docId: string
+}
 
-  if (!userDoc.exists) {
+export const getFirestoreDoc = async <T>({
+  collection,
+  docId
+}: GetFirestoreDocProps) => {
+  const docRef = firestore.collection(collection).doc(docId)
+  const docSnapshot = await docRef.get()
+
+  if (!docSnapshot.exists) {
     return null
   }
 
-  return userDoc.data() as UserDoc
+  return docSnapshot.data() as T
+}
+
+type GetFirestoreDocsProps =
+  | {
+      collection: string
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
+      queries?: [string, WhereFilterOp, any][]
+      limit?: number
+      orderBy?: { field: string; direction: "asc" | "desc" }
+    }
+  | {
+      collection: string
+      ids: string[]
+    }
+
+export const getFirestoreDocs = async <T>(props: GetFirestoreDocsProps) => {
+  if ("ids" in props) {
+    const { collection, ids } = props
+
+    if (!ids.length) {
+      return [] as DocWithID<T>[]
+    }
+
+    const docRefs = ids.map(id => firestore.collection(collection).doc(id))
+    const docSnapshots = await firestore.getAll(...docRefs)
+
+    const docs = docSnapshots.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as DocWithID<T>[]
+
+    return docs
+  }
+
+  const { collection, queries, limit, orderBy } = props
+
+  let collectionRef: CollectionReference | Query =
+    firestore.collection(collection)
+
+  queries?.forEach(([field, operator, value]) => {
+    collectionRef = collectionRef.where(field, operator, value)
+  })
+
+  if (limit) {
+    collectionRef = collectionRef.limit(limit)
+  }
+
+  if (orderBy) {
+    collectionRef = collectionRef.orderBy(orderBy.field, orderBy.direction)
+  }
+
+  const snapshot = await collectionRef.get()
+
+  if (snapshot.empty) {
+    return [] as DocWithID<T>[]
+  }
+
+  const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+  return data as DocWithID<T>[]
 }
 
 export const isEmailUsed = async (email: string) => {
@@ -54,80 +124,13 @@ export const deleteUser = async (uid: string) => {
   }
 }
 
-export const getOnRoadPsvCars = async () => {
-  const carsRef = firestore.collection("cars")
-  const carsQuery = await carsRef
-    .where("council", "==", "PSV")
-    .where("isOffRoad", "==", false)
-    .get()
-
-  if (carsQuery.empty) {
-    throw new Error("No PSV on-road cars found")
-  }
-
-  return carsQuery.docs.map(doc => {
-    const data = doc.data() as CarDoc
-
-    return { id: doc.id, ...data }
-  })
-}
-
 export const getNotificationPhoneNumbers = async (notificationType: string) => {
-  const notificationsConfigRef = firestore
-    .collection("phone-numbers")
-    .where("notifications", "array-contains", notificationType)
-  const notificationsConfigSnapshot = await notificationsConfigRef.get()
-
-  if (notificationsConfigSnapshot.empty) {
-    return []
-  }
-
-  const phoneNumbers = notificationsConfigSnapshot.docs.map(doc => {
-    const data = doc.data() as PhoneNumberDoc
-
-    return data.value
+  const phoneNumbersDocs = await getFirestoreDocs<PhoneNumberDoc>({
+    collection: "phone-numbers",
+    queries: [["notifications", "array-contains", notificationType]]
   })
+
+  const phoneNumbers = phoneNumbersDocs.map(doc => doc.value)
 
   return phoneNumbers
-}
-
-export const getCarsDriverData = async (cars: DocWithID<CarDoc>[]) => {
-  const flattenedDriversIds = cars.map(car => car.driverId).filter(Boolean)
-  const driversIdsSet = new Set(flattenedDriversIds)
-  const driversIds = Array.from(driversIdsSet)
-
-  const usersRefs = driversIds.map(id => firestore.collection("users").doc(id))
-
-  if (!usersRefs.length) {
-    return []
-  }
-
-  const usersSnapshots = await firestore.getAll(...usersRefs)
-
-  return usersSnapshots.map(snapshot => {
-    const userData = snapshot.data() as UserDoc
-
-    return { id: snapshot.id, ...userData }
-  })
-}
-
-export const getChecksFromToday = async () => {
-  const currentDate = new Date()
-  currentDate.setHours(0, 0, 0, 0)
-  const startTimestamp = currentDate.getTime()
-  currentDate.setHours(23, 59, 59, 999)
-  const endTimestamp = currentDate.getTime()
-
-  const checksRef = firestore.collection("checks")
-  const checksSnapshot = await checksRef
-    .where("creationTimestamp", ">=", startTimestamp)
-    .where("creationTimestamp", "<=", endTimestamp)
-    .get()
-
-  const checksData = checksSnapshot.docs.map(doc => {
-    const data = doc.data() as CheckDoc
-    return { id: doc.id, ...data }
-  })
-
-  return checksData
 }

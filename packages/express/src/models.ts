@@ -1,5 +1,7 @@
 import type { Request as ExpressRequest } from "express"
 
+import type { User } from "@/shared/firestore/firestore.model"
+
 export type UserMetadata = {
   role: "admin" | "user"
 }
@@ -19,5 +21,5 @@ export type Request<
   ReqQuery = ParsedQueryString | undefined,
   Locals extends Record<string, unknown> = Record<string, unknown>
 > = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
-  uid?: string
+  authorizedUser?: User
 }

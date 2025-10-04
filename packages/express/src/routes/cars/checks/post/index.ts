@@ -1,54 +1,48 @@
 import { type Response } from "express"
 
 import { firestore } from "@/firebase/config"
-import { getNotificationPhoneNumbers, getUserDoc } from "@/firebase/utils"
+import { getNotificationPhoneNumbers } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import { sendWappMessages } from "@/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 
-import { CheckDoc } from "@/shared/firestore/firestore.model"
+import type { CheckDoc, User } from "@/shared/firestore/firestore.model"
 
-import { createReportsNotification } from "../utils"
+import { createReportsNotification } from "../../utils"
 
-type ReqBody = Partial<
-  Omit<
-    CheckDoc,
-    "creationTimestamp" | "driverId" | "faultsCount" | "hasUnresolvedFaults"
-  >
->
+import { getReqBodyValidationError } from "./utils"
+
+import type { ReqBody } from "./model"
 
 export const handleCheckSubmission = async (
   req: Request<undefined, undefined, ReqBody>,
   res: Response
 ) => {
-  const uid = req.uid as string
-  const { carId, interior, exterior, odoReading } = req.body
+  const authorizedUser = req.authorizedUser as User
 
-  if (!carId || !interior?.length || !exterior?.length || !odoReading) {
+  const reqBodyError = await getReqBodyValidationError({
+    ...req.body,
+    driverId: authorizedUser.uid
+  })
+
+  if (reqBodyError) {
     res.status(400).json({
-      error: "Invalid request body"
+      error: reqBodyError
     })
 
     return
   }
 
-  // handle proper validation
-
-  const driverDoc = await getUserDoc(uid)
-
-  if (!driverDoc) {
-    res.status(404).json({ error: "Driver not found" })
-    return
-  }
+  const { carId, interior, exterior, odoReading } =
+    req.body as Required<ReqBody>
 
   const combinedSections = [...interior, ...exterior]
   const answersWithFaults = combinedSections.filter(
     answer => answer.value === false
   )
 
-  const checkRef = firestore.collection("checks")
   const creationTimestamp = getCurrentTimestamp()
   const checkHasFaults = answersWithFaults.length > 0
 
@@ -57,7 +51,7 @@ export const handleCheckSubmission = async (
     interior,
     exterior,
     odoReading,
-    driverId: uid,
+    driverId: authorizedUser.uid,
     creationTimestamp
   }
 
@@ -66,6 +60,7 @@ export const handleCheckSubmission = async (
     checkData.hasUnresolvedFaults = true
   }
 
+  const checkRef = firestore.collection("checks")
   const createdCheck = await checkRef.add(checkData)
 
   const faultsIds: string[] = []
@@ -77,7 +72,7 @@ export const handleCheckSubmission = async (
     answersWithFaults.forEach(answer => {
       const fault = {
         description: answer.label,
-        driverId: uid,
+        driverId: authorizedUser.uid,
         status: "pending",
         checkId: createdCheck.id,
         creationTimestamp,
@@ -95,7 +90,7 @@ export const handleCheckSubmission = async (
 
   await createReportsNotification({
     carId,
-    uid,
+    uid: authorizedUser.uid,
     viewed: true,
     type: "check",
     reference: {
@@ -107,7 +102,7 @@ export const handleCheckSubmission = async (
   if (faultsIds.length) {
     await createReportsNotification({
       carId,
-      uid,
+      uid: authorizedUser.uid,
       viewed: true,
       reference: {
         id: createdCheck.id,
@@ -124,7 +119,7 @@ export const handleCheckSubmission = async (
       template: {
         type: "faults_reported",
         params: {
-          driver_name: `${driverDoc.firstName} ${driverDoc.lastName}`,
+          driver_name: `${authorizedUser.firstName} ${authorizedUser.lastName}`,
           car_reg_number: carId,
           faults_count: faultsIds.length.toString()
         },

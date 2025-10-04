@@ -1,6 +1,7 @@
 import { type Response } from "express"
 
 import { firestore } from "@/firebase/config"
+import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
@@ -12,7 +13,7 @@ import type {
   MarkIncidentAsResolvedPayload,
   MarkDefectAsResolvedResponse
 } from "@/shared/requests/requests.model"
-import type { CheckDoc } from "@/shared/firestore/firestore.model"
+import type { IncidentDoc, CheckDoc } from "@/shared/firestore/firestore.model"
 
 export const handleIncidentPatch = async (
   req: Request<undefined, undefined, MarkIncidentAsResolvedPayload>,
@@ -28,10 +29,12 @@ export const handleIncidentPatch = async (
     return
   }
 
-  const checkRef = firestore.collection("checks").doc(checkId)
-  const checkDoc = await checkRef.get()
+  const checkData = await getFirestoreDoc<CheckDoc>({
+    collection: "checks",
+    docId: checkId
+  })
 
-  if (!checkDoc.exists) {
+  if (!checkData) {
     res.status(400).json({
       error: "Invalid check ID"
     })
@@ -39,8 +42,7 @@ export const handleIncidentPatch = async (
     return
   }
 
-  const checkData = checkDoc.data()
-  const { carId, driverId } = checkData as CheckDoc
+  const { carId, driverId } = checkData
 
   const incidentsRef = firestore.collection("incidents")
   const resolutionTimestamp = getCurrentTimestamp()
@@ -50,14 +52,16 @@ export const handleIncidentPatch = async (
     resolutionTimestamp
   })
 
-  const checkIncidentsQuery = incidentsRef
-    .where("checkId", "==", checkId)
-    .where("status", "==", "pending")
+  const remainingIncidents = await getFirestoreDocs<IncidentDoc>({
+    collection: "incidents",
+    queries: [
+      ["checkId", "==", checkId],
+      ["status", "==", "pending"]
+    ]
+  })
 
-  const checkIncidentsSnapshot = await checkIncidentsQuery.get()
-
-  if (checkIncidentsSnapshot.empty) {
-    await checkRef.update({
+  if (!remainingIncidents.length) {
+    await firestore.collection("checks").doc(checkId).update({
       hasUnresolvedIncidents: false
     })
   }
@@ -66,7 +70,7 @@ export const handleIncidentPatch = async (
     carId,
     uid: driverId,
     type: "incident-resolved",
-    reference: { id: checkId, path: "incident" }
+    reference: { id: incidentId, path: "incident" }
   })
 
   res.status(200).json({

@@ -106,6 +106,7 @@ export type CarDoc = {
   lastIssuedV5CTimestamp: number
   monthOfFirstRegistration: string
   isOffRoad: boolean
+  council: "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
 }
 
 export type NotificationConfigDoc = {
@@ -116,4 +117,13 @@ export type PhoneNumberDoc = {
   value: string
   label: string
   notifications: string[]
+}
+
+export type ReportsQuestion = {
+  label: string
+}
+
+export type ReportsQuestionsConfig = {
+  interior: ReportsQuestion[]
+  exterior: ReportsQuestion[]
 }

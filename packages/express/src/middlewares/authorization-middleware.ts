@@ -1,9 +1,11 @@
 import { type Response, type NextFunction } from "express"
 
 import { firebaseAuth } from "@/firebase/config"
-import { getUserDoc } from "@/firebase/utils"
+import { getAuthUser, getFirestoreDoc } from "@/firebase/utils"
 
 import type { Request } from "@/models"
+
+import type { UserDoc } from "@/shared/firestore/firestore.model"
 
 const publicPathsConfig = {
   "/": ["GET"],
@@ -40,51 +42,46 @@ export const authorizationMiddleware = async (
     return
   }
 
-  try {
-    const authorizationHeader = req.headers.authorization
-    const idToken = authorizationHeader?.split("Bearer ")[1]
+  const authorizationHeader = req.headers.authorization
+  const idToken = authorizationHeader?.split("Bearer ")[1]
 
-    if (!idToken) {
-      res.status(403).json({
-        error: "Unauthorized"
-      })
-
-      return
-    }
-
-    const { uid } = await firebaseAuth.verifyIdToken(idToken)
-
-    const userMetadata = await getUserDoc(uid)
-
-    const role = userMetadata?.role
-
-    const pathConfig =
-      role !== "admin" && role ? roleBasedPathsConfig[role] : null
-    const pathConfigMethod = pathConfig?.[req.path]
-
-    const isAuthorized = pathConfigMethod?.includes(req.method)
-
-    if (role !== "admin" && !isAuthorized) {
-      res.status(403).json({
-        error: "Unauthorized"
-      })
-
-      return
-    }
-
-    req.uid = uid
-    next()
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: error.message
-      })
-
-      return
-    }
-
-    res.status(500).json({
-      error: "An unexpected error occurred"
+  if (!idToken) {
+    res.status(403).json({
+      error: "Unauthorized"
     })
+
+    return
   }
+
+  const { uid } = await firebaseAuth.verifyIdToken(idToken)
+
+  const user = await getAuthUser(uid)
+
+  const userDoc = await getFirestoreDoc<UserDoc>({
+    collection: "users",
+    docId: uid
+  })
+
+  const role = userDoc?.role
+
+  const pathConfig =
+    role !== "admin" && role ? roleBasedPathsConfig[role] : null
+  const pathConfigMethod = pathConfig?.[req.path]
+
+  const isAuthorized = pathConfigMethod?.includes(req.method)
+
+  if (role !== "admin" && !isAuthorized) {
+    res.status(403).json({
+      error: "Unauthorized"
+    })
+
+    return
+  }
+
+  req.authorizedUser = {
+    uid,
+    email: user?.email as string,
+    ...(userDoc as UserDoc)
+  }
+  next()
 }

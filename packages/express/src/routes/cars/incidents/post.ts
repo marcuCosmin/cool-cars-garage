@@ -2,7 +2,7 @@ import { type Response } from "express"
 
 import { FieldValue } from "firebase-admin/firestore"
 import { firestore } from "@/firebase/config"
-import { getNotificationPhoneNumbers, getUserDoc } from "@/firebase/utils"
+import { getFirestoreDoc, getNotificationPhoneNumbers } from "@/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
@@ -10,7 +10,7 @@ import { sendWappMessages } from "@/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 
-import type { UserDoc } from "@/shared/firestore/firestore.model"
+import type { User, UserDoc } from "@/shared/firestore/firestore.model"
 
 import { createReportsNotification } from "../utils"
 
@@ -24,7 +24,7 @@ export const handleIncidentSubmission = async (
   req: Request<undefined, undefined, ReqBody>,
   res: Response
 ) => {
-  const uid = req.uid as string
+  const { uid } = req.authorizedUser as User
   const { carId, description, checkId } = req.body
 
   if (!carId || !description?.trim() || !checkId) {
@@ -43,6 +43,16 @@ export const handleIncidentSubmission = async (
     return
   }
 
+  const car = await getFirestoreDoc({
+    collection: "cars",
+    docId: carId
+  })
+
+  if (!car) {
+    res.status(400).json({ error: "Invalid car ID" })
+    return
+  }
+
   const checksRef = firestore.collection("checks")
   await checksRef.doc(checkId).update({
     hasUnresolvedIncidents: true,
@@ -58,8 +68,6 @@ export const handleIncidentSubmission = async (
     checkId
   })
 
-  const { firstName, lastName } = (await getUserDoc(uid)) as UserDoc
-
   await createReportsNotification({
     carId,
     uid,
@@ -72,6 +80,10 @@ export const handleIncidentSubmission = async (
   })
 
   const phoneNumbers = await getNotificationPhoneNumbers("incident-reported")
+  const { firstName, lastName } = (await getFirestoreDoc<UserDoc>({
+    collection: "users",
+    docId: uid
+  })) as UserDoc
 
   await sendWappMessages({
     phoneNumbers,
