@@ -107,7 +107,8 @@ export const handleFaultsPatch = async (
     carId,
     uid: driverId,
     type: "fault-resolved",
-    reference: { id: checkId, path: "check" }
+    reference: { id: checkId, path: "check" },
+    bulkCount: faultsIds.length
   })
 
   const resolvedMultipleFaults = faultsIds.length > 1
