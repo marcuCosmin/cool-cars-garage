@@ -12,7 +12,14 @@ import type {
 
 import type { ReqBody } from "./model"
 
-const getOdoReadingError = async (odoReading?: CheckDoc["odoReading"]) => {
+type GetOdoReadingErrorProps = Partial<Pick<CheckDoc, "odoReading">> & {
+  carId: string
+}
+
+const getOdoReadingError = async ({
+  odoReading,
+  carId
+}: GetOdoReadingErrorProps) => {
   if (!odoReading) {
     return "Invalid ODO reading"
   }
@@ -31,6 +38,7 @@ const getOdoReadingError = async (odoReading?: CheckDoc["odoReading"]) => {
 
   const [lastCheck] = await getFirestoreDocs<CheckDoc>({
     collection: "checks",
+    queries: [["carId", "==", carId]],
     orderBy: { field: "creationTimestamp", direction: "desc" },
     limit: 1
   })
@@ -95,7 +103,7 @@ export const getReqBodyValidationError = async ({
     return "Invalid car registration number"
   }
 
-  const odoReadingError = await getOdoReadingError(odoReading)
+  const odoReadingError = await getOdoReadingError({ odoReading, carId })
 
   if (odoReadingError) {
     return odoReadingError
