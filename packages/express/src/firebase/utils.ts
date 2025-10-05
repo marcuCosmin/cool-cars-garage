@@ -28,7 +28,9 @@ export const getFirestoreDoc = async <T>({
     return null
   }
 
-  return docSnapshot.data() as T
+  const data = docSnapshot.data()
+
+  return { id: docSnapshot.id, ...data } as DocWithID<T>
 }
 
 type GetFirestoreDocsProps =
