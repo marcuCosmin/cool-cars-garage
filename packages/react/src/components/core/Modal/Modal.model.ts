@@ -14,3 +14,7 @@ export type ModalOptions =
       type: "user"
       props: UserFormProps
     }
+  | {
+      type: "checks-bulk-export"
+      props?: undefined
+    }

@@ -11,7 +11,7 @@ import type {
   UserDoc
 } from "@/shared/firestore/firestore.model"
 
-import { buildIndividualPDFDoc } from "./utils"
+import { buildBulkPDFDoc, buildIndividualPDFDoc } from "./utils"
 
 export const handleCarChecksExports = async (
   req: Request<
@@ -23,11 +23,6 @@ export const handleCarChecksExports = async (
   res: Response
 ) => {
   const { type } = req.query
-
-  if (type !== "individual" && type !== "bulk") {
-    res.status(400).json({ error: "Invalid or missing type parameter" })
-    return
-  }
 
   if (type === "individual") {
     const { checkId } = req.query
@@ -80,5 +75,64 @@ export const handleCarChecksExports = async (
     res.setHeader("Content-Disposition", 'inline; filename="example.pdf"')
 
     pdfDoc.end()
+    return
   }
+
+  if (type === "bulk") {
+    const startTimestamp = Number(req.query.startTimestamp)
+    const endTimestamp = Number(req.query.endTimestamp)
+
+    if (
+      !startTimestamp ||
+      !endTimestamp ||
+      isNaN(startTimestamp) ||
+      isNaN(endTimestamp)
+    ) {
+      res.status(400).json({
+        error: "Missing or invalid startTimestamp or endTimestamp parameter"
+      })
+      return
+    }
+
+    const checksRawData = await getFirestoreDocs<CheckDoc>({
+      collection: "checks",
+      queries: [
+        ["creationTimestamp", ">=", startTimestamp],
+        ["creationTimestamp", "<=", endTimestamp]
+      ]
+    })
+
+    if (!checksRawData.length) {
+      res.status(404).json({ error: "No checks found in the given time range" })
+      return
+    }
+
+    const driversIds = new Set(checksRawData.map(({ driverId }) => driverId))
+    const drivers = await getFirestoreDocs<UserDoc>({
+      collection: "users",
+      ids: Array.from(driversIds)
+    })
+
+    const checks = checksRawData.map(check => {
+      const driver = drivers.find(driver => driver.id === check.driverId)!
+
+      return {
+        ...check,
+        driver
+      }
+    })
+
+    const pdfDoc = buildBulkPDFDoc({ checks, startTimestamp, endTimestamp })
+
+    pdfDoc.pipe(res)
+
+    res.setHeader("Content-Type", "application/pdf")
+    res.setHeader("Content-Disposition", 'inline; filename="example.pdf"')
+
+    pdfDoc.end()
+
+    return
+  }
+
+  res.status(400).json({ error: "Invalid or missing type parameter" })
 }

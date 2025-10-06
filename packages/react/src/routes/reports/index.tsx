@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 
+import { useAppDispatch } from "@/redux/config"
+import { openModal } from "@/redux/modalSlice"
+
 import { getAllUsersDocs, getChecksChunk } from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
@@ -32,6 +35,7 @@ const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListIt
   }
 
 export const Reports = () => {
+  const dispatch = useAppDispatch()
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["/users-docs"],
     queryFn: getAllUsersDocs,
@@ -142,14 +146,24 @@ export const Reports = () => {
     })
   }
 
+  const onBulkExportClick = () =>
+    dispatch(openModal({ type: "checks-bulk-export" }))
+
   return (
-    <DataView
-      showSearch={false}
-      filtersConfig={filtersConfig}
-      fetchItems={fetchItems}
-      itemDetailedViewBasePath="/reports"
-      itemMetadataConfig={checkDataListItemMetadataConfig}
-      serverSideFetching
-    />
+    <div>
+      <div className="p-5">
+        <button type="button" className="w-fit" onClick={onBulkExportClick}>
+          Bulk Export
+        </button>
+      </div>
+      <DataView
+        showSearch={false}
+        filtersConfig={filtersConfig}
+        fetchItems={fetchItems}
+        itemDetailedViewBasePath="/reports"
+        itemMetadataConfig={checkDataListItemMetadataConfig}
+        serverSideFetching
+      />
+    </div>
   )
 }

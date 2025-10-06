@@ -7,29 +7,33 @@ import type {
   CheckAnswer,
   CheckDoc,
   FaultDoc,
+  FullCheck,
   IncidentDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
 
+const pdfGap = 0.5
+const pdfMargin = 25
+const pdfPrimaryColor = "#007bff"
+const pdfFont = "Helvetica"
+const pdfFontBold = "Helvetica-Bold"
+
 // eslint-disable-next-line no-undef
 type CellOptions = PDFKit.Mixins.CellOptions
 
-const getTableHeaderRow = (): CellOptions[] => {
-  const columns = ["Question", "Answer", "Issue Status"]
-
-  return columns.map(column => ({
+const getTableHeaderRow = (columns: string[]): CellOptions[] =>
+  columns.map(column => ({
     text: column,
     align: "center",
-    textColor: "#007bff"
+    textColor: pdfPrimaryColor
   }))
-}
 
 const getAnswersSectionTitleRow = (text: string): CellOptions[] => [
   {
     text,
     colSpan: 3,
     align: "center",
-    textColor: "#007bff"
+    textColor: pdfPrimaryColor
   }
 ]
 
@@ -87,55 +91,49 @@ export const buildIndividualPDFDoc = ({
   faults,
   incidents
 }: BuildIndividualPDFDocProps) => {
-  const gap = 0.5
-  const margin = 25
-  const primaryColor = "#007bff"
-  const font = "Helvetica"
-  const fontBold = "Helvetica-Bold"
-
   const { interior, exterior, carId, creationTimestamp, odoReading } = check
 
   const pdfDoc = new PDFDocument({
-    margin
+    margin: pdfMargin
   })
 
-  pdfDoc.fillColor(primaryColor)
-  pdfDoc.font(fontBold)
+  pdfDoc.fillColor(pdfPrimaryColor)
+  pdfDoc.font(pdfFontBold)
 
   pdfDoc.fontSize(10).text("COOL CARS SOUTH COAST LIMITED")
-  pdfDoc.moveDown(gap * 2)
+  pdfDoc.moveDown(pdfGap * 2)
 
   pdfDoc.fontSize(18).text(`Check Report - ${carId}`, { align: "center" })
-  pdfDoc.moveDown(gap)
+  pdfDoc.moveDown(pdfGap)
 
   pdfDoc.fontSize(13)
 
   pdfDoc.text(parseTimestampForDisplay(creationTimestamp), {
     align: "center"
   })
-  pdfDoc.moveDown(gap)
+  pdfDoc.moveDown(pdfGap)
 
   pdfDoc.text(`Reported by: ${driver.firstName} ${driver.lastName}`, {
     align: "center"
   })
-  pdfDoc.moveDown(gap)
+  pdfDoc.moveDown(pdfGap)
 
   pdfDoc.text(`Odometer reading: ${odoReading.value}${odoReading.unit}`, {
     align: "center"
   })
 
-  pdfDoc.moveDown(gap * 2)
+  pdfDoc.moveDown(pdfGap * 2)
 
   pdfDoc.text("Questions", { align: "center" })
-  pdfDoc.moveDown(gap)
+  pdfDoc.moveDown(pdfGap)
 
-  pdfDoc.font(font)
+  pdfDoc.font(pdfFont)
 
   pdfDoc.table({
     columnStyles: ["*", 75, 75],
-    defaultStyle: { border: 0.5, borderColor: primaryColor, padding: 5 },
+    defaultStyle: { border: 0.5, borderColor: pdfPrimaryColor, padding: 5 },
     data: [
-      getTableHeaderRow(),
+      getTableHeaderRow(["Question", "Answer", "Issue Status"]),
       getAnswersSectionTitleRow("Interior"),
       ...getAnswersSectionTableRows({ section: interior, faults }),
       getAnswersSectionTitleRow("Exterior"),
@@ -143,10 +141,10 @@ export const buildIndividualPDFDoc = ({
     ]
   })
 
-  pdfDoc.moveDown(gap * 2)
+  pdfDoc.moveDown(pdfGap * 2)
 
-  pdfDoc.fillColor(primaryColor)
-  pdfDoc.font(fontBold)
+  pdfDoc.fillColor(pdfPrimaryColor)
+  pdfDoc.font(pdfFontBold)
 
   if (incidents.length) {
     pdfDoc.text("Incidents", { align: "center" })
@@ -162,7 +160,7 @@ export const buildIndividualPDFDoc = ({
 
         const contentHeight =
           pdfDoc.y + descriptionHeight + estimatedHeaderHeight
-        const isOverflowing = contentHeight > pdfDoc.page.height - margin
+        const isOverflowing = contentHeight > pdfDoc.page.height - pdfMargin
 
         if (isOverflowing) {
           pdfDoc.addPage()
@@ -170,9 +168,9 @@ export const buildIndividualPDFDoc = ({
 
         const initialY = pdfDoc.y
 
-        pdfDoc.fillColor(primaryColor)
-        pdfDoc.font(fontBold).fontSize(10)
-        pdfDoc.moveDown(gap * 2)
+        pdfDoc.fillColor(pdfPrimaryColor)
+        pdfDoc.font(pdfFontBold).fontSize(10)
+        pdfDoc.moveDown(pdfGap * 2)
 
         pdfDoc.text(
           `Report time: ${parseTimestampForDisplay(creationTimestamp)}`,
@@ -187,20 +185,20 @@ export const buildIndividualPDFDoc = ({
           )
         }
 
-        pdfDoc.moveDown(gap)
+        pdfDoc.moveDown(pdfGap)
 
         pdfDoc
-          .strokeColor(primaryColor)
+          .strokeColor(pdfPrimaryColor)
           .lineWidth(0.5)
-          .moveTo(pdfDoc.x + margin, pdfDoc.y)
-          .lineTo(pdfDoc.page.width - margin * 2, pdfDoc.y)
+          .moveTo(pdfDoc.x + pdfMargin, pdfDoc.y)
+          .lineTo(pdfDoc.page.width - pdfMargin * 2, pdfDoc.y)
           .stroke()
 
-        pdfDoc.moveDown(gap * 2)
+        pdfDoc.moveDown(pdfGap * 2)
 
         pdfDoc
           .fillColor("black")
-          .font(font)
+          .font(pdfFont)
           .fontSize(10)
           .text(description, { align: "center" })
 
@@ -208,15 +206,93 @@ export const buildIndividualPDFDoc = ({
           .rect(
             initialX,
             initialY,
-            pdfDoc.page.width - margin * 2,
+            pdfDoc.page.width - pdfMargin * 2,
             pdfDoc.y - initialY + pdfDoc.currentLineHeight()
           )
-          .stroke(primaryColor)
+          .stroke(pdfPrimaryColor)
 
-        pdfDoc.moveDown(gap * 4)
+        pdfDoc.moveDown(pdfGap * 4)
       }
     )
   }
+
+  return pdfDoc
+}
+
+type BuildBulkPDFDocProps = {
+  checks: Omit<FullCheck, "incidents" | "faults">[]
+  startTimestamp: number
+  endTimestamp: number
+}
+
+export const buildBulkPDFDoc = ({
+  checks,
+  startTimestamp,
+  endTimestamp
+}: BuildBulkPDFDocProps) => {
+  const tableBodyRows = checks.map(
+    ({
+      carId,
+      creationTimestamp,
+      driver,
+      odoReading,
+      faultsCount,
+      incidentsCount,
+      hasUnresolvedFaults,
+      hasUnresolvedIncidents
+    }) => {
+      const cellsText = [
+        carId,
+        parseTimestampForDisplay(creationTimestamp),
+        `${driver.firstName} ${driver.lastName}`,
+        `${odoReading.value} ${odoReading.unit}`,
+        faultsCount ?? 0,
+        incidentsCount ?? 0,
+        hasUnresolvedFaults || hasUnresolvedIncidents ? "PENDING" : "PASSED"
+      ]
+
+      return cellsText.map(text => ({
+        text,
+        align: "center",
+        font: { size: 10 }
+      })) as CellOptions[]
+    }
+  )
+  const pdfDoc = new PDFDocument({ margin: pdfMargin })
+
+  pdfDoc.fillColor(pdfPrimaryColor)
+  pdfDoc.font(pdfFontBold)
+
+  pdfDoc.fontSize(10).text("COOL CARS SOUTH COAST LIMITED")
+  pdfDoc.moveDown(pdfGap * 2)
+
+  pdfDoc.fontSize(18).text(`Vehicles Checks Report`, { align: "center" })
+  pdfDoc.moveDown(pdfGap)
+  pdfDoc.text(
+    `${parseTimestampForDisplay(startTimestamp)} - ${parseTimestampForDisplay(endTimestamp)}`,
+    { align: "center" }
+  )
+  pdfDoc.moveDown(pdfGap * 2)
+
+  pdfDoc.font(pdfFont)
+  pdfDoc.fontSize(13)
+
+  pdfDoc.table({
+    columnStyles: ["*", "*", "*", "*", 75, 75, "*"],
+    defaultStyle: { border: 0.5, borderColor: pdfPrimaryColor, padding: 5 },
+    data: [
+      getTableHeaderRow([
+        "Vehicle registration",
+        "Date & Time",
+        "Driver",
+        "Odometer reading",
+        "Faults",
+        "Incidents",
+        "Status"
+      ]),
+      ...tableBodyRows
+    ]
+  })
 
   return pdfDoc
 }

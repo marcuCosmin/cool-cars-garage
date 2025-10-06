@@ -127,3 +127,9 @@ export type ReportsQuestionsConfig = {
   interior: ReportsQuestion[]
   exterior: ReportsQuestion[]
 }
+
+export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
+  driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
+  faults: DocWithID<FaultDoc>[]
+  incidents: DocWithID<IncidentDoc>[]
+}

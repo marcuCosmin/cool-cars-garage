@@ -3,6 +3,7 @@ import { getEmailError, getNameError, getRequiredError } from "./forms.utils"
 import type { FormFieldsSchema } from "./forms.models"
 
 import type { DriverMetadata, User } from "../firestore/firestore.model"
+import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
 export type UserCreateData = Omit<
   User,
@@ -85,3 +86,20 @@ export type SignUpData = SignUpFormData & {
 export const signUpFormFields: FormFieldsSchema<SignUpFormData> = {
   ...signInFormFields
 }
+
+export type ChecksBulkExportData = Omit<
+  Extract<CarsCheckExportURLQuery, { type: "bulk" }>,
+  "type"
+>
+
+export const checksBulkExportFormFields: FormFieldsSchema<ChecksBulkExportData> =
+  {
+    startTimestamp: {
+      type: "date",
+      validate: getRequiredError
+    },
+    endTimestamp: {
+      type: "date",
+      validate: getRequiredError
+    }
+  }

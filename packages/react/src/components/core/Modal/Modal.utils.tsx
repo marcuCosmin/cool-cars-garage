@@ -18,6 +18,12 @@ const UserFrom = lazy(() =>
   }))
 )
 
+const ChecksBulkExportModal = lazy(() =>
+  import("../ChecksBulkExportModal").then(module => ({
+    default: module.ChecksBulkExportModal
+  }))
+)
+
 export const getModalContent = ({ type, props }: ModalOptions) => {
   switch (type) {
     case "confirmation":
@@ -26,5 +32,7 @@ export const getModalContent = ({ type, props }: ModalOptions) => {
       return <CarModalContent />
     case "user":
       return <UserFrom {...props} />
+    case "checks-bulk-export":
+      return <ChecksBulkExportModal />
   }
 }

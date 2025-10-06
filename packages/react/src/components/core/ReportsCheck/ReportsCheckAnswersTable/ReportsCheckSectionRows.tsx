@@ -5,15 +5,13 @@ import {
   XCircle
 } from "react-bootstrap-icons"
 
-import { FullCheck } from "@/firebase/utils"
-
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Checkbox } from "@/components/basic/Checkbox"
 
 import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
 import { capitalize } from "@/shared/utils/capitalize"
 
-import type { CheckAnswer } from "@/shared/firestore/firestore.model"
+import type { CheckAnswer, FullCheck } from "@/shared/firestore/firestore.model"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 

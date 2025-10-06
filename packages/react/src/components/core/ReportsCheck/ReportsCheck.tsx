@@ -1,12 +1,16 @@
 import { PersonCircle, Speedometer } from "react-bootstrap-icons"
 
-import { type FullCheck } from "@/firebase/utils"
+import { exportChecks } from "@/api/utils"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
-import { exportChecks } from "@/api/utils"
+
 import { Loader } from "@/components/basic/Loader"
 
+import { downloadBlob } from "@/utils/downloadBlob"
+
 import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+
+import type { FullCheck } from "@/shared/firestore/firestore.model"
 
 import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
 import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"
@@ -33,15 +37,10 @@ export const ReportsCheck = ({ check }: CheckProps) => {
   const onExportCheck = async () => {
     const blob = await exportChecks({ checkId: id, type: "individual" })
 
-    const url = URL.createObjectURL(blob)
-
-    const linkElement = document.createElement("a")
-    linkElement.href = url
-    linkElement.download = `Check Report - ${carId} - ${displayedDate}.pdf`
-
-    linkElement.click()
-
-    URL.revokeObjectURL(url)
+    downloadBlob({
+      blob,
+      fileName: `Check Report - ${carId} - ${displayedDate}.pdf`
+    })
   }
 
   const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({
@@ -49,16 +48,22 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     showToast: true
   })
 
+  const onExportClick = isExporting ? undefined : handleCheckExport
+
   return (
     <div className="flex flex-col items-center w-full mt-10">
-      <div className="flex w-full flex-start px-5">
-        {isExporting ? (
-          <Loader size="sm" />
-        ) : (
-          <button type="button" className="w-fit" onClick={handleCheckExport}>
-            Export as PDF
-          </button>
-        )}
+      <div className="flex w-full flex-start px-5 mb-3">
+        <button
+          type="button"
+          className="flex justify-center w-32"
+          onClick={onExportClick}
+        >
+          {isExporting ? (
+            <Loader size="sm" className="border-white border-t-transparent" />
+          ) : (
+            "Export as PDF"
+          )}
+        </button>
       </div>
 
       <div className="flex flex-col items-center gap-3 text-primary font-bold text-xl">

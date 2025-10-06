@@ -19,7 +19,7 @@ export type CarsCheckExportURLQuery =
       type: "individual"
     }
   | {
-      startTimestamp?: number
-      endTimestamp?: number
       type: "bulk"
+      startTimestamp: number
+      endTimestamp: number
     }

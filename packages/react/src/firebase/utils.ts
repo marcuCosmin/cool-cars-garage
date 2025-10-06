@@ -9,8 +9,8 @@ import {
   limit,
   query,
   QueryConstraint,
-  type DocumentData,
-  where
+  where,
+  type DocumentData
 } from "firebase/firestore"
 import {
   signInWithCustomToken,
@@ -29,6 +29,7 @@ import type {
   CheckDoc,
   DocWithID,
   FaultDoc,
+  FullCheck,
   IncidentDoc,
   InvitationDoc,
   UserDoc
@@ -232,12 +233,6 @@ export const getChecksChunk = async ({
   })
 
   return checks
-}
-
-export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
-  driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
-  faults: DocWithID<FaultDoc>[]
-  incidents: DocWithID<IncidentDoc>[]
 }
 
 export const getFullCheck = async (

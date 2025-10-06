@@ -3,12 +3,12 @@ import { useState } from "react"
 
 import { markFaultsAsResolved } from "@/api/utils"
 
-import { type FullCheck } from "@/firebase/utils"
-
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Checkbox } from "@/components/basic/Checkbox"
 import { Loader } from "@/components/basic/Loader"
+
+import type { FullCheck } from "@/shared/firestore/firestore.model"
 
 import { ReportsCheckSectionRows } from "./ReportsCheckSectionRows"
 
