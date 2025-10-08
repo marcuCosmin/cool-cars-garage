@@ -14,7 +14,7 @@ import type {
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
 export const handleGetRequest = async (req: Request, res: Response) => {
-  const uid = req.uid as string
+  const uid = req.authorizedUser?.uid as string
 
   const { users: authUsers } = await firebaseAuth.listUsers()
 

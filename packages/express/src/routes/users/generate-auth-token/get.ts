@@ -9,7 +9,7 @@ export const handleAuthTokenGeneration = async (
   req: Request,
   res: Response
 ) => {
-  const uid = req.uid as string
+  const uid = req.authorizedUser?.uid as string
 
   const authUser = await getAuthUser(uid)
 
