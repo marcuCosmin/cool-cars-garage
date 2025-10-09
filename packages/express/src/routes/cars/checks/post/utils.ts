@@ -12,6 +12,23 @@ import type {
 
 import type { ReqBody } from "./model"
 
+type GetAnswersWithFaultsProps = {
+  interior: CheckAnswer[]
+  exterior: CheckAnswer[]
+}
+
+export const getAnswersWithFaults = ({
+  interior,
+  exterior
+}: GetAnswersWithFaultsProps) => {
+  const combinedSections = [...interior, ...exterior]
+  const answersWithFaults = combinedSections.filter(
+    answer => answer.value === false
+  )
+
+  return answersWithFaults
+}
+
 type GetOdoReadingErrorProps = Partial<Pick<CheckDoc, "odoReading">> & {
   carId: string
 }
@@ -88,7 +105,8 @@ export const getReqBodyValidationError = async ({
   interior,
   exterior,
   odoReading,
-  driverId
+  driverId,
+  faultsDetails
 }: GetReqBodyValidationErrorProps) => {
   if (!carId) {
     return "Invalid car registration number"
@@ -127,6 +145,29 @@ export const getReqBodyValidationError = async ({
 
   if (!isAnswersSectionValid(questionsConfig.exterior, exterior)) {
     return "Invalid answers for exterior section"
+  }
+
+  const answersWithFaults = getAnswersWithFaults({
+    interior: interior!,
+    exterior: exterior!
+  })
+
+  const checkHasFaults = answersWithFaults.length > 0
+
+  if (checkHasFaults) {
+    const trimmedFaultsDetails = faultsDetails?.trim()
+
+    if (!trimmedFaultsDetails) {
+      return "The faults details field is required when reporting faults"
+    }
+
+    if (trimmedFaultsDetails.length < 20) {
+      return "The faults details field must be at least 20 characters long"
+    }
+
+    if (trimmedFaultsDetails.length > 1000) {
+      return "The faults details field must be at most 1000 characters long"
+    }
   }
 
   const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()

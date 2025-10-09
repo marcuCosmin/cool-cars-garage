@@ -91,7 +91,14 @@ export const buildIndividualPDFDoc = ({
   faults,
   incidents
 }: BuildIndividualPDFDocProps) => {
-  const { interior, exterior, carId, creationTimestamp, odoReading } = check
+  const {
+    interior,
+    exterior,
+    carId,
+    creationTimestamp,
+    odoReading,
+    faultsDetails
+  } = check
 
   const pdfDoc = new PDFDocument({
     margin: pdfMargin
@@ -118,7 +125,7 @@ export const buildIndividualPDFDoc = ({
   })
   pdfDoc.moveDown(pdfGap)
 
-  pdfDoc.text(`Odometer reading: ${odoReading.value}${odoReading.unit}`, {
+  pdfDoc.text(`Odometer reading: ${odoReading.value} ${odoReading.unit}`, {
     align: "center"
   })
 
@@ -141,12 +148,56 @@ export const buildIndividualPDFDoc = ({
     ]
   })
 
-  pdfDoc.moveDown(pdfGap * 2)
+  if (faultsDetails) {
+    pdfDoc.moveDown(pdfGap * 2)
 
-  pdfDoc.fillColor(pdfPrimaryColor)
-  pdfDoc.font(pdfFontBold)
+    const headingHeight = pdfDoc.heightOfString("Faults Details", {
+      align: "center"
+    })
+    const contentHeight =
+      pdfDoc.y +
+      pdfDoc.heightOfString(faultsDetails, {
+        align: "center"
+      })
+
+    const isOverflowing =
+      contentHeight + headingHeight + pdfGap * 2 >
+      pdfDoc.page.height - pdfMargin
+
+    if (isOverflowing) {
+      pdfDoc.addPage()
+    }
+
+    const borderY = pdfDoc.y
+
+    pdfDoc.moveDown(pdfGap)
+
+    pdfDoc.fillColor(pdfPrimaryColor)
+    pdfDoc.text("Faults Details", { align: "center" })
+    pdfDoc.moveDown(pdfGap)
+
+    pdfDoc.fillColor("black")
+    pdfDoc.fontSize(10)
+
+    pdfDoc.text(faultsDetails, { align: "center" })
+
+    pdfDoc
+      .rect(
+        pdfDoc.x,
+        borderY,
+        pdfDoc.page.width - pdfMargin * 2,
+        pdfDoc.y - borderY + pdfDoc.currentLineHeight()
+      )
+      .lineWidth(0.5)
+      .stroke(pdfPrimaryColor)
+  }
 
   if (incidents.length) {
+    pdfDoc.moveDown(pdfGap * 2)
+
+    pdfDoc.fillColor(pdfPrimaryColor)
+    pdfDoc.font(pdfFontBold)
+
     pdfDoc.text("Incidents", { align: "center" })
 
     const initialX = pdfDoc.x

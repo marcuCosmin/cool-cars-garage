@@ -3,7 +3,10 @@ import { useQuery } from "@tanstack/react-query"
 import { useAppDispatch } from "@/redux/config"
 import { openModal } from "@/redux/modalSlice"
 
-import { getAllUsersDocs, getChecksChunk } from "@/firebase/utils"
+import {
+  getFirestoreCollectionChunks,
+  getFirestoreDocs
+} from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
 import { DataView } from "@/components/core/DataView/DataView"
@@ -15,6 +18,7 @@ import {
 
 import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
 import type {
+  CarDoc,
   CheckDoc,
   DocWithID,
   UserDoc
@@ -38,19 +42,30 @@ export const Reports = () => {
   const dispatch = useAppDispatch()
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["/users-docs"],
-    queryFn: getAllUsersDocs,
+    queryFn: () => getFirestoreDocs<UserDoc>({ collectionId: "users" }),
+    staleTime: Infinity
+  })
+  const { data: cars, isLoading: isLoadingCars } = useQuery({
+    queryKey: ["/cars-docs"],
+    queryFn: () => getFirestoreDocs<CarDoc>({ collectionId: "cars" }),
     staleTime: Infinity
   })
 
-  if (isLoadingUsers) {
+  if (isLoadingUsers || isLoadingCars) {
     return <Loader enableOverlay />
   }
 
-  if (!users) {
+  if (!users || !cars) {
     return <div></div>
   }
 
   const filtersConfig: FiltersConfig<CheckDoc, true> = [
+    {
+      label: "Car ID",
+      field: "carId",
+      type: "select",
+      options: cars.map(({ id }) => ({ label: id, value: id }))
+    },
     {
       label: "Driver",
       field: "driverId",
@@ -116,7 +131,10 @@ export const Reports = () => {
     CheckDoc,
     true
   > = async queryContext => {
-    const checks = await getChecksChunk(queryContext!)
+    const checks = await getFirestoreCollectionChunks<CheckDoc>({
+      collectionId: "checks",
+      queryContext: queryContext!
+    })
 
     return checks.map(check => {
       const displayedOdoReading = `${check.odoReading.value} ${

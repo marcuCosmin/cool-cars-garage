@@ -10,7 +10,10 @@ import {
   query,
   QueryConstraint,
   where,
-  type DocumentData
+  Query,
+  CollectionReference,
+  type DocumentData,
+  type WhereFilterOp
 } from "firebase/firestore"
 import {
   signInWithCustomToken,
@@ -27,11 +30,9 @@ import type {
 import type { SignInFormData } from "@/shared/forms/forms.const"
 import type {
   CheckDoc,
-  DocWithID,
   FaultDoc,
   FullCheck,
   IncidentDoc,
-  InvitationDoc,
   UserDoc
 } from "@/shared/firestore/firestore.model"
 
@@ -45,50 +46,79 @@ export const signInUserAfterCreation = (authToken: string) =>
 
 export const signOutUser = () => signOut(firebaseAuth)
 
-type GetFirestoreDocsReturnType<T> = Promise<(T & { id: string })[] | null>
-
-export const getFirestoreDocs = async <T extends DocumentData>(
+type GetFirestoreDocProps = {
   collectionId: string
-): GetFirestoreDocsReturnType<T> => {
-  const path = collection(firestore, collectionId)
+  docId: string
+}
+
+export const getFirestoreDoc = async <T extends DocumentData>({
+  collectionId,
+  docId
+}: GetFirestoreDocProps) => {
+  const docRef = doc(firestore, collectionId, docId)
+  const docSnapshot = await getDoc(docRef)
+
+  if (!docSnapshot.exists()) {
+    return null
+  }
+
+  const data = docSnapshot.data() as T
+
+  return {
+    ...data,
+    id: docSnapshot.id
+  }
+}
+
+type FirestoreFilter = [string, WhereFilterOp, unknown]
+
+type GetFirestoreDocsProps = {
+  collectionId: string
+  filters?: FirestoreFilter[]
+  cap?: number
+  order?: { field: string; direction: "asc" | "desc" }
+  lastRefValue?: any
+}
+
+export const getFirestoreDocs = async <T extends DocumentData>({
+  collectionId,
+  filters,
+  cap,
+  order,
+  lastRefValue
+}: GetFirestoreDocsProps) => {
+  let path: CollectionReference<DocumentData> | Query<DocumentData> =
+    collection(firestore, collectionId)
+
+  const queryFiltersConstraints: QueryConstraint[] = (filters || []).map(
+    ([field, operator, value]) => where(field, operator, value)
+  )
+
+  const queryConstraints: QueryConstraint[] = [
+    ...queryFiltersConstraints,
+    cap && limit(cap),
+    order && orderBy(order.field, order.direction),
+    lastRefValue && startAfter(lastRefValue)
+  ].filter(Boolean) as QueryConstraint[]
+
+  if (queryConstraints.length) {
+    path = query(path, ...queryConstraints)
+  }
 
   const snapshot = await getDocs(path)
 
   if (snapshot.empty) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `Failed to retrieve data from collection: ${collectionId}. The collection is empty`
-    )
-
-    return null
+    return []
   }
 
-  const data = snapshot.docs
-    .map(doc => {
-      const docData = doc.data() as T
+  const data = snapshot.docs.map(doc => {
+    const docData = doc.data() as T
 
-      if (!docData) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `Document ${doc.id} from collection ${collectionId} exists, but it has no data`
-        )
-
-        return null
-      }
-
-      return {
-        ...docData,
-        id: doc.id
-      }
-    })
-    .filter(car => car !== null)
-
-  if (!data.length) {
-    // eslint-disable-next-line no-console
-    console.warn(`Collection ${collectionId} exists, but it has no data`)
-
-    return null
-  }
+    return {
+      ...docData,
+      id: doc.id
+    }
+  })
 
   return data
 }
@@ -107,58 +137,12 @@ export const deleteFirestoreDoc = async ({
   await deleteDoc(path)
 }
 
-export const getUserMetadata = async (uid: string) => {
-  const userRef = doc(firestore, "users", uid)
-  const userSnapshot = await getDoc(userRef)
-
-  if (!userSnapshot.exists()) {
-    throw new Error("User metadata not found")
-  }
-
-  const userMetadata = userSnapshot.data() as UserDoc
-
-  return userMetadata
-}
-
-export const getInvitation = async (invitationId: string) => {
-  const invitationRef = doc(firestore, "invitations", invitationId)
-  const invitationSnapshot = await getDoc(invitationRef)
-
-  if (!invitationSnapshot.exists()) {
-    return null
-  }
-
-  const invitation = invitationSnapshot.data()
-
-  return invitation as InvitationDoc
-}
-
-export const getAllUsersDocs = async () => {
-  const usersRef = collection(firestore, "users")
-  const usersSnapshot = await getDocs(usersRef)
-
-  if (usersSnapshot.empty) {
-    return []
-  }
-
-  const users = usersSnapshot.docs.map(doc => {
-    const data = doc.data() as UserDoc
-
-    return {
-      ...data,
-      id: doc.id
-    }
-  })
-
-  return users
-}
-
-const getQueryConstraintsFromQueryKey = <Document extends DocumentData>(
+const getFirestoreFiltersFromQueryKey = <Document extends DocumentData>(
   queryKey: QueryContext<Document, true>["queryKey"]
 ) => {
   const filters = queryKey[2] as FiltersState<Document, true>
 
-  const filtersQueryConstraints: (QueryConstraint | null)[] = filters.map(
+  const filtersQueryConstraints: (FirestoreFilter | null)[] = filters.map(
     filter => {
       const { type } = filter
 
@@ -169,7 +153,7 @@ const getQueryConstraintsFromQueryKey = <Document extends DocumentData>(
           return null
         }
 
-        return where(field as string, "in", value)
+        return [field as string, "in", value]
       }
 
       if (type === "toggle") {
@@ -181,7 +165,7 @@ const getQueryConstraintsFromQueryKey = <Document extends DocumentData>(
 
         const { field, operator, value: filterValue } = filterOptions
 
-        return where(field as string, operator, filterValue)
+        return [field as string, operator, filterValue]
       }
 
       if (type === "date") {
@@ -191,102 +175,72 @@ const getQueryConstraintsFromQueryKey = <Document extends DocumentData>(
           return null
         }
 
-        return where(field as string, filter.operator, value)
+        return [field as string, filter.operator, value]
       }
 
       return null
     }
   )
 
-  return filtersQueryConstraints.filter(Boolean) as QueryConstraint[]
+  return filtersQueryConstraints.filter(Boolean) as FirestoreFilter[]
 }
 
-export const getChecksChunk = async ({
-  pageParam,
-  queryKey
-}: QueryContext<CheckDoc, true>): Promise<DocWithID<CheckDoc>[]> => {
-  const filtersQueryConstraints = getQueryConstraintsFromQueryKey(queryKey)
-  const checksRef = collection(firestore, "checks")
+type GetFirestoreCollectionChunksProps<T extends DocumentData> = {
+  collectionId: string
+  queryContext: QueryContext<T, true>
+}
 
-  const queryConstraints = [
-    orderBy("creationTimestamp", "desc"),
-    ...filtersQueryConstraints,
-    pageParam && startAfter(pageParam),
-    limit(30)
-  ].filter(Boolean) as QueryConstraint[]
+export const getFirestoreCollectionChunks = async <T extends DocumentData>({
+  collectionId,
+  queryContext
+}: GetFirestoreCollectionChunksProps<T>) => {
+  const filters = getFirestoreFiltersFromQueryKey(queryContext.queryKey)
 
-  const checksQuery = query(checksRef, ...queryConstraints)
-
-  const checksSnapshot = await getDocs(checksQuery)
-
-  if (checksSnapshot.empty) {
-    return []
-  }
-
-  const checks = checksSnapshot.docs.map(doc => {
-    const data = doc.data() as CheckDoc
-
-    return {
-      ...data,
-      id: doc.id
-    }
+  const data = await getFirestoreDocs<T>({
+    collectionId,
+    filters,
+    cap: 30,
+    order: { field: "creationTimestamp", direction: "desc" },
+    lastRefValue: queryContext.pageParam
   })
 
-  return checks
+  return data
 }
 
 export const getFullCheck = async (
   checkId: string
 ): Promise<FullCheck | null> => {
-  const checkRef = doc(firestore, "checks", checkId)
-  const checkSnapshot = await getDoc(checkRef)
+  const checkData = await getFirestoreDoc<CheckDoc>({
+    collectionId: "checks",
+    docId: checkId
+  })
 
-  if (!checkSnapshot.exists()) {
+  if (!checkData) {
     return null
   }
 
-  const { driverId, ...check } = checkSnapshot.data() as CheckDoc
+  const { driverId, ...check } = checkData
 
-  const userDocRef = doc(firestore, "users", driverId)
-  const userDocSnapshot = await getDoc(userDocRef)
-
-  if (!userDocSnapshot.exists()) {
-    throw new Error("Driver not found")
-  }
-
-  const user = userDocSnapshot.data() as UserDoc
-
-  const faultsRef = collection(firestore, "faults")
-  const faultsQuery = query(faultsRef, where("checkId", "==", checkId))
-  const faultsSnapshot = await getDocs(faultsQuery)
-
-  const faults = faultsSnapshot.docs.map(doc => {
-    const data = doc.data() as FaultDoc
-
-    return {
-      ...data,
-      id: doc.id
-    }
+  const user = await getFirestoreDoc<UserDoc>({
+    collectionId: "users",
+    docId: driverId
   })
 
-  const incidentsRef = collection(firestore, "incidents")
-  const incidentsQuery = query(incidentsRef, where("checkId", "==", checkId))
-  const incidentsSnapshot = await getDocs(incidentsQuery)
+  const faults = await getFirestoreDocs<FaultDoc>({
+    collectionId: "faults",
+    filters: [["checkId", "==", checkId]]
+  })
 
-  const incidents = incidentsSnapshot.docs.map(doc => {
-    const data = doc.data() as IncidentDoc
-
-    return {
-      ...data,
-      id: doc.id
-    }
+  const incidents = await getFirestoreDocs<IncidentDoc>({
+    collectionId: "incidents",
+    filters: [["checkId", "==", checkId]]
   })
 
   return {
     ...check,
     driver: {
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
       id: driverId
     },
     id: checkId,

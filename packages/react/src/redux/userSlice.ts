@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
-import { getUserMetadata } from "@/firebase/utils"
+import { getFirestoreDoc } from "@/firebase/utils"
 import type { User as FirebaseUser } from "firebase/auth"
 
-import type { User } from "@/shared/firestore/firestore.model"
+import type { User, UserDoc } from "@/shared/firestore/firestore.model"
 
 type UserState = Pick<
   User,
@@ -29,7 +29,16 @@ const handleUserInit = async (user: FirebaseUser | null) => {
   }
 
   const { uid, email } = user
-  const { role, firstName, lastName } = await getUserMetadata(uid)
+  const userDoc = await getFirestoreDoc<UserDoc>({
+    collectionId: "users",
+    docId: uid
+  })
+
+  if (!userDoc) {
+    return
+  }
+
+  const { role, firstName, lastName } = userDoc
 
   return {
     uid,

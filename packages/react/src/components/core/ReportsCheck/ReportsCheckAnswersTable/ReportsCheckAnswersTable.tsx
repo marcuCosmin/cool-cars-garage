@@ -92,7 +92,7 @@ export const ReportsCheckAnswersTable = ({
   }
 
   return (
-    <div className="md:min-w-xl xl:min-w-3xl w-full">
+    <div className="md:min-w-xl xl:min-w-3xl max-w-7xl w-full">
       <h2 className="text-center mb-5">Questions</h2>
       <table>
         <thead>

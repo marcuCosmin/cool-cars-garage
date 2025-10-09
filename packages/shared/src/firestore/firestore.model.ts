@@ -65,6 +65,7 @@ export type CheckDoc = {
   hasUnresolvedFaults?: boolean
   incidentsCount?: number
   hasUnresolvedIncidents?: boolean
+  faultsDetails?: string
 }
 
 type ReportsIssueStatus = "pending" | "resolved"

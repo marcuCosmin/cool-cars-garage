@@ -12,7 +12,7 @@ import type { CheckDoc, User } from "@/shared/firestore/firestore.model"
 
 import { createReportsNotification } from "../../utils"
 
-import { getReqBodyValidationError } from "./utils"
+import { getAnswersWithFaults, getReqBodyValidationError } from "./utils"
 
 import type { ReqBody } from "./model"
 
@@ -35,16 +35,14 @@ export const handleCheckSubmission = async (
     return
   }
 
-  const { carId, interior, exterior, odoReading } =
+  const { carId, interior, exterior, odoReading, faultsDetails } =
     req.body as Required<ReqBody>
 
-  const combinedSections = [...interior, ...exterior]
-  const answersWithFaults = combinedSections.filter(
-    answer => answer.value === false
-  )
+  const answersWithFaults = getAnswersWithFaults({ interior, exterior })
+
+  const checkHasFaults = answersWithFaults.length > 0
 
   const creationTimestamp = getCurrentTimestamp()
-  const checkHasFaults = answersWithFaults.length > 0
 
   const checkData: CheckDoc = {
     carId,
@@ -58,6 +56,7 @@ export const handleCheckSubmission = async (
   if (checkHasFaults) {
     checkData.faultsCount = answersWithFaults.length
     checkData.hasUnresolvedFaults = true
+    checkData.faultsDetails = faultsDetails
   }
 
   const checkRef = firestore.collection("checks")

@@ -29,7 +29,8 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     faults,
     driver,
     odoReading,
-    incidents
+    incidents,
+    faultsDetails
   } = check
 
   const displayedDate = parseTimestampForDisplay(creationTimestamp)
@@ -84,13 +85,22 @@ export const ReportsCheck = ({ check }: CheckProps) => {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center xl:justify-start xl:flex-nowrap w-full gap-10 mt-10 p-5 items-start">
+      <div className="flex flex-wrap justify-center w-full gap-10 mt-10 p-5 items-start">
         <ReportsCheckAnswersTable
           interior={interior}
           exterior={exterior}
           faults={faults}
           checkId={id}
         />
+
+        {faultsDetails && (
+          <div>
+            <h2 className="mb-5 text-center">Faults Details</h2>
+            <p className="whitespace-pre-wrap border border-primary rounded-md p-5">
+              {faultsDetails}
+            </p>
+          </div>
+        )}
 
         <ReportsCheckIncidentsList checkId={id} incidents={incidents} />
       </div>

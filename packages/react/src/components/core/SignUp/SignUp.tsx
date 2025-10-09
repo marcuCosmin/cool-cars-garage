@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getInvitation } from "@/firebase/utils"
+import { getFirestoreDoc } from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
+
+import { InvitationDoc } from "@/shared/firestore/firestore.model"
 
 import { SignUpForm } from "./SignUpForm"
 
@@ -13,7 +15,11 @@ type SignUpProps = {
 export const SignUp = ({ invitationId }: SignUpProps) => {
   const { data: invitation, isLoading } = useQuery({
     queryKey: ["invitation"],
-    queryFn: () => getInvitation(invitationId)
+    queryFn: () =>
+      getFirestoreDoc<InvitationDoc>({
+        collectionId: "invitations",
+        docId: invitationId
+      })
   })
 
   if (isLoading) {
