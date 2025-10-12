@@ -8,6 +8,8 @@ import { signOutUser } from "@/firebase/utils"
 import { useAppDispatch, useAppSelector } from "@/redux/config"
 import { initUserData } from "@/redux/userSlice"
 
+import { useScreenSizeListener } from "@/hooks/useScreenSize"
+
 import { Router } from "@/routes/Router"
 
 import { ErrorFallback } from "@/components/core/ErrorFallback"
@@ -22,6 +24,8 @@ export const App = () => {
 
   const userError = userErrorMessage ? new Error(userErrorMessage) : null
   const resetUserError = () => signOutUser()
+
+  useScreenSizeListener()
 
   useEffect(() => {
     const unsubscribeIdTokenListener = onIdTokenChanged(firebaseAuth, user =>

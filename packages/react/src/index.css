@@ -15,6 +15,10 @@
 }
 
 @layer base {
+    * {
+        @apply scrollbar;
+    }
+
     html, body {
         @apply text-black dark:text-white dark:bg-black m-0 w-full h-full overflow-hidden text-base;
     }
@@ -79,7 +83,9 @@
         @apply p-2 not-last:border-r border-primary border-b text-center;
     }
 
-
+    textarea {
+        @apply resize-none;
+    }
 }
 
 @layer components {

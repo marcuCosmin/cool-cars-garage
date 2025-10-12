@@ -8,9 +8,10 @@ import { configureStore } from "@reduxjs/toolkit"
 import { user } from "./userSlice"
 import { carsReducer } from "./carsSlice"
 import { modal } from "./modalSlice"
+import { screen } from "./screenSlice"
 
 export const store = configureStore({
-  reducer: { user, carsReducer, modal }
+  reducer: { user, carsReducer, modal, screen }
 })
 
 type State = ReturnType<typeof store.getState>

@@ -45,6 +45,11 @@ const ReportsCheckPage = lazy(() =>
     default: module.ReportsCheckPage
   }))
 )
+const ReportsConfig = lazy(() =>
+  import("./reports/config").then(module => ({
+    default: module.ReportsConfig
+  }))
+)
 const NotFound = lazy(() =>
   import("../components/core/NotFound").then(module => ({
     default: module.NotFound
@@ -84,6 +89,7 @@ export const Router = () => {
         <Route path="/reports" element={<ReportsLayout />}>
           <Route index element={<Reports />} />
           <Route path="/reports/:checkId" element={<ReportsCheckPage />} />
+          <Route path="/reports/config" element={<ReportsConfig />} />
           <Route path="/reports/auth" element={<ReportsAuth />} />
         </Route>
       </>

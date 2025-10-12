@@ -13,7 +13,7 @@ export const Loader = ({
   size = "md",
   className
 }: LoaderProps) => {
-  const loaderClassName = `loader loader-${size} ${className}`
+  const loaderClassName = mergeClassNames(`loader loader-${size}`, className)
 
   if (enableOverlay || text) {
     const containerClassName = mergeClassNames(

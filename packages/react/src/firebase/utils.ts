@@ -12,8 +12,11 @@ import {
   where,
   Query,
   CollectionReference,
+  updateDoc,
+  DocumentReference,
   type DocumentData,
-  type WhereFilterOp
+  type WhereFilterOp,
+  type UpdateData
 } from "firebase/firestore"
 import {
   signInWithCustomToken,
@@ -183,6 +186,25 @@ const getFirestoreFiltersFromQueryKey = <Document extends DocumentData>(
   )
 
   return filtersQueryConstraints.filter(Boolean) as FirestoreFilter[]
+}
+
+type UpdateFirestoreDocProps<T extends DocumentData> = {
+  collectionId: string
+  docId: string
+  data: UpdateData<T>
+}
+
+export const updateFirestoreDoc = async <T extends DocumentData>({
+  collectionId,
+  docId,
+  data
+}: UpdateFirestoreDocProps<T>) => {
+  const docRef = doc(firestore, collectionId, docId) as DocumentReference<
+    DocumentData,
+    T
+  >
+
+  await updateDoc(docRef, data)
 }
 
 type GetFirestoreCollectionChunksProps<T extends DocumentData> = {

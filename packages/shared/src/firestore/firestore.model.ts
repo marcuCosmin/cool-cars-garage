@@ -124,10 +124,12 @@ export type ReportsQuestion = {
   label: string
 }
 
-export type ReportsQuestionsConfig = {
+export type ReportsQuestionsDoc = {
   interior: ReportsQuestion[]
   exterior: ReportsQuestion[]
 }
+
+export type ReportsQuestionsSection = keyof ReportsQuestionsDoc
 
 export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
   driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
