@@ -23,7 +23,7 @@ const initialState: CarsState = {
 }
 
 export const fetchAllCars = createAsyncThunk("cars/fetchAll", async () => {
-  const carsArray = await getFirestoreDocs<Car>("cars")
+  const carsArray = await getFirestoreDocs<Car>({ collectionId: "cars" })
 
   const cars = {} as CarState
 
