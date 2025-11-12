@@ -25,11 +25,27 @@ type IncidentSubmittedTemplate = {
   check_id: string
 }
 
+type OutstandingRecallFoundTemplate = {
+  type: "outstanding_recall_found"
+  params: {
+    car_reg_number: string
+  }
+}
+
+type OutstandingRecallFailedTemplate = {
+  type: "outstanding_recall_failed"
+  params: {
+    car_reg_number: string
+  }
+}
+
 type SendWappMessageProps = {
   template:
     | MissingCheckTemplate
     | FaultsSubmittedTemplate
     | IncidentSubmittedTemplate
+    | OutstandingRecallFoundTemplate
+    | OutstandingRecallFailedTemplate
   phoneNumber: string
 }
 
