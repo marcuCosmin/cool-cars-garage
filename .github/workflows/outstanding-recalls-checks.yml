@@ -24,4 +24,4 @@ jobs:
               run: npm install && npm run build:express
 
             - name: Run notifications script
-              run: node ./packages/express/dist/jobs/outstanding-recalls/index.js
+              run: node ./packages/express/dist/jobs/outstanding-recalls-checks/index.js
