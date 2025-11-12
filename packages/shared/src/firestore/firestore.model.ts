@@ -137,3 +137,16 @@ export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
   faults: DocWithID<FaultDoc>[]
   incidents: DocWithID<IncidentDoc>[]
 }
+
+export type FirestoreCollectionsMap = {
+  "cars": CarDoc
+  "checks": CheckDoc
+  "faults": FaultDoc
+  "incidents": IncidentDoc
+  "invitations": InvitationDoc
+  "phone-numbers": PhoneNumberDoc
+  "reports-config": ReportsQuestionsDoc
+  "users": UserDoc
+}
+
+export type FirestoreCollectionsNames = keyof FirestoreCollectionsMap

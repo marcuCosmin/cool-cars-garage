@@ -3,11 +3,9 @@ import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
 
 import type {
-  CarDoc,
   CheckAnswer,
   CheckDoc,
-  ReportsQuestion,
-  ReportsQuestionsConfig
+  ReportsQuestion
 } from "@/shared/firestore/firestore.model"
 
 import type { ReqBody } from "./model"
@@ -53,7 +51,7 @@ const getOdoReadingError = async ({
     return "Invalid ODO reading"
   }
 
-  const [lastCheck] = await getFirestoreDocs<CheckDoc>({
+  const [lastCheck] = await getFirestoreDocs({
     collection: "checks",
     queries: [["carId", "==", carId]],
     orderBy: { field: "creationTimestamp", direction: "desc" },
@@ -112,7 +110,7 @@ export const getReqBodyValidationError = async ({
     return "Invalid car registration number"
   }
 
-  const car = await getFirestoreDoc<CarDoc>({
+  const car = await getFirestoreDoc({
     collection: "cars",
     docId: carId
   })
@@ -130,7 +128,7 @@ export const getReqBodyValidationError = async ({
   const questionsConfigDoc =
     car.council === "PSV" ? "psv-questions" : "taxi-questions"
 
-  const questionsConfig = await getFirestoreDoc<ReportsQuestionsConfig>({
+  const questionsConfig = await getFirestoreDoc({
     collection: "reports-config",
     docId: questionsConfigDoc
   })
@@ -172,7 +170,7 @@ export const getReqBodyValidationError = async ({
 
   const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()
 
-  const [existingCheck] = await getFirestoreDocs<CheckDoc>({
+  const [existingCheck] = await getFirestoreDocs({
     collection: "checks",
     queries: [
       ["carId", "==", carId],

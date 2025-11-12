@@ -57,7 +57,7 @@ export const authorizationMiddleware = async (
 
   const user = await getAuthUser(uid)
 
-  const userDoc = await getFirestoreDoc<UserDoc>({
+  const userDoc = await getFirestoreDoc({
     collection: "users",
     docId: uid
   })

@@ -3,16 +3,14 @@ import { firestore } from "@/firebase/config"
 
 import { sendWappMessages } from "@/utils/send-wapp-messages"
 
-import type { CarDoc } from "@/shared/firestore/firestore.model"
-
 import {
   getCarOutstandingRecallStatus,
   getMOTHistoryApiAccessToken
 } from "./utils"
 
-export const handleOutstandingRecallsJob = async () => {
+const handleOutstandingRecallsJob = async () => {
   try {
-    const cars = await getFirestoreDocs<CarDoc>({ collection: "cars" })
+    const cars = await getFirestoreDocs({ collection: "cars" })
 
     if (!cars.length) {
       console.log("No cars found in the database.")
@@ -100,3 +98,5 @@ export const handleOutstandingRecallsJob = async () => {
     console.error("Error handling outstanding recalls job:", error)
   }
 }
+
+handleOutstandingRecallsJob()

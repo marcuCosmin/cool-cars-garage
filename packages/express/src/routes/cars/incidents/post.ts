@@ -80,7 +80,7 @@ export const handleIncidentSubmission = async (
   })
 
   const phoneNumbers = await getNotificationPhoneNumbers("incident-reported")
-  const { firstName, lastName } = (await getFirestoreDoc<UserDoc>({
+  const { firstName, lastName } = (await getFirestoreDoc({
     collection: "users",
     docId: uid
   })) as UserDoc

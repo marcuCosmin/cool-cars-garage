@@ -13,7 +13,6 @@ import type {
   MarkIncidentAsResolvedPayload,
   MarkDefectAsResolvedResponse
 } from "@/shared/requests/requests.model"
-import type { IncidentDoc, CheckDoc } from "@/shared/firestore/firestore.model"
 
 export const handleIncidentPatch = async (
   req: Request<undefined, undefined, MarkIncidentAsResolvedPayload>,
@@ -29,7 +28,7 @@ export const handleIncidentPatch = async (
     return
   }
 
-  const checkData = await getFirestoreDoc<CheckDoc>({
+  const checkData = await getFirestoreDoc({
     collection: "checks",
     docId: checkId
   })
@@ -52,7 +51,7 @@ export const handleIncidentPatch = async (
     resolutionTimestamp
   })
 
-  const remainingIncidents = await getFirestoreDocs<IncidentDoc>({
+  const remainingIncidents = await getFirestoreDocs({
     collection: "incidents",
     queries: [
       ["checkId", "==", checkId],

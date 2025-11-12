@@ -5,22 +5,23 @@ import {
 } from "firebase-admin/firestore"
 import { type FirebaseError } from "firebase-admin"
 
-import { firebaseAuth, firestore } from "./config"
-
 import type {
   DocWithID,
-  PhoneNumberDoc
+  FirestoreCollectionsMap,
+  FirestoreCollectionsNames
 } from "@/shared/firestore/firestore.model"
 
-type GetFirestoreDocProps = {
-  collection: string
+import { firebaseAuth, firestore } from "./config"
+
+type GetFirestoreDocProps<T extends FirestoreCollectionsNames> = {
+  collection: T
   docId: string
 }
 
-export const getFirestoreDoc = async <T>({
+export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
   collection,
   docId
-}: GetFirestoreDocProps) => {
+}: GetFirestoreDocProps<T>) => {
   const docRef = firestore.collection(collection).doc(docId)
   const docSnapshot = await docRef.get()
 
@@ -30,28 +31,32 @@ export const getFirestoreDoc = async <T>({
 
   const data = docSnapshot.data()
 
-  return { id: docSnapshot.id, ...data } as DocWithID<T>
+  return { id: docSnapshot.id, ...data } as DocWithID<
+    FirestoreCollectionsMap[T]
+  >
 }
 
-type GetFirestoreDocsProps =
+type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> =
   | {
-      collection: string
+      collection: T
       //eslint-disable-next-line @typescript-eslint/no-explicit-any
       queries?: [string, WhereFilterOp, any][]
       limit?: number
       orderBy?: { field: string; direction: "asc" | "desc" }
     }
   | {
-      collection: string
+      collection: T
       ids: string[]
     }
 
-export const getFirestoreDocs = async <T>(props: GetFirestoreDocsProps) => {
+export const getFirestoreDocs = async <T extends FirestoreCollectionsNames>(
+  props: GetFirestoreDocsProps<T>
+) => {
   if ("ids" in props) {
     const { collection, ids } = props
 
     if (!ids.length) {
-      return [] as DocWithID<T>[]
+      return [] as DocWithID<FirestoreCollectionsMap[T]>[]
     }
 
     const docRefs = ids.map(id => firestore.collection(collection).doc(id))
@@ -60,7 +65,7 @@ export const getFirestoreDocs = async <T>(props: GetFirestoreDocsProps) => {
     const docs = docSnapshots.map(doc => ({
       id: doc.id,
       ...doc.data()
-    })) as DocWithID<T>[]
+    })) as DocWithID<FirestoreCollectionsMap[T]>[]
 
     return docs
   }
@@ -85,12 +90,12 @@ export const getFirestoreDocs = async <T>(props: GetFirestoreDocsProps) => {
   const snapshot = await collectionRef.get()
 
   if (snapshot.empty) {
-    return [] as DocWithID<T>[]
+    return [] as DocWithID<FirestoreCollectionsMap[T]>[]
   }
 
   const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
 
-  return data as DocWithID<T>[]
+  return data as DocWithID<FirestoreCollectionsMap[T]>[]
 }
 
 export const isEmailUsed = async (email: string) => {
@@ -127,7 +132,7 @@ export const deleteUser = async (uid: string) => {
 }
 
 export const getNotificationPhoneNumbers = async (notificationType: string) => {
-  const phoneNumbersDocs = await getFirestoreDocs<PhoneNumberDoc>({
+  const phoneNumbersDocs = await getFirestoreDocs({
     collection: "phone-numbers",
     queries: [["notifications", "array-contains", notificationType]]
   })

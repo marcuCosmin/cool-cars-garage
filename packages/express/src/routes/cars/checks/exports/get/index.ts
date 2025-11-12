@@ -5,11 +5,6 @@ import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 import type { Request } from "@/models"
 
 import type { CarsCheckExportURLQuery } from "@/shared/requests/requests.model"
-import type {
-  CheckDoc,
-  FaultDoc,
-  UserDoc
-} from "@/shared/firestore/firestore.model"
 
 import { buildBulkPDFDoc, buildIndividualPDFDoc } from "./utils"
 
@@ -32,7 +27,7 @@ export const handleCarChecksExports = async (
       return
     }
 
-    const check = await getFirestoreDoc<CheckDoc>({
+    const check = await getFirestoreDoc({
       collection: "checks",
       docId: checkId
     })
@@ -42,7 +37,7 @@ export const handleCarChecksExports = async (
       return
     }
 
-    const driver = await getFirestoreDoc<UserDoc>({
+    const driver = await getFirestoreDoc({
       collection: "users",
       docId: check.driverId
     })
@@ -52,12 +47,12 @@ export const handleCarChecksExports = async (
       return
     }
 
-    const faults = await getFirestoreDocs<FaultDoc>({
+    const faults = await getFirestoreDocs({
       collection: "faults",
       queries: [["checkId", "==", checkId]]
     })
 
-    const incidents = await getFirestoreDocs<FaultDoc>({
+    const incidents = await getFirestoreDocs({
       collection: "incidents",
       queries: [["checkId", "==", checkId]]
     })
@@ -94,7 +89,7 @@ export const handleCarChecksExports = async (
       return
     }
 
-    const checksRawData = await getFirestoreDocs<CheckDoc>({
+    const checksRawData = await getFirestoreDocs({
       collection: "checks",
       queries: [
         ["creationTimestamp", ">=", startTimestamp],
@@ -108,7 +103,7 @@ export const handleCarChecksExports = async (
     }
 
     const driversIds = new Set(checksRawData.map(({ driverId }) => driverId))
-    const drivers = await getFirestoreDocs<UserDoc>({
+    const drivers = await getFirestoreDocs({
       collection: "users",
       ids: Array.from(driversIds)
     })

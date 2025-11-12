@@ -7,7 +7,6 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import type { Request } from "@/models"
 
-import { FaultDoc, type CheckDoc } from "@/shared/firestore/firestore.model"
 import type {
   MarkDefectAsResolvedResponse,
   MarkFaultsAsResolvedPayload
@@ -36,7 +35,7 @@ export const handleFaultsPatch = async (
     return
   }
 
-  const checkData = await getFirestoreDoc<CheckDoc>({
+  const checkData = await getFirestoreDoc({
     collection: "checks",
     docId: checkId
   })
@@ -50,7 +49,7 @@ export const handleFaultsPatch = async (
 
   const { carId, driverId } = checkData
 
-  const pendingFaults = await getFirestoreDocs<FaultDoc>({
+  const pendingFaults = await getFirestoreDocs({
     collection: "faults",
     queries: [
       ["carId", "==", carId],

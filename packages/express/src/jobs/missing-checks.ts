@@ -7,16 +7,12 @@ import {
 
 import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
 
-import {
-  type CarDoc,
-  type CheckDoc,
-  type UserDoc
-} from "@/shared/firestore/firestore.model"
+import { type UserDoc } from "@/shared/firestore/firestore.model"
 
 type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 
 const sendMissingChecksNotifications = async () => {
-  const psvCarsData = await getFirestoreDocs<CarDoc>({
+  const psvCarsData = await getFirestoreDocs({
     collection: "cars",
     queries: [
       ["council", "==", "PSV"],
@@ -28,7 +24,7 @@ const sendMissingChecksNotifications = async () => {
     psvCarsData.map(car => car.driverId).filter(Boolean)
   )
 
-  const driversData = await getFirestoreDocs<UserDoc>({
+  const driversData = await getFirestoreDocs({
     collection: "users",
     ids: Array.from(psvCarsdriversIds)
   })
@@ -44,7 +40,7 @@ const sendMissingChecksNotifications = async () => {
 
   const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()
 
-  const checksData = await getFirestoreDocs<CheckDoc>({
+  const checksData = await getFirestoreDocs({
     collection: "checks",
     queries: [
       ["creationTimestamp", ">=", startTimestamp],
