@@ -2,7 +2,7 @@ name: Run Outstanding Recalls Job
 
 on:
   schedule:
-    - cron: "* 8 * * *"
+    - cron: "00 9 * * *"
 
 jobs:
   run-notifications:
