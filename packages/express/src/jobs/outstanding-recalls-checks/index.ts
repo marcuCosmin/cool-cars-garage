@@ -88,6 +88,15 @@ const handleOutstandingRecallsJob = async () => {
     return
   }
 
+  console.log(
+    `Sending ${failedCarsIdsPromises.length} failed outstanding recalls notifications for cars `,
+    failedCarsIds
+  )
+  console.log(
+    `Sending ${recalledCarsIdsPromises.length} outstanding recalls notifications for cars `,
+    recalledCarsIds
+  )
+
   await Promise.all(messagesPromises)
 }
 
