@@ -109,6 +109,7 @@ export type CarDoc = {
   isOffRoad: boolean
   council: "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
   hasOutstandingRecall: boolean
+  isRental: boolean
 }
 
 export type NotificationConfigDoc = {

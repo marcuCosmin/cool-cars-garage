@@ -3,12 +3,12 @@ import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
-  apiKey: "AIzaSyArmswoHkIS5E0Q-VgpQWEwC0hV6Plehuw",
-  authDomain: "cool-cars-garage.firebaseapp.com",
-  projectId: "cool-cars-garage",
-  storageBucket: "cool-cars-garage.firebasestorage.app",
-  messagingSenderId: "304359101226",
-  appId: "1:304359101226:web:771991f9d7016f4fd18453"
+  apiKey: "AIzaSyDrMO_TAeVvE3Qf9eZ3uO_ZFNcJt9pB2js",
+  authDomain: "cool-cars-garage-114b6.firebaseapp.com",
+  projectId: "cool-cars-garage-114b6",
+  storageBucket: "cool-cars-garage-114b6.firebasestorage.app",
+  messagingSenderId: "99494946860",
+  appId: "1:99494946860:web:bee09382ce2fd3f6270989"
 }
 
 const firebaseApp = initializeApp(firebaseConfig)

@@ -3,8 +3,10 @@ import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
 
 import type {
+  CarDoc,
   CheckAnswer,
   CheckDoc,
+  DocWithID,
   ReportsQuestion
 } from "@/shared/firestore/firestore.model"
 
@@ -27,14 +29,7 @@ export const getAnswersWithFaults = ({
   return answersWithFaults
 }
 
-type GetOdoReadingErrorProps = Partial<Pick<CheckDoc, "odoReading">> & {
-  carId: string
-}
-
-const getOdoReadingError = async ({
-  odoReading,
-  carId
-}: GetOdoReadingErrorProps) => {
+const getOdoReadingError = (odoReading?: CheckDoc["odoReading"]) => {
   if (!odoReading) {
     return "Invalid ODO reading"
   }
@@ -49,21 +44,6 @@ const getOdoReadingError = async ({
 
   if (value < 0) {
     return "Invalid ODO reading"
-  }
-
-  const [lastCheck] = await getFirestoreDocs({
-    collection: "checks",
-    queries: [["carId", "==", carId]],
-    orderBy: { field: "creationTimestamp", direction: "desc" },
-    limit: 1
-  })
-
-  if (!lastCheck) {
-    return
-  }
-
-  if (value <= Number(lastCheck.odoReading.value)) {
-    return "The ODO reading must be greater than the last recorded reading"
   }
 }
 
@@ -94,6 +74,18 @@ const isAnswersSectionValid = (
   return true
 }
 
+const getQuestionsConfigDoc = ({ isRental, council }: DocWithID<CarDoc>) => {
+  if (isRental) {
+    return "rental-questions"
+  }
+
+  if (council === "PSV") {
+    return "psv-questions"
+  }
+
+  return "non-psv-questions"
+}
+
 type GetReqBodyValidationErrorProps = ReqBody & {
   driverId: string
 }
@@ -110,6 +102,12 @@ export const getReqBodyValidationError = async ({
     return "Invalid car registration number"
   }
 
+  const odoReadingError = getOdoReadingError(odoReading)
+
+  if (odoReadingError) {
+    return odoReadingError
+  }
+
   const car = await getFirestoreDoc({
     collection: "cars",
     docId: carId
@@ -119,14 +117,7 @@ export const getReqBodyValidationError = async ({
     return "Invalid car registration number"
   }
 
-  const odoReadingError = await getOdoReadingError({ odoReading, carId })
-
-  if (odoReadingError) {
-    return odoReadingError
-  }
-
-  const questionsConfigDoc =
-    car.council === "PSV" ? "psv-questions" : "taxi-questions"
+  const questionsConfigDoc = getQuestionsConfigDoc(car)
 
   const questionsConfig = await getFirestoreDoc({
     collection: "reports-config",
