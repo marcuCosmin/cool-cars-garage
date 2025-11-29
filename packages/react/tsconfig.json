@@ -13,6 +13,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/shared/*": ["../shared/src/*"],
+      "@/contexts/*": ["./src/contexts/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/routes/*": ["./src/routes/*"],
       "@/components/*": ["./src/components/*"],

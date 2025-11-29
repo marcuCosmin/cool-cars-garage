@@ -5,6 +5,8 @@ import { isEmailUsed } from "@/firebase/utils"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
+import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
+import { getDVLAJWT } from "@/utils/get-dvla-jwt"
 
 import {
   userCreateFields,
@@ -36,7 +38,12 @@ export const handleCreateRequest = async (
     return
   }
 
-  const { email, firstName, lastName, role, ...userDocMetadata } = userData
+  const { email, role, firstName, lastName, ...userDocMetadata } = userData
+
+  if (role === "driver") {
+    const dvlaJwt = await getDVLAJWT()
+    const dvlaData = await getDVLADriverData(dvlaJwt)
+  }
 
   const userBaseProps: UserBaseProps = {
     firstName,
@@ -54,47 +61,28 @@ export const handleCreateRequest = async (
         }
       : { ...userBaseProps, role }
 
-  if (email) {
-    const emailIsUsed = await isEmailUsed(email)
+  const emailIsUsed = await isEmailUsed(email)
 
-    if (emailIsUsed) {
-      res.status(400).json({
-        error: "The provided email is already in use"
-      })
-      return
-    }
-
-    const invitationSnapshot = await firestore
-      .collection("invitations")
-      .where("email", "==", email)
-      .get()
-
-    if (!invitationSnapshot.empty) {
-      res.status(400).json({
-        error: "An invitation for this email already exists"
-      })
-      return
-    }
-
-    await inviteUser({ ...userDocData, email })
-
-    res.status(200).json({ message: "User invited successfully" })
-    return
-  }
-
-  const userDocSnapshot = await firestore
-    .collection("users")
-    .where("email", "==", email)
-    .get()
-
-  if (!userDocSnapshot.empty) {
+  if (emailIsUsed) {
     res.status(400).json({
       error: "The provided email is already in use"
     })
     return
   }
 
-  await firestore.collection("users").add(userDocData)
+  const invitationSnapshot = await firestore
+    .collection("invitations")
+    .where("email", "==", email)
+    .get()
 
-  res.status(200).json({ message: "User created successfully" })
+  if (!invitationSnapshot.empty) {
+    res.status(400).json({
+      error: "An invitation for this email already exists"
+    })
+    return
+  }
+
+  await inviteUser({ ...userDocData, email })
+
+  res.status(200).json({ message: "User invited successfully" })
 }

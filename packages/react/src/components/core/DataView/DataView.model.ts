@@ -1,11 +1,12 @@
 import type { QueryFunctionContext } from "@tanstack/react-query"
 
+import { DocumentData } from "firebase/firestore"
+
 import type { SelectProps } from "@/components/basic/Select"
+import { DatePickerProps } from "@/components/basic/DatePicker"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 import type { FormFieldValue } from "@/shared/forms/forms.models"
-import { DatePickerProps } from "@/components/basic/DatePicker"
-import { DocumentData } from "firebase/firestore"
 
 type ItemTextMetadata = {
   type: "text"
@@ -32,17 +33,30 @@ type ItemLinkMetadata = {
   href: string
 }
 
-type ItemMetadataConfig =
-  | Omit<ItemTextMetadata, "value">
-  | Omit<ItemBooleanMetadata, "value">
-  | Omit<ItemDateMetadata, "value">
-  | Omit<ItemLinkMetadata, "value">
-
-export type ItemMetadata =
+export type PrimitiveMetadata =
   | ItemTextMetadata
   | ItemBooleanMetadata
   | ItemDateMetadata
   | ItemLinkMetadata
+
+type ItemCollapsibleBase = {
+  type: "collapsible"
+  label: string
+}
+
+type ItemCollapsibleMetadataConfig = ItemCollapsibleBase & {
+  fields: Record<string, Omit<PrimitiveMetadata, "value">>
+}
+
+export type ItemCollapsibleMetadata = ItemCollapsibleBase & {
+  fields: Record<string, PrimitiveMetadata>[]
+}
+
+type ItemMetadataConfig =
+  | Omit<PrimitiveMetadata, "value">
+  | ItemCollapsibleMetadataConfig
+
+export type ItemMetadata = PrimitiveMetadata | ItemCollapsibleMetadata
 
 export type DataListItemMetadataConfig<RawItem extends RawDataListItem> = {
   [key in keyof RawItem["metadata"]]: ItemMetadataConfig
@@ -140,10 +154,10 @@ export type FetchItems<
   queryContext?: QueryContext<FilterItem, ServerSideFetching>
 ) => Promise<Item[]>
 
-export type OpenEditModalProps<RawItem extends RawDataListItem> = {
-  item: RawItem
+export type OpenDataViewModalProps<RawItem extends RawDataListItem> = {
+  item?: RawItem
   onSuccess: (newItem: RawItem) => void
 }
-export type OpenEditModal<RawItem extends RawDataListItem> = (
-  props: OpenEditModalProps<RawItem>
+export type OpenDataViewModal<RawItem extends RawDataListItem> = (
+  props: OpenDataViewModalProps<RawItem>
 ) => void

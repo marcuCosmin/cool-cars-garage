@@ -1,7 +1,7 @@
 import type { ConfirmationModalContentProps } from "@/components/core/ConfirmationModalContent"
 import type { UserFormProps } from "@/components/core/UserForm/UserForm"
 
-export type ModalOptions =
+export type ModalProps =
   | {
       type: "confirmation"
       props: ConfirmationModalContentProps

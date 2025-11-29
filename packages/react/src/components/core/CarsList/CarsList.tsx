@@ -1,5 +1,7 @@
 // import { useEffect } from "react"
 
+import { Collapsible } from "@/components/basic/Collapsible"
+
 // import { useAppDispatch, useAppSelector } from "@/redux/config"
 // import { openModal } from "@/redux/modalSlice"
 // import { deleteCar, fetchAllCars, setEditedCarId } from "@/redux/carsSlice"
@@ -79,4 +81,12 @@
 //   )
 // }
 
-export const CarsList = () => null
+export const CarsList = () => {
+  return (
+    <Collapsible title="Cars List">
+      <div>Item 1</div>
+      <div>Item 2</div>
+      <div>Item 3</div>
+    </Collapsible>
+  )
+}

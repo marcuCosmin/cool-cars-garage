@@ -1,43 +1,38 @@
 import { toast } from "react-toastify"
 
-import { createUser, updateUser } from "@/api/utils"
+import { inviteUser, updateUser } from "@/api/utils"
 
-import { useAppDispatch } from "@/redux/config"
-import { closeModal } from "@/redux/modalSlice"
+import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { Form } from "@/components/basic/Form/Form"
-import { type OpenEditModalProps } from "@/components/core/DataView/DataView.model"
+import { type OpenDataViewModalProps } from "@/components/core/DataView/DataView.model"
 
 import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
-  userCreateFields,
-  type UserCreateData
+  userInviteFields,
+  type UserInviteData
 } from "@/shared/forms/forms.const"
-import { RawUserListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
+
 import { getUserDataFromRawUserListItem } from "./UserForm.utils"
 
-export type UserFormProps = Pick<
-  OpenEditModalProps<RawUserListItem>,
-  "onSuccess"
-> &
-  Partial<Pick<OpenEditModalProps<RawUserListItem>, "item">>
+export type UserFormProps = OpenDataViewModalProps<RawUserListItem>
 
 export const UserForm = ({ item, onSuccess }: UserFormProps) => {
+  const { setModalProps } = useModalContext()
   const user = getUserDataFromRawUserListItem(item)
   const isEdit = !!user
-
-  const dispatch = useAppDispatch()
 
   const title = isEdit ? "Edit user" : "Create user"
   const submitLabel = isEdit ? "Save" : "Create"
 
   const fields = extendFormFields({
-    fieldsSchema: userCreateFields,
+    fieldsSchema: userInviteFields,
     additionalFieldsProps: {
-      email: {
-        label: "Email",
-        defaultValue: user?.email
+      drivingLicenceNumber: {
+        label: "Driving Licence Number",
+        defaultValue: user?.drivingLicenceNumber
       },
       firstName: {
         label: "First Name",
@@ -47,9 +42,9 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
         label: "Last Name",
         defaultValue: user?.lastName
       },
-      birthDate: {
-        label: "Birth Date",
-        defaultValue: user?.birthDate
+      email: {
+        label: "Email",
+        defaultValue: user?.email
       },
       role: {
         label: "Role",
@@ -68,9 +63,14 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
         label: "Badge Number",
         defaultValue: user?.badgeNumber
       },
-      badgeExpirationDate: {
+      badgeExpirationTimestamp: {
         label: "Badge Expiration Date",
-        defaultValue: user?.badgeExpirationDate
+        defaultValue: user?.badgeExpirationTimestamp
+      },
+      badgeAuthority: {
+        label: "Badge Authority",
+        options: ["PSV", "Cornwall", "Wolverhampton", "Portsmouth", "Other"],
+        defaultValue: user?.badgeAuthority
       },
       isPSVDriver: {
         label: "Is PSV Driver",
@@ -79,10 +79,10 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     }
   })
 
-  const action = async (data: UserCreateData) => {
+  const action = async (data: UserInviteData) => {
     const { message } = isEdit
       ? await updateUser({ ...user, ...data })
-      : await createUser(data)
+      : await inviteUser(data)
 
     const newRawUserListItem: RawUserListItem = {
       title: `${data.firstName} ${data.lastName}`,
@@ -105,7 +105,7 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     onSuccess(newRawUserListItem)
 
     toast.success(message)
-    dispatch(closeModal())
+    setModalProps(null)
   }
 
   return (

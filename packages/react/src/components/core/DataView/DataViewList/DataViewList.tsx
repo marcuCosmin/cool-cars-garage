@@ -1,10 +1,10 @@
+import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+
 import { useInfiniteScroll } from "./useInfiniteScroll"
 
-import { DataListViewItem } from "./DataViewListItem"
+import { DataListViewItem } from "./DataViewListItem/DataViewListItem"
 
 import type { DataListItem } from "../DataView.model"
-
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
 type DataViewListProps<RawItem extends RawDataListItem> = {
   items: DataListItem<RawItem>[]

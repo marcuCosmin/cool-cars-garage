@@ -1,15 +1,18 @@
 import { type DocumentData } from "firebase/firestore"
 
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
-
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type {
+  DefaultDataListItemCollapsibleMetadataValue,
+  RawDataListItem
+} from "@/shared/dataLists/dataLists.model"
 
 import type {
   FiltersConfig,
   FiltersState,
   ItemMetadata,
   DataListItemMetadataConfig,
-  DataListItem
+  DataListItem,
+  ItemCollapsibleMetadata,
+  PrimitiveMetadata
 } from "./DataView.model"
 
 export const parseSearchString = (searchString: string) =>
@@ -65,6 +68,35 @@ export const extendDataListItems = <RawItem extends RawDataListItem>({
         const castedKey = key as keyof DataListItemMetadataConfig<RawItem>
         const config = metadataConfig[castedKey]
 
+        if (config.type === "collapsible") {
+          const fields = (
+            value as DefaultDataListItemCollapsibleMetadataValue
+          ).map(field => {
+            const extendedField = Object.entries(field).reduce(
+              (fieldAcc, [fieldKey, fieldValue]) => {
+                const fieldConfig = config.fields[fieldKey]
+
+                fieldAcc[fieldKey] = {
+                  ...fieldConfig,
+                  value: fieldValue
+                } as PrimitiveMetadata
+
+                return fieldAcc
+              },
+              {} as ItemCollapsibleMetadata["fields"][number]
+            )
+
+            return extendedField
+          })
+
+          acc[castedKey] = {
+            ...config,
+            fields
+          } as ItemMetadata
+
+          return acc
+        }
+
         acc[castedKey] = { ...config, value } as ItemMetadata
 
         return acc
@@ -81,25 +113,6 @@ export const extendDataListItems = <RawItem extends RawDataListItem>({
   })
 
   return extendedItems
-}
-
-export const getParsedItemMetadataValue = ({ type, value }: ItemMetadata) => {
-  if (value === null || value === undefined) {
-    return null
-  }
-
-  switch (type) {
-    case "text":
-      return value
-    case "boolean":
-      return value ? "Yes" : "No"
-    case "date":
-      return parseTimestampForDisplay(value)
-    case "link":
-      return value
-    default:
-      return null
-  }
 }
 
 type GetQueryKeyProps<

@@ -45,7 +45,7 @@ export const createUserFromInvitation = (payload: SignUpData) =>
     payload
   })
 
-export const createUser = (payload: UserCreateData) =>
+export const inviteUser = (payload: UserCreateData) =>
   executeApiRequest({
     path: "/users",
     method: "POST",

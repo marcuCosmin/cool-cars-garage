@@ -1,8 +1,33 @@
-export type DriverMetadata = {
-  birthDate: number
+type Councils = "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
+
+export type DriverDVLAData = {
+  drivingLicenceNumber: string
+  birthTimestamp: number
+  penaltyPoints: number
+  cpcs: {
+    lgvExpiryTimestamp: number
+    pcvExpiryTimestamp: number
+  }[]
+  licenceType: "Full" | "Provisional"
+  licenceStatus: "Valid" | "Disqualified"
+  tachoCards: {
+    cardNumber: string
+    cardExpiryTimestamp: number
+  }[]
+  entitlements: {
+    categoryCode: string
+    categoryLegalLiteral: string
+    categoryType: "Full" | "Provisional"
+    activationTimestamp: number
+    expiryTimestamp: number
+  }[]
+}
+
+export type DriverMetadata = DriverDVLAData & {
   dbsUpdate: boolean
   badgeNumber?: string
-  badgeExpirationDate?: number
+  badgeExpirationTimestamp?: number
+  badgeAuthority?: Councils
   isTaxiDriver: boolean
   isPSVDriver: boolean
 }
@@ -107,7 +132,7 @@ export type CarDoc = {
   lastIssuedV5CTimestamp: number
   monthOfFirstRegistration: string
   isOffRoad: boolean
-  council: "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
+  council: Councils
   hasOutstandingRecall: boolean
   isRental: boolean
 }

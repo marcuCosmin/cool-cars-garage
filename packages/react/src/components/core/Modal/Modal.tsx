@@ -1,25 +1,19 @@
 import ReactModal from "react-modal"
 
-import { closeModal } from "@/redux/modalSlice"
-import { useAppDispatch, useAppSelector } from "@/redux/config"
+import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { getModalContent } from "./Modal.utils"
 
-export const Modal = () => {
-  const modalOptions = useAppSelector(state => state.modal)
-  const dispatch = useAppDispatch()
+import type { ModalProps } from "./Modal.model"
 
-  if (modalOptions.type === "none") {
-    return null
-  }
+export const Modal = (props: ModalProps) => {
+  const { setModalProps } = useModalContext()
 
-  const modalContent = getModalContent(modalOptions)
-
-  const onRequestClose = () => dispatch(closeModal())
+  const onRequestClose = () => setModalProps(null)
 
   return (
     <ReactModal ariaHideApp={false} onRequestClose={onRequestClose} isOpen>
-      {modalContent}
+      {getModalContent(props)}
     </ReactModal>
   )
 }

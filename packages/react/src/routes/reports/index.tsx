@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { useAppDispatch } from "@/redux/config"
-import { openModal } from "@/redux/modalSlice"
-
 import {
   getFirestoreCollectionChunks,
   getFirestoreDocs
 } from "@/firebase/utils"
+
+import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { Loader } from "@/components/basic/Loader"
 import { DataView } from "@/components/core/DataView/DataView"
@@ -39,7 +38,7 @@ const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListIt
   }
 
 export const Reports = () => {
-  const dispatch = useAppDispatch()
+  const { setModalProps } = useModalContext()
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["/users-docs"],
     queryFn: () => getFirestoreDocs<UserDoc>({ collectionId: "users" }),
@@ -164,8 +163,7 @@ export const Reports = () => {
     })
   }
 
-  const onBulkExportClick = () =>
-    dispatch(openModal({ type: "checks-bulk-export" }))
+  const onBulkExportClick = () => setModalProps({ type: "checks-bulk-export" })
 
   return (
     <div>

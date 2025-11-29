@@ -1,35 +1,43 @@
-import { getEmailError, getNameError, getRequiredError } from "./forms.utils"
+import {
+  getDrivingLicenceNumberError,
+  getEmailError,
+  getNameError,
+  getRequiredError
+} from "./forms.utils"
 
 import type { FormFieldsSchema } from "./forms.models"
-
-import type { DriverMetadata, User } from "../firestore/firestore.model"
+import type {
+  DriverDVLAData,
+  DriverMetadata,
+  User
+} from "../firestore/firestore.model"
 import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
-export type UserCreateData = Omit<
-  User,
-  "uid" | "creationTimestamp" | "isActive" | "email"
-> &
-  Partial<Pick<User, "email">> &
-  Partial<DriverMetadata>
+export type UserInviteData = Pick<User, "role" | "email"> &
+  Partial<Pick<User, "firstName" | "lastName">> &
+  Partial<
+    Omit<DriverMetadata, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>
+  >
 
-export const userCreateFields: FormFieldsSchema<UserCreateData> = {
-  email: {
-    validate: getEmailError,
-    isOptional: ({ role, isPSVDriver }) => role === "driver" && !isPSVDriver,
-    type: "text"
+export const userInviteFields: FormFieldsSchema<UserInviteData> = {
+  drivingLicenceNumber: {
+    type: "text",
+    validate: getDrivingLicenceNumberError,
+    shouldHide: ({ role }) => role !== "driver"
   },
   firstName: {
+    type: "text",
     validate: getNameError,
-    type: "text"
+    shouldHide: ({ role }) => role !== "driver"
   },
   lastName: {
+    type: "text",
     validate: getNameError,
-    type: "text"
-  },
-  birthDate: {
-    type: "date",
-    validate: getRequiredError,
     shouldHide: ({ role }) => role !== "driver"
+  },
+  email: {
+    validate: getEmailError,
+    type: "text"
   },
   role: {
     type: "select",
@@ -49,7 +57,13 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   },
-  badgeExpirationDate: {
+  badgeAuthority: {
+    type: "select",
+    options: ["PSV", "Cornwall", "Wolverhampton", "Portsmouth", "Other"],
+    validate: getRequiredError,
+    shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
+  },
+  badgeExpirationTimestamp: {
     type: "date",
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
@@ -60,7 +74,7 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   }
 }
 
-export type UserEditData = UserCreateData & { uid: User["uid"] }
+export type UserEditData = UserInviteData & { uid: User["uid"] }
 
 export type SignInFormData = Pick<User, "email"> & {
   password: string

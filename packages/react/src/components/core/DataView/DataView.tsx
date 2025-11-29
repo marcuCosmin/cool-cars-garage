@@ -14,7 +14,7 @@ import type {
   FiltersConfig,
   FetchItems,
   DataListItemMetadataConfig,
-  OpenEditModal
+  OpenDataViewModal
 } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
@@ -32,8 +32,7 @@ type DataViewProps<
   itemDetailedViewBasePath?: string
   showSearch?: boolean
   fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
-  onAddButtonClick?: () => void
-  openEditModal?: OpenEditModal<RawItem>
+  openModal?: OpenDataViewModal<RawItem>
   deleteItem?: (item: RawItem) => Promise<void>
 }
 
@@ -50,8 +49,7 @@ export const DataView = <
   showSearch = true,
   itemDetailedViewBasePath,
   deleteItem,
-  onAddButtonClick,
-  openEditModal,
+  openModal,
   fetchItems
 }: DataViewProps<RawItem, FilterItem, ServerSideFetching>) => {
   const {
@@ -64,14 +62,15 @@ export const DataView = <
     onFilterChange,
     onItemDelete,
     onItemEdit,
-    onScrollEnd
+    onScrollEnd,
+    onAddButtonClick
   } = useDataViewList({
     filtersConfig,
     fetchItems,
     serverSideFetching,
     itemMetadataConfig,
     deleteItem,
-    openEditModal
+    openModal
   })
 
   if (isLoading) {

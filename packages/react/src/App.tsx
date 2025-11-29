@@ -12,9 +12,9 @@ import { useScreenSizeListener } from "@/hooks/useScreenSize"
 
 import { Router } from "@/routes/Router"
 
-import { ErrorFallback } from "@/components/core/ErrorFallback"
-import { Modal } from "@/components/core/Modal/Modal"
+import { ModalProvider } from "@/contexts/Modal/Modal.provider"
 
+import { ErrorFallback } from "@/components/core/ErrorFallback"
 import { Loader } from "@/components/basic/Loader"
 
 export const App = () => {
@@ -47,8 +47,9 @@ export const App = () => {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Router />
-      <Modal />
+      <ModalProvider>
+        <Router />
+      </ModalProvider>
     </ErrorBoundary>
   )
 }

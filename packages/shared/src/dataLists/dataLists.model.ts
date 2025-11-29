@@ -5,9 +5,14 @@ import type {
 } from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
-type DefaultDataListItemMetadata = Record<
+export type DefaultDataListItemCollapsibleMetadataValue = Record<
   string,
   FormFieldValue | undefined
+>[]
+
+type DefaultDataListItemMetadata = Record<
+  string,
+  FormFieldValue | undefined | DefaultDataListItemCollapsibleMetadataValue
 > & {
   creationTimestamp: number
 }
@@ -22,14 +27,10 @@ export type RawDataListItem<
 }
 
 export type RawUserListItem = RawDataListItem<
-  Omit<
-    Partial<Pick<User, "email">> &
-      Omit<User, "email"> &
-      Partial<DriverMetadata>,
-    "uid" | "firstName" | "lastName" | "role"
-  > & {
-    invitationPending?: boolean
-  }
+  Omit<User, "firstName" | "lastName" | "role" | "uid"> &
+    DriverMetadata & {
+      invitationPending?: boolean
+    }
 >
 
 export type CheckRawListItem = RawDataListItem<

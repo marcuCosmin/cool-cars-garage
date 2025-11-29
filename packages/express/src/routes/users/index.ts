@@ -8,9 +8,6 @@ import { handleCreateRequest } from "./post"
 import { handleDeleteRequest } from "./delete"
 import { handleUserUpdate } from "./put"
 
-import { handleSendVerificationSMSRequest } from "./services/send-verification-sms"
-import { handleUpdatePhoneNumberRequest } from "./services/update-phone-number"
-
 export const usersRouter = Router()
 
 usersRouter.options("/", cors({ origin: process.env.ALLOWED_ORIGIN }))
@@ -48,7 +45,3 @@ usersRouter.post(
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleUserInvitation
 )
-
-usersRouter.post("/send-verification-sms", handleSendVerificationSMSRequest)
-
-usersRouter.patch("/update-phone-number", handleUpdatePhoneNumberRequest)

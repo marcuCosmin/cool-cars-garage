@@ -1,35 +1,28 @@
 import { lazy } from "react"
 
-import type { ModalOptions } from "./Modal.model"
+import type { ModalProps } from "./Modal.model"
 
 const ConfirmationModalContent = lazy(() =>
-  import("../ConfirmationModalContent").then(module => ({
+  import("@/components/core/ConfirmationModalContent").then(module => ({
     default: module.ConfirmationModalContent
   }))
 )
-const CarModalContent = lazy(() =>
-  import("./CarModalContent").then(module => ({
-    default: module.CarModalContent
-  }))
-)
 const UserFrom = lazy(() =>
-  import("../UserForm/UserForm").then(module => ({
+  import("@/components/core/UserForm/UserForm").then(module => ({
     default: module.UserForm
   }))
 )
 
 const ChecksBulkExportModal = lazy(() =>
-  import("../ChecksBulkExportModal").then(module => ({
+  import("@/components/core/ChecksBulkExportModal").then(module => ({
     default: module.ChecksBulkExportModal
   }))
 )
 
-export const getModalContent = ({ type, props }: ModalOptions) => {
+export const getModalContent = ({ type, props }: ModalProps) => {
   switch (type) {
     case "confirmation":
       return <ConfirmationModalContent {...props} />
-    case "car":
-      return <CarModalContent />
     case "user":
       return <UserFrom {...props} />
     case "checks-bulk-export":

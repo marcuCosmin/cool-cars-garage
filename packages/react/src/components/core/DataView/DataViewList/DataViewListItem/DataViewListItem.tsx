@@ -1,32 +1,19 @@
 import {
   Trash3Fill,
   PencilSquare,
-  Icon,
-  Calendar2Week,
-  CheckCircle,
-  BoxArrowUp,
-  InfoCircle,
   BoxArrowInUpRight
 } from "react-bootstrap-icons"
 import { Link } from "react-router"
 
-import { useAppDispatch } from "@/redux/config"
-import { openModal } from "@/redux/modalSlice"
+import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { Tooltip } from "@/components/basic/Tooltip"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-import { getParsedItemMetadataValue } from "../DataView.utils"
+import type { DataListItem } from "../../DataView.model"
 
-import type { DataListItem, ItemMetadata } from "../DataView.model"
-
-const metadataIconsMap: Record<ItemMetadata["type"], Icon> = {
-  text: InfoCircle,
-  boolean: CheckCircle,
-  date: Calendar2Week,
-  link: BoxArrowUp
-}
+import { DataViewListItemMetadata } from "./DataViewListItemMetadata"
 
 type DataCardProps = Pick<
   DataListItem<RawDataListItem>,
@@ -46,19 +33,17 @@ export const DataListViewItem = ({
   onDelete,
   onEdit
 }: DataCardProps) => {
-  const dispatch = useAppDispatch()
+  const { setModalProps } = useModalContext()
 
   const onDeleteClick = onDelete
     ? () =>
-        dispatch(
-          openModal({
-            type: "confirmation",
-            props: {
-              onConfirm: onDelete,
-              text: `Are you sure you want to delete ${title}?`
-            }
-          })
-        )
+        setModalProps({
+          type: "confirmation",
+          props: {
+            onConfirm: onDelete,
+            text: `Are you sure you want to delete ${title}?`
+          }
+        })
     : undefined
 
   return (
@@ -105,34 +90,7 @@ export const DataListViewItem = ({
 
       <hr />
 
-      <div className="flex flex-col gap-2">
-        {Object.values(metadata)
-          .sort(({ label: label1 }, { label: label2 }) =>
-            // TODO: Remove "?" after demo
-            label1?.localeCompare(label2)
-          )
-          .map(props => {
-            const parsedValue = getParsedItemMetadataValue(props)
-
-            const { label, type } = props
-
-            const Icon = metadataIconsMap[type]
-
-            if (parsedValue === null || parsedValue === undefined) {
-              return null
-            }
-
-            return (
-              <p className="flex items-center text-primary gap-2 font-bold">
-                <Icon height={20} width={20} />
-                {label}:{" "}
-                <span className="text-black dark:text-white font-normal">
-                  {parsedValue}
-                </span>
-              </p>
-            )
-          })}
-      </div>
+      <DataViewListItemMetadata metadata={metadata} />
     </li>
   )
 }

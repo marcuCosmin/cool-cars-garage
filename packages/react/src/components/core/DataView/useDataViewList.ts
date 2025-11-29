@@ -18,7 +18,7 @@ import type {
   FilterChangeHandler,
   FiltersConfig,
   FiltersState,
-  OpenEditModal
+  OpenDataViewModal
 } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
@@ -32,7 +32,7 @@ type UseDataViewList<
 > = {
   filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
   fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
-  openEditModal?: OpenEditModal<RawItem>
+  openModal?: OpenDataViewModal<RawItem>
   deleteItem?: (item: RawItem) => Promise<void>
   serverSideFetching: boolean
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
@@ -48,7 +48,7 @@ export const useDataViewList = <
   filtersConfig,
   fetchItems,
   deleteItem,
-  openEditModal,
+  openModal,
   serverSideFetching,
   itemMetadataConfig
 }: UseDataViewList<RawItem, FilterItem, ServerSideFetching>) => {
@@ -157,8 +157,20 @@ export const useDataViewList = <
       return
     }
 
-    openEditModal?.({ item: rawItem, onSuccess: onEditSuccess })
+    openModal?.({ item: rawItem, onSuccess: onEditSuccess })
   }
+
+  const onAddSuccess = (newItem: RawItem) => {
+    queryClient.setQueriesData(
+      {
+        queryKey: [location.pathname],
+        exact: false
+      },
+      (data: RawItem[]) => [newItem, ...data]
+    )
+  }
+
+  const onAddButtonClick = () => openModal?.({ onSuccess: onAddSuccess })
 
   return {
     error,
@@ -171,6 +183,7 @@ export const useDataViewList = <
     onFilterChange,
     onScrollEnd: serverSideFetching ? fetchNextPage : undefined,
     onItemDelete: deleteItem ? onItemDelete : undefined,
-    onItemEdit: openEditModal ? onItemEdit : undefined
+    onItemEdit: openModal ? onItemEdit : undefined,
+    onAddButtonClick: openModal ? onAddButtonClick : undefined
   }
 }
