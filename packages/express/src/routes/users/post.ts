@@ -1,31 +1,58 @@
-import { type Request, type Response } from "express"
+import { type Request } from "express"
 
+import { getFirestoreDocs, isEmailUsed } from "@/firebase/utils"
 import { firestore } from "@/firebase/config"
-import { isEmailUsed } from "@/firebase/utils"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
-import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
 import { getDVLAJWT } from "@/utils/get-dvla-jwt"
+import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import {
-  userCreateFields,
-  type UserCreateData
+  userInviteFields,
+  type UserInviteData
 } from "@/shared/forms/forms.const"
-import type {
-  DriverMetadata,
-  UserBaseProps,
-  UserDoc
-} from "@/shared/firestore/firestore.model"
+import type { User, UserDoc } from "@/shared/firestore/firestore.model"
+import type { InviteUserResponse } from "@/shared/requests/requests.model"
+
+import type { Response } from "@/models"
 
 import { inviteUser } from "./utils"
 
+const getUserDocData = async (
+  userPayloadData: Omit<UserInviteData, "email">
+): Promise<UserDoc> => {
+  const creationTimestamp = getCurrentTimestamp()
+
+  if (userPayloadData.role === "driver") {
+    const dvlaJwt = await getDVLAJWT()
+    const dvlaData = await getDVLADriverData(dvlaJwt)
+
+    return {
+      ...dvlaData,
+      ...userPayloadData,
+      isActive: true,
+      creationTimestamp
+    } as UserDoc
+  }
+
+  const { firstName, lastName, role } = userPayloadData
+
+  return {
+    role,
+    isActive: true,
+    firstName: firstName as string,
+    lastName: lastName as string,
+    creationTimestamp
+  }
+}
+
 export const handleCreateRequest = async (
-  req: Request<undefined, undefined, UserCreateData>,
-  res: Response
+  req: Request<undefined, InviteUserResponse, UserInviteData>,
+  res: Response<InviteUserResponse>
 ) => {
-  const { errors, filteredData: userData } = getFormValidationResult({
-    schema: userCreateFields,
+  const { errors, filteredData: userPayloadData } = getFormValidationResult({
+    schema: userInviteFields,
     data: req.body
   })
 
@@ -38,28 +65,7 @@ export const handleCreateRequest = async (
     return
   }
 
-  const { email, role, firstName, lastName, ...userDocMetadata } = userData
-
-  if (role === "driver") {
-    const dvlaJwt = await getDVLAJWT()
-    const dvlaData = await getDVLADriverData(dvlaJwt)
-  }
-
-  const userBaseProps: UserBaseProps = {
-    firstName,
-    lastName,
-    isActive: true,
-    creationTimestamp: getCurrentTimestamp()
-  }
-
-  const userDocData: UserDoc =
-    role === "driver"
-      ? {
-          ...userBaseProps,
-          role,
-          metadata: userDocMetadata as Required<DriverMetadata>
-        }
-      : { ...userBaseProps, role }
+  const { email, ...remainingUserPayloadData } = userPayloadData
 
   const emailIsUsed = await isEmailUsed(email)
 
@@ -70,19 +76,36 @@ export const handleCreateRequest = async (
     return
   }
 
-  const invitationSnapshot = await firestore
-    .collection("invitations")
-    .where("email", "==", email)
-    .get()
+  const existingInvitation = await getFirestoreDocs({
+    collection: "invitations",
+    queries: [["email", "==", email]]
+  })
 
-  if (!invitationSnapshot.empty) {
+  if (existingInvitation.length) {
     res.status(400).json({
       error: "An invitation for this email already exists"
     })
     return
   }
 
-  await inviteUser({ ...userDocData, email })
+  const userDocData = await getUserDocData(remainingUserPayloadData)
 
-  res.status(200).json({ message: "User invited successfully" })
+  const createdUserRef = firestore.collection("users").doc()
+  await createdUserRef.set(userDocData)
+
+  const { firstName, lastName, role } = userDocData
+
+  const invitationId = await inviteUser({
+    email,
+    role,
+    firstName,
+    lastName
+  })
+
+  res.status(200).json({
+    user: {
+      ...userDocData,
+      uid: invitationId
+    } as User
+  })
 }

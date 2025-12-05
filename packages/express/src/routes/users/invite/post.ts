@@ -1,30 +1,58 @@
-import { type Response } from "express"
+import { type Request } from "express"
 
-import { firestore } from "@/firebase/config"
-import { isEmailUsed } from "@/firebase/utils"
+import { getFirestoreDocs, isEmailUsed } from "@/firebase/utils"
 
-import { sendMail } from "@/utils/send-mail"
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
+import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
+import { getDVLAJWT } from "@/utils/get-dvla-jwt"
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
-import type { Request } from "@/models"
-
 import {
-  userCreateFields,
-  type UserCreateData
+  userInviteFields,
+  type UserInviteData
 } from "@/shared/forms/forms.const"
+import type { InvitationDoc, User } from "@/shared/firestore/firestore.model"
+import type { InviteUserResponse } from "@/shared/requests/requests.model"
 
-import type {
-  DriverMetadata,
-  InvitationDoc
-} from "@/shared/firestore/firestore.model"
+import type { Response } from "@/models"
+
+import { inviteUser } from "../utils"
+
+const getUserDocData = async (
+  userPayloadData: UserInviteData
+): Promise<InvitationDoc> => {
+  const creationTimestamp = getCurrentTimestamp()
+
+  if (userPayloadData.role === "driver") {
+    const dvlaJwt = await getDVLAJWT()
+    const dvlaData = await getDVLADriverData(dvlaJwt)
+
+    return {
+      ...dvlaData,
+      ...userPayloadData,
+      isActive: true,
+      creationTimestamp
+    } as InvitationDoc
+  }
+
+  const { firstName, lastName, role, email } = userPayloadData
+
+  return {
+    email,
+    role,
+    isActive: true,
+    firstName: firstName as string,
+    lastName: lastName as string,
+    creationTimestamp
+  }
+}
 
 export const handleUserInvitation = async (
-  req: Request<undefined, undefined, UserCreateData>,
-  res: Response
+  req: Request<undefined, InviteUserResponse, UserInviteData>,
+  res: Response<InviteUserResponse>
 ) => {
-  const { errors, filteredData: invitationFormData } = getFormValidationResult({
-    schema: userCreateFields,
+  const { errors, filteredData: userPayloadData } = getFormValidationResult({
+    schema: userInviteFields,
     data: req.body
   })
 
@@ -37,64 +65,37 @@ export const handleUserInvitation = async (
     return
   }
 
-  const { email, role, ...invitationFormMetadata } = invitationFormData
+  const { email } = userPayloadData
 
-  const emailIsUsed = await isEmailUsed(email as string)
+  const emailIsUsed = await isEmailUsed(email)
 
   if (emailIsUsed) {
     res.status(400).json({
       error: "The provided email is already in use"
     })
-
     return
   }
 
-  const existingInvite = await firestore
-    .collection("invitations")
-    .where("email", "==", email)
-    .get()
+  const existingInvitation = await getFirestoreDocs({
+    collection: "invitations",
+    queries: [["email", "==", email]]
+  })
 
-  if (!existingInvite.empty) {
+  if (existingInvitation) {
     res.status(400).json({
       error: "An invitation for this email already exists"
     })
-
     return
   }
 
-  const invitationDataMetadata: InvitationDoc["metadata"] =
-    role === "driver"
-      ? {
-          ...(invitationFormMetadata as Omit<DriverMetadata, "role">),
-          role
-        }
-      : {
-          role
-        }
+  const userDocData = await getUserDocData(userPayloadData)
 
-  const invitationData: InvitationDoc = {
-    metadata: invitationDataMetadata,
-    email,
-    creationTimestamp: getCurrentTimestamp()
-  }
+  const invitationId = await inviteUser(userDocData)
 
-  const createdInvite = await firestore
-    .collection("invitations")
-    .add(invitationData)
-
-  await sendMail({
-    to: email,
-    subject: "Invitation to join Cool Cars Garage",
-    html: `
-        <div>Hello,</div>
-        <br/>
-        <div>You have been invited to join <a href="${process.env.ALLOWED_ORIGIN}">Cool Cars Garage</a>.</div>
-        <div>Click <a href="${process.env.ALLOWED_ORIGIN}/sign-up?invitationId=${createdInvite.id}">here</a> to accept the invitation.</div>
-        <br/>
-        <div>Thanks,</div>
-        <b>Cool Cars Garage</b> team
-      `
+  res.status(200).json({
+    user: {
+      ...userDocData,
+      uid: invitationId
+    } as User
   })
-
-  res.status(200).json({ message: "Invitation sent successfully" })
 }

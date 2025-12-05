@@ -2,7 +2,7 @@ import type { FormData, FormFieldsSchema } from "@/shared/forms/forms.models"
 
 type GetFormDataProps<T extends FormData> = {
   schema: FormFieldsSchema<T>
-  data: T
+  data: Partial<T>
 }
 
 const formDataTypes = {
@@ -34,7 +34,7 @@ export const getFormValidationResult = <T extends FormData>({
       return
     }
 
-    if (isOptional?.(data) && !value) {
+    if (isOptional?.(data) === false && !value) {
       return
     }
 
@@ -63,7 +63,7 @@ export const getFormValidationResult = <T extends FormData>({
       }
     }
 
-    filteredData[castedKey] = value
+    filteredData[castedKey] = value as T[keyof T]
   })
 
   if (Object.keys(errors).length) {

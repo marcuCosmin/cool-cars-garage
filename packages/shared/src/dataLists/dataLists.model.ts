@@ -28,7 +28,7 @@ export type RawDataListItem<
 
 export type RawUserListItem = RawDataListItem<
   Omit<User, "firstName" | "lastName" | "role" | "uid"> &
-    DriverMetadata & {
+    Partial<DriverMetadata> & {
       invitationPending?: boolean
     }
 >

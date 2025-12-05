@@ -10,7 +10,9 @@ import { type OpenDataViewModalProps } from "@/components/core/DataView/DataView
 import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
+  UserEditData,
   userInviteFields,
+  userEditFields,
   type UserInviteData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
@@ -28,12 +30,8 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
   const submitLabel = isEdit ? "Save" : "Create"
 
   const fields = extendFormFields({
-    fieldsSchema: userInviteFields,
+    fieldsSchema: isEdit ? userEditFields : userInviteFields,
     additionalFieldsProps: {
-      drivingLicenceNumber: {
-        label: "Driving Licence Number",
-        defaultValue: user?.drivingLicenceNumber
-      },
       firstName: {
         label: "First Name",
         defaultValue: user?.firstName
@@ -79,32 +77,64 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     }
   })
 
-  const action = async (data: UserInviteData) => {
-    const { message } = isEdit
-      ? await updateUser({ ...user, ...data })
-      : await inviteUser(data)
+  const action = async (data: UserInviteData | UserEditData) => {
+    if (isEdit) {
+      const { message } = await updateUser(data as UserEditData)
 
-    const newRawUserListItem: RawUserListItem = {
-      title: `${data.firstName} ${data.lastName}`,
-      subtitle: data.role,
-      id: user?.uid as string,
-      metadata: {
-        email: data.email,
-        birthDate: data.birthDate,
-        dbsUpdate: data.dbsUpdate,
-        isTaxiDriver: data.isTaxiDriver,
-        badgeNumber: data.badgeNumber,
-        badgeExpirationDate: data.badgeExpirationDate,
-        isPSVDriver: data.isPSVDriver,
-        creationTimestamp: item?.metadata.creationTimestamp as number,
-        isActive: item?.metadata.isActive as boolean,
-        invitationPending: item?.metadata.invitationPending
+      const castedItem = item as RawUserListItem
+
+      const { role, firstName, lastName, ...metadata } = data
+      const [prevFirstName, prevLastName] = castedItem.title.split(" ")
+
+      const newRawUserListItem: RawUserListItem = {
+        ...castedItem,
+        title: `${firstName || prevFirstName} ${lastName || prevLastName}`,
+        subtitle: role || castedItem.subtitle,
+        metadata: {
+          ...castedItem.metadata,
+          ...metadata
+        }
       }
+
+      onSuccess(newRawUserListItem)
+
+      toast.success(message)
+    } else {
+      const { user } = await inviteUser(data as UserInviteData)
+
+      const {
+        firstName,
+        lastName,
+        role,
+        uid,
+        email,
+        isActive,
+        creationTimestamp
+      } = user
+
+      const newRawUserListItem: RawUserListItem = {
+        title: `${firstName} ${lastName}`,
+        subtitle: role,
+        id: uid,
+        metadata: {
+          email,
+          isActive,
+          creationTimestamp,
+          invitationPending: true
+        }
+      }
+
+      if (role === "driver") {
+        newRawUserListItem.metadata = {
+          ...newRawUserListItem.metadata,
+          ...user.metadata
+        }
+      }
+
+      onSuccess(newRawUserListItem)
+      toast.success("Invitation sent successfully!")
     }
 
-    onSuccess(newRawUserListItem)
-
-    toast.success(message)
     setModalProps(null)
   }
 

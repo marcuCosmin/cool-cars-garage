@@ -1,3 +1,5 @@
+import type { User } from "../firestore/firestore.model"
+
 export type MarkFaultsAsResolvedPayload = {
   faultsIds: string[]
   checkId: string
@@ -23,3 +25,7 @@ export type CarsCheckExportURLQuery =
       startTimestamp: number
       endTimestamp: number
     }
+
+export type InviteUserResponse = {
+  user: User
+}

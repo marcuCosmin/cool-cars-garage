@@ -28,12 +28,12 @@ export const userInviteFields: FormFieldsSchema<UserInviteData> = {
   firstName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role !== "driver"
+    shouldHide: ({ role }) => role !== "manager"
   },
   lastName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role !== "driver"
+    shouldHide: ({ role }) => role !== "manager"
   },
   email: {
     validate: getEmailError,
@@ -74,7 +74,26 @@ export const userInviteFields: FormFieldsSchema<UserInviteData> = {
   }
 }
 
-export type UserEditData = UserInviteData & { uid: User["uid"] }
+type UserInviteEditableFields = Omit<UserInviteData, "drivingLicenceNumber">
+
+export type UserEditData = Partial<UserInviteEditableFields> & {
+  uid: User["uid"]
+}
+
+export const userEditFields = Object.entries(userInviteFields).reduce(
+  (acc, [key, value]) => {
+    if (key === "drivingLicenceNumber") {
+      return acc
+    }
+
+    acc[key as keyof UserInviteEditableFields] = {
+      ...value,
+      isOptional: () => true
+    }
+    return acc
+  },
+  {} as FormFieldsSchema<UserInviteEditableFields>
+)
 
 export type SignInFormData = Pick<User, "email"> & {
   password: string

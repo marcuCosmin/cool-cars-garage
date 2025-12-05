@@ -1,6 +1,10 @@
 import { useLocation } from "react-router"
 import { useState } from "react"
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query"
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useQueryClient
+} from "@tanstack/react-query"
 
 import { type DocumentData } from "firebase/firestore"
 
@@ -166,7 +170,10 @@ export const useDataViewList = <
         queryKey: [location.pathname],
         exact: false
       },
-      (data: RawItem[]) => [newItem, ...data]
+      (data: InfiniteData<RawItem[]>) => ({
+        ...data,
+        pages: [...data.pages, newItem]
+      })
     )
   }
 

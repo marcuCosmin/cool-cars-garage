@@ -2,7 +2,7 @@ import { executeApiRequest } from "./config"
 
 import type {
   UserEditData,
-  UserCreateData,
+  UserInviteData,
   SignUpData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
@@ -10,7 +10,8 @@ import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload,
   MarkDefectAsResolvedResponse,
-  CarsCheckExportURLQuery
+  CarsCheckExportURLQuery,
+  InviteUserResponse
 } from "@/shared/requests/requests.model"
 
 type GetAllUsersResponse = {
@@ -45,8 +46,8 @@ export const createUserFromInvitation = (payload: SignUpData) =>
     payload
   })
 
-export const inviteUser = (payload: UserCreateData) =>
-  executeApiRequest({
+export const inviteUser = (payload: UserInviteData) =>
+  executeApiRequest<InviteUserResponse>({
     path: "/users",
     method: "POST",
     payload

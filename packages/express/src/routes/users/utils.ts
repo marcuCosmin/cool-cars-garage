@@ -8,16 +8,26 @@ import type { InvitationDoc } from "@/shared/firestore/firestore.model"
 export const inviteUser = async (
   invitationData: Omit<InvitationDoc, "creationTimestamp">
 ) => {
-  const { email } = invitationData
+  const creationTimestamp = getCurrentTimestamp()
+  const { email, role, firstName, lastName } = invitationData
 
-  const invitation = {
-    ...invitationData,
-    creationTimestamp: getCurrentTimestamp()
+  const invitationPayload: InvitationDoc = {
+    email,
+    role,
+    creationTimestamp
+  }
+
+  if (firstName) {
+    invitationPayload.firstName = firstName
+  }
+
+  if (lastName) {
+    invitationPayload.lastName = lastName
   }
 
   const createdInvitation = await firestore
     .collection("invitations")
-    .add(invitation)
+    .add(invitationPayload)
 
   await sendMail({
     to: email,
@@ -32,4 +42,6 @@ export const inviteUser = async (
             <b>Cool Cars Garage</b> team
           `
   })
+
+  return createdInvitation.id
 }

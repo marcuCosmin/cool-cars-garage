@@ -5,8 +5,8 @@ export type FormData = Record<string, FormFieldValue>
 
 type FormFieldsCommonProps<T extends FormData> = {
   validate?: FormFieldValidator
-  shouldHide?: (formFields: T) => boolean
-  isOptional?: (data: T) => boolean
+  shouldHide?: (formFields: Partial<T>) => boolean
+  isOptional?: (data: Partial<T>) => boolean
 }
 
 export type FormDateProps<T extends FormData> = FormFieldsCommonProps<T> & {

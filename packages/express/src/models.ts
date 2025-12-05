@@ -1,4 +1,7 @@
-import type { Request as ExpressRequest } from "express"
+import type {
+  Request as ExpressRequest,
+  Response as ExpressResponse
+} from "express"
 
 import type { User } from "@/shared/firestore/firestore.model"
 
@@ -23,3 +26,9 @@ export type Request<
 > = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
   authorizedUser?: User
 }
+
+type DefaultResBody = Record<string, unknown>
+
+export type Response<ResBody extends DefaultResBody> = ExpressResponse<
+  ResBody | { error: string; details?: DefaultResBody }
+>

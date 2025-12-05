@@ -107,6 +107,7 @@ export const handleGetRequest = async (req: Request, res: Response) => {
         lastName,
         role,
         metadata,
+        id,
         ...remainingInvitationData
       } = invitation as Extract<
         DocWithID<NewUserInvitation>,
@@ -114,10 +115,12 @@ export const handleGetRequest = async (req: Request, res: Response) => {
       >
       const title = `${firstName} ${lastName}`
 
+      console.log(metadata, remainingInvitationData)
+
       return {
         title,
         subtitle: role,
-        id: invitation.id,
+        id,
         metadata: {
           ...metadata,
           ...remainingInvitationData,
