@@ -6,15 +6,17 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import type { InvitationDoc } from "@/shared/firestore/firestore.model"
 
 export const inviteUser = async (
-  invitationData: Omit<InvitationDoc, "creationTimestamp">
+  invitationData: Omit<InvitationDoc, "creationTimestamp" | "isActive">
 ) => {
   const creationTimestamp = getCurrentTimestamp()
-  const { email, role, firstName, lastName } = invitationData
+  const { email, role, firstName, lastName, uid } = invitationData
 
   const invitationPayload: InvitationDoc = {
     email,
     role,
-    creationTimestamp
+    creationTimestamp,
+    isActive: true,
+    uid
   }
 
   if (firstName) {
@@ -42,6 +44,4 @@ export const inviteUser = async (
             <b>Cool Cars Garage</b> team
           `
   })
-
-  return createdInvitation.id
 }

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router"
 
-import { createUserFromInvitation } from "@/api/utils"
+import { registerUser } from "@/api/utils"
 
 import { signInUserAfterCreation } from "@/firebase/utils"
 
@@ -37,7 +37,7 @@ export const SignUpForm = ({ invitation }: SignUpFormProps) => {
   const navigate = useNavigate()
 
   const action = async (data: SignUpFormData) => {
-    const response = await createUserFromInvitation({
+    const response = await registerUser({
       ...data,
       invitationId: invitation.id
     })

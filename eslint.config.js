@@ -34,6 +34,14 @@ export default tseslint.config({
     "camelcase": "off",
     "import/no-default-export": "error",
     "import/default": "off",
-    "no-case-declarations": "off"
+    "no-case-declarations": "off",
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {
+        prefer: "type-imports",
+        disallowTypeAnnotations: true,
+        fixStyle: "inline-type-imports"
+      }
+    ]
   }
 })

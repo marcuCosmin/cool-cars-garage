@@ -59,9 +59,10 @@ export type User = UserDoc & {
   email: string
 }
 
-export type InvitationDoc = Pick<User, "email" | "role"> &
+export type InvitationDoc = Pick<User, "email" | "role" | "uid"> &
   Partial<Pick<User, "firstName" | "lastName">> & {
     creationTimestamp: number
+    isActive: boolean
   }
 
 export type DocWithID<T> = T & { id: string }

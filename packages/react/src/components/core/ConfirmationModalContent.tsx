@@ -1,7 +1,6 @@
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons"
 
-import { useAppDispatch } from "@/redux/config"
-import { closeModal } from "@/redux/modalSlice"
+import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 
@@ -22,18 +21,20 @@ export const ConfirmationModalContent = ({
   text,
   onConfirm
 }: ConfirmationModalContentProps) => {
-  const { isLoading, mutate: handleConfirm } = useAppMutation({
-    mutationFn: onConfirm,
+  const { setModalProps } = useModalContext()
+  const handleConfirm = async () => {
+    const response = await onConfirm()
+
+    setModalProps(null)
+
+    return response
+  }
+  const { isLoading, mutate: onConfirmClick } = useAppMutation({
+    mutationFn: handleConfirm,
     showToast: true
   })
-  const dispatch = useAppDispatch()
 
-  const onConfirmClick = async () => {
-    await handleConfirm()
-
-    dispatch(closeModal())
-  }
-  const onCancelClick = () => dispatch(closeModal())
+  const onCancelClick = () => setModalProps(null)
 
   return (
     <div className="flex flex-col relative gap-20 max-w-md">

@@ -29,6 +29,5 @@ export type Request<
 
 type DefaultResBody = Record<string, unknown>
 
-export type Response<ResBody extends DefaultResBody> = ExpressResponse<
-  ResBody | { error: string; details?: DefaultResBody }
->
+export type Response<ResBody extends DefaultResBody = DefaultResBody> =
+  ExpressResponse<ResBody | { error: string; details?: DefaultResBody }>

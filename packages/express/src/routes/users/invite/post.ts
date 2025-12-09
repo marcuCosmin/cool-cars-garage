@@ -1,6 +1,11 @@
 import { type Request } from "express"
 
-import { getFirestoreDocs, isEmailUsed } from "@/firebase/utils"
+import {
+  getFirestoreDoc,
+  getFirestoreDocs,
+  getUserEmail,
+  isEmailUsed
+} from "@/firebase/utils"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
@@ -51,51 +56,16 @@ export const handleUserInvitation = async (
   req: Request<undefined, InviteUserResponse, UserInviteData>,
   res: Response<InviteUserResponse>
 ) => {
-  const { errors, filteredData: userPayloadData } = getFormValidationResult({
-    schema: userInviteFields,
-    data: req.body
-  })
+  const { uid } = req.body
 
-  if (errors) {
+  const email = await getUserEmail(uid)
+
+  if (!email) {
     res.status(400).json({
-      error: "Invalid form data",
-      details: errors
-    })
-
-    return
-  }
-
-  const { email } = userPayloadData
-
-  const emailIsUsed = await isEmailUsed(email)
-
-  if (emailIsUsed) {
-    res.status(400).json({
-      error: "The provided email is already in use"
+      error: "Invalid uid"
     })
     return
   }
 
-  const existingInvitation = await getFirestoreDocs({
-    collection: "invitations",
-    queries: [["email", "==", email]]
-  })
-
-  if (existingInvitation) {
-    res.status(400).json({
-      error: "An invitation for this email already exists"
-    })
-    return
-  }
-
-  const userDocData = await getUserDocData(userPayloadData)
-
-  const invitationId = await inviteUser(userDocData)
-
-  res.status(200).json({
-    user: {
-      ...userDocData,
-      uid: invitationId
-    } as User
-  })
+  
 }

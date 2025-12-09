@@ -2,28 +2,27 @@ import { executeApiRequest } from "./config"
 
 import type {
   UserEditData,
-  UserInviteData,
+  UserCreateData,
   SignUpData
 } from "@/shared/forms/forms.const"
-import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload,
   MarkDefectAsResolvedResponse,
   CarsCheckExportURLQuery,
-  InviteUserResponse
+  CreateUserResponse,
+  RegisterUserResponse,
+  DeleteUserQueryParams,
+  GetUsersResponse
 } from "@/shared/requests/requests.model"
 
-type GetAllUsersResponse = {
-  usersList: RawUserListItem[]
-}
 export const getAllUsers = async () => {
-  const response = await executeApiRequest<GetAllUsersResponse>({
+  const response = await executeApiRequest<GetUsersResponse>({
     path: "/users",
     method: "GET"
   })
 
-  return response.usersList
+  return response.users
 }
 
 type GetAuthTokenResponse = {
@@ -35,32 +34,23 @@ export const getAuthToken = () =>
     method: "GET"
   })
 
-type CreateUserFromInvitationResponse = {
-  authToken: string
-}
-
-export const createUserFromInvitation = (payload: SignUpData) =>
-  executeApiRequest<CreateUserFromInvitationResponse>({
-    path: "/users/create-from-invitation",
+export const registerUser = (payload: SignUpData) =>
+  executeApiRequest<RegisterUserResponse>({
+    path: "/users/register",
     method: "POST",
     payload
   })
 
-export const inviteUser = (payload: UserInviteData) =>
-  executeApiRequest<InviteUserResponse>({
+export const createUser = (payload: UserCreateData) =>
+  executeApiRequest<CreateUserResponse>({
     path: "/users",
     method: "POST",
     payload
   })
 
-type DeleteUserProps = {
-  id: RawUserListItem["id"]
-  email?: RawUserListItem["metadata"]["email"]
-}
-
-export const deleteUser = ({ id, email }: DeleteUserProps) =>
+export const deleteUser = ({ uid }: DeleteUserQueryParams) =>
   executeApiRequest({
-    path: `/users?uid=${id}&email=${email}`,
+    path: `/users?uid=${uid}`,
     method: "DELETE"
   })
 

@@ -9,6 +9,8 @@ import type {
   FiltersConfig
 } from "@/components/core/DataView/DataView.model"
 
+import { capitalize } from "@/shared/utils/capitalize"
+
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
 const filtersConfig: FiltersConfig<RawUserListItem, false> = []
@@ -61,19 +63,30 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
 export const Users = () => {
   const { setModalProps } = useModalContext()
 
-  const deleteItem = async ({ id, metadata }: RawUserListItem) => {
-    await deleteUser({
-      id,
-      email: metadata.email
-    })
+  const fetchItems = async () => {
+    const users = await getAllUsers()
+
+    return users.map(({ uid, firstName, lastName, role, ...user }) => ({
+      id: uid,
+      title: `${firstName} ${lastName}`,
+      subtitle: capitalize(role),
+      metadata: {
+        ...user
+      }
+    }))
   }
+
+  const deleteItem = async ({ id }: RawUserListItem) =>
+    await deleteUser({
+      uid: id
+    })
 
   const openDataViewModal: OpenDataViewModal<RawUserListItem> = props =>
     setModalProps({ type: "user", props })
 
   return (
     <DataView
-      fetchItems={getAllUsers}
+      fetchItems={fetchItems}
       itemMetadataConfig={usersDataItemsMetadataConfig}
       filtersConfig={filtersConfig}
       openModal={openDataViewModal}

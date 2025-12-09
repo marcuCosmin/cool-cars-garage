@@ -26,6 +26,18 @@ export type CarsCheckExportURLQuery =
       endTimestamp: number
     }
 
-export type InviteUserResponse = {
+export type RegisterUserResponse = {
+  authToken: string
+}
+
+export type ReiniviteUserPayload = Pick<User, "uid">
+
+export type CreateUserResponse = {
   user: User
+}
+
+export type DeleteUserQueryParams = Pick<User, "uid">
+
+export type GetUsersResponse = {
+  users: User[]
 }

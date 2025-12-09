@@ -3,7 +3,8 @@ import { firebaseAuth } from "@/firebase/config"
 import type {
   UserCreateData,
   SignUpData,
-  UserEditData
+  UserEditData,
+  SignUpFormData
 } from "@/shared/forms/forms.const"
 import type {
   MarkFaultsAsResolvedPayload,
@@ -23,6 +24,11 @@ type ExecuteApiRequestProps =
       payload: UserEditData
     }
   | {
+      path: "/users/register"
+      method: "POST"
+      payload: SignUpFormData
+    }
+  | {
       path: "/users"
       method: "POST"
       payload: UserCreateData
@@ -37,7 +43,7 @@ type ExecuteApiRequestProps =
       payload: SignUpData
     }
   | {
-      path: `/users?uid=${string}&email=${string}`
+      path: `/users?uid=${string}`
       method: "DELETE"
     }
   | {

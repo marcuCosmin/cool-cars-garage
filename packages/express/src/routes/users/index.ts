@@ -1,12 +1,12 @@
 import { Router } from "express"
 import cors from "cors"
 
-import { handleUserInvitation } from "./invite/post"
+import { handleUserReinvitation } from "./reinvite/post"
 import { handleAuthTokenGeneration } from "./generate-auth-token/get"
 import { handleGetRequest } from "./get"
-import { handleCreateRequest } from "./post"
+import { handleUserPostRequest } from "./post"
 import { handleDeleteRequest } from "./delete"
-import { handleUserUpdate } from "./put"
+import { handleUserPatchRequest } from "./patch"
 
 export const usersRouter = Router()
 
@@ -19,17 +19,23 @@ usersRouter.get(
 usersRouter.post(
   "/",
   cors({ origin: process.env.ALLOWED_ORIGIN }),
-  handleCreateRequest
+  handleUserPostRequest
 )
 usersRouter.delete(
   "/",
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleDeleteRequest
 )
-usersRouter.put(
+usersRouter.patch(
   "/",
   cors({ origin: process.env.ALLOWED_ORIGIN }),
-  handleUserUpdate
+  handleUserPatchRequest
+)
+usersRouter.options("/reinvite", cors({ origin: process.env.ALLOWED_ORIGIN }))
+usersRouter.post(
+  "/reinvite",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleUserReinvitation
 )
 
 usersRouter.options("/generate-auth-token", cors({ origin: "*" }))
@@ -37,11 +43,4 @@ usersRouter.get(
   "/generate-auth-token",
   cors({ origin: "*" }),
   handleAuthTokenGeneration
-)
-
-usersRouter.options("/invite", cors({ origin: process.env.ALLOWED_ORIGIN }))
-usersRouter.post(
-  "/invite",
-  cors({ origin: process.env.ALLOWED_ORIGIN }),
-  handleUserInvitation
 )

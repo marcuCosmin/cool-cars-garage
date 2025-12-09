@@ -1,6 +1,6 @@
 import { toast } from "react-toastify"
 
-import { inviteUser, updateUser } from "@/api/utils"
+import { createUser, updateUser } from "@/api/utils"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 
@@ -11,9 +11,9 @@ import { extendFormFields } from "@/utils/extendFormFields"
 
 import {
   UserEditData,
-  userInviteFields,
+  userCreateFields,
   userEditFields,
-  type UserInviteData
+  type UserCreateData
 } from "@/shared/forms/forms.const"
 import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
 
@@ -30,7 +30,7 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
   const submitLabel = isEdit ? "Save" : "Create"
 
   const fields = extendFormFields({
-    fieldsSchema: isEdit ? userEditFields : userInviteFields,
+    fieldsSchema: isEdit ? userEditFields : userCreateFields,
     additionalFieldsProps: {
       firstName: {
         label: "First Name",
@@ -77,7 +77,7 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     }
   })
 
-  const action = async (data: UserInviteData | UserEditData) => {
+  const action = async (data: UserCreateData | UserEditData) => {
     if (isEdit) {
       const { message } = await updateUser(data as UserEditData)
 
@@ -100,7 +100,7 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
 
       toast.success(message)
     } else {
-      const { user } = await inviteUser(data as UserInviteData)
+      const { user } = await createUser(data as UserCreateData)
 
       const {
         firstName,

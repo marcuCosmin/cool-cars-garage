@@ -9,18 +9,18 @@ import { getDVLAJWT } from "@/utils/get-dvla-jwt"
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
 import {
-  userInviteFields,
-  type UserInviteData
+  userCreateFields,
+  type UserCreateData
 } from "@/shared/forms/forms.const"
 import type { User, UserDoc } from "@/shared/firestore/firestore.model"
-import type { InviteUserResponse } from "@/shared/requests/requests.model"
+import type { CreateUserResponse } from "@/shared/requests/requests.model"
 
 import type { Response } from "@/models"
 
 import { inviteUser } from "./utils"
 
 const getUserDocData = async (
-  userPayloadData: Omit<UserInviteData, "email">
+  userPayloadData: Omit<UserCreateData, "email">
 ): Promise<UserDoc> => {
   const creationTimestamp = getCurrentTimestamp()
 
@@ -47,12 +47,12 @@ const getUserDocData = async (
   }
 }
 
-export const handleCreateRequest = async (
-  req: Request<undefined, InviteUserResponse, UserInviteData>,
-  res: Response<InviteUserResponse>
+export const handleUserPostRequest = async (
+  req: Request<undefined, CreateUserResponse, UserCreateData>,
+  res: Response<CreateUserResponse>
 ) => {
   const { errors, filteredData: userPayloadData } = getFormValidationResult({
-    schema: userInviteFields,
+    schema: userCreateFields,
     data: req.body
   })
 
@@ -93,19 +93,22 @@ export const handleCreateRequest = async (
   const createdUserRef = firestore.collection("users").doc()
   await createdUserRef.set(userDocData)
 
+  const uid = createdUserRef.id
+
   const { firstName, lastName, role } = userDocData
 
-  const invitationId = await inviteUser({
+  await inviteUser({
     email,
     role,
     firstName,
-    lastName
+    lastName,
+    uid
   })
 
   res.status(200).json({
     user: {
       ...userDocData,
-      uid: invitationId
+      uid
     } as User
   })
 }

@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router"
 
 import { SignUp as SignUpCore } from "@/components/core/SignUp/SignUp"
 
-import { NotFound } from "../components/core/NotFound"
+import { NotFound } from "@/components/core/NotFound"
 
 export const SignUp = () => {
   const [searchParams] = useSearchParams()

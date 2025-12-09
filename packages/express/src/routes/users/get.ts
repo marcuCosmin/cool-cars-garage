@@ -1,19 +1,15 @@
-import { type Response } from "express"
+import { firebaseAuth } from "@/firebase/config"
+import { getFirestoreDocs } from "@/firebase/utils"
 
-import { firebaseAuth, firestore } from "@/firebase/config"
+import type { Request, Response } from "@/models"
 
-import type { Request } from "@/models"
+import type { GetUsersResponse } from "@/shared/requests/requests.model"
+import type { InvitationDoc, User } from "@/shared/firestore/firestore.model"
 
-import type {
-  DocWithID,
-  ExistingUserInvitation,
-  InvitationDoc,
-  NewUserInvitation,
-  UserDoc
-} from "@/shared/firestore/firestore.model"
-import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
-
-export const handleGetRequest = async (req: Request, res: Response) => {
+export const handleGetRequest = async (
+  req: Request,
+  res: Response<GetUsersResponse>
+) => {
   const uid = req.authorizedUser?.uid as string
 
   const { users: authUsers } = await firebaseAuth.listUsers()
@@ -29,12 +25,12 @@ export const handleGetRequest = async (req: Request, res: Response) => {
     return
   }
 
-  const userDocs = await firestore
-    .collection("users")
-    .where("__name__", "!=", uid)
-    .get()
+  const usersDocs = await getFirestoreDocs({
+    collection: "users",
+    queries: [["__name__", "!=", uid]]
+  })
 
-  if (userDocs.empty) {
+  if (!usersDocs.length) {
     res.status(404).json({
       users: [],
       error: "Users metadata not found"
@@ -43,96 +39,30 @@ export const handleGetRequest = async (req: Request, res: Response) => {
     return
   }
 
-  const invitationsSnapshot = await firestore.collection("invitations").get()
+  const pendingInvitationUsers = usersDocs.filter(
+    ({ id }) => !filteredAuthUsers.some(({ uid }) => uid === id)
+  )
+  const pendingInvitationsUsersIds = pendingInvitationUsers.map(({ id }) => id)
 
-  const { existingUsersInvitations, newUsersInvitations } =
-    invitationsSnapshot.docs.reduce(
-      (acc, doc) => {
-        const data = doc.data() as InvitationDoc
+  let invitations: InvitationDoc[] = []
 
-        if ((data as ExistingUserInvitation).uid) {
-          acc.existingUsersInvitations.push({
-            id: doc.id,
-            ...data
-          } as DocWithID<ExistingUserInvitation>)
+  if (pendingInvitationsUsersIds.length) {
+    invitations = await getFirestoreDocs({
+      collection: "invitations",
+      queries: [["uid", "in", pendingInvitationsUsersIds]]
+    })
+  }
 
-          return acc
-        }
-
-        acc.newUsersInvitations.push({
-          id: doc.id,
-          ...data
-        } as DocWithID<NewUserInvitation>)
-
-        return acc
-      },
-      {
-        existingUsersInvitations: [] as DocWithID<ExistingUserInvitation>[],
-        newUsersInvitations: [] as DocWithID<NewUserInvitation>[]
-      }
-    )
-
-  const users: RawUserListItem[] = userDocs.docs.map(doc => {
-    const docData = doc.data() as UserDoc
-    const { firstName, lastName, role, metadata, ...remainingDocData } =
-      docData as Extract<UserDoc, { role: "driver" }>
-    const matchingAuthUser = authUsers.find(({ uid }) => uid === doc.id)
-
-    const invitationIndex = existingUsersInvitations.findIndex(
-      inv => inv.uid === doc.id
-    )
-
-    const invitation =
-      invitationIndex !== -1 ? existingUsersInvitations[invitationIndex] : null
-
-    const title = `${firstName} ${lastName}`
+  const users: User[] = usersDocs.map(({ id, ...user }) => {
+    const authData = authUsers.find(({ uid }) => uid === id)
+    const inivitationData = invitations.find(({ uid }) => uid === id)
 
     return {
-      title,
-      subtitle: role,
-      id: doc.id,
-      metadata: {
-        email: matchingAuthUser?.email || invitation?.email,
-        phoneNumber: matchingAuthUser?.phoneNumber,
-        ...metadata,
-        ...remainingDocData
-      }
+      ...user,
+      uid: id,
+      email: authData?.email || inivitationData?.email || ""
     }
   })
 
-  const invitationsItems: RawUserListItem[] = newUsersInvitations.map(
-    invitation => {
-      const {
-        firstName,
-        lastName,
-        role,
-        metadata,
-        id,
-        ...remainingInvitationData
-      } = invitation as Extract<
-        DocWithID<NewUserInvitation>,
-        { role: "driver" }
-      >
-      const title = `${firstName} ${lastName}`
-
-      console.log(metadata, remainingInvitationData)
-
-      return {
-        title,
-        subtitle: role,
-        id,
-        metadata: {
-          ...metadata,
-          ...remainingInvitationData,
-          invitationPending: true
-        }
-      }
-    }
-  )
-
-  const usersList = [...users, ...invitationsItems].sort(
-    (a, b) => a.metadata.creationTimestamp - b.metadata.creationTimestamp
-  )
-
-  res.status(200).json({ usersList })
+  res.status(200).json({ users })
 }

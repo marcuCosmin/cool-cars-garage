@@ -1,51 +1,38 @@
 import { type Request, type Response } from "express"
 
 import { firestore } from "@/firebase/config"
-import { deleteUser } from "@/firebase/utils"
+import { deleteUser, getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
-import type { User } from "@/shared/firestore/firestore.model"
-
-type ReqQueries = Pick<User, "uid" | "email">
+import type { DeleteUserQueryParams } from "@/shared/requests/requests.model"
 
 export const handleDeleteRequest = async (
-  req: Request<undefined, undefined, undefined, ReqQueries>,
+  req: Request<undefined, undefined, undefined, DeleteUserQueryParams>,
   res: Response
 ) => {
-  const { uid, email } = req.query
+  const { uid } = req.query
 
-  const usersRef = firestore.collection("users")
-  const invitationsRef = firestore.collection("invitations")
+  const user = getFirestoreDoc({
+    collection: "users",
+    docId: uid
+  })
 
-  const userSnapshot = await usersRef.where("email", "==", email).get()
-  const invitationSnapshot = await invitationsRef
-    .where("email", "==", email)
-    .get()
-
-  if (userSnapshot.empty && invitationSnapshot.empty) {
+  if (!user) {
     res.status(404).json({ error: "User not found" })
     return
   }
 
-  if (!userSnapshot.empty) {
-    const [userDoc] = userSnapshot.docs
+  await deleteUser(uid)
 
-    if (userDoc.id !== uid) {
-      res.status(404).json({ error: "User not found" })
-      return
-    }
+  const [existingInvitation] = await getFirestoreDocs({
+    collection: "invitations",
+    queries: [["uid", "==", uid]]
+  })
 
-    await deleteUser(uid)
-  }
-
-  if (!invitationSnapshot.empty) {
-    const [invitationDoc] = invitationSnapshot.docs
-
-    if (userSnapshot.empty && invitationDoc.id !== uid) {
-      res.status(404).json({ error: "User not found" })
-      return
-    }
-
-    await invitationDoc.ref.delete()
+  if (existingInvitation) {
+    await firestore
+      .collection("invitations")
+      .doc(existingInvitation.id)
+      .delete()
   }
 
   res.status(200).json({ message: "User deleted successfully" })

@@ -12,10 +12,10 @@ const SignIn = lazy(() =>
   import("./SignIn").then(module => ({ default: module.SignIn }))
 )
 const SignUp = lazy(() =>
-  import("./SignUp").then(module => ({ default: module.SignUp }))
+  import("./sign-up").then(module => ({ default: module.SignUp }))
 )
 const Users = lazy(() =>
-  import("./Users").then(module => ({ default: module.Users }))
+  import("./users").then(module => ({ default: module.Users }))
 )
 const Layout = lazy(() =>
   import("./Layout").then(module => ({ default: module.Layout }))

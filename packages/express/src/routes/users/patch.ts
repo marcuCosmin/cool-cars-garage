@@ -1,6 +1,11 @@
 import { type Response } from "express"
 
-import { getAuthUser, getFirestoreDoc, isEmailUsed } from "@/firebase/utils"
+import {
+  getAuthUser,
+  getFirestoreDoc,
+  getFirestoreDocs,
+  isEmailUsed
+} from "@/firebase/utils"
 import { firebaseAuth, firestore } from "@/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
@@ -9,7 +14,7 @@ import type { Request } from "@/models"
 
 import { userEditFields, type UserEditData } from "@/shared/forms/forms.const"
 
-export const handleUserUpdate = async (
+export const handleUserPatchRequest = async (
   req: Request<undefined, undefined, UserEditData>,
   res: Response
 ) => {
@@ -40,11 +45,11 @@ export const handleUserUpdate = async (
 
   const { email, ...userMetadata } = updatedData
 
+  const emailIsUsed = await isEmailUsed(email as string)
+
   const authUser = await getAuthUser(uid)
 
   if (authUser && authUser.email !== email) {
-    const emailIsUsed = await isEmailUsed(email as string)
-
     if (emailIsUsed) {
       res.status(400).json({
         error: "The provided email is already in use"
@@ -54,6 +59,17 @@ export const handleUserUpdate = async (
     }
 
     await firebaseAuth.updateUser(uid, {
+      email
+    })
+  }
+
+  const [invitation] = await getFirestoreDocs({
+    collection: "invitations",
+    queries: [["uid", "==", uid]]
+  })
+
+  if (invitation && invitation.email !== email) {
+    await firestore.collection("invitations").doc(invitation.id).update({
       email
     })
   }

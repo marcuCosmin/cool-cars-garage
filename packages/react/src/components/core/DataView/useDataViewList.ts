@@ -1,9 +1,9 @@
 import { useLocation } from "react-router"
 import { useState } from "react"
 import {
-  InfiniteData,
   useInfiniteQuery,
-  useQueryClient
+  useQueryClient,
+  type InfiniteData
 } from "@tanstack/react-query"
 
 import { type DocumentData } from "firebase/firestore"
@@ -115,24 +115,29 @@ export const useDataViewList = <
       return
     }
 
-    await deleteItem?.(rawItem)
+    const response = await deleteItem?.(rawItem)
 
     queryClient.setQueriesData(
       {
         queryKey: [location.pathname],
         exact: false
       },
-      (data: RawItem[]) => {
-        const newData = data.slice()
+      (data: InfiniteData<RawItem>) => {
+        const newData = data.pages.slice()
         const itemIndex = newData.findIndex(item => item.id === id)
 
         if (itemIndex !== -1) {
           newData.splice(itemIndex, 1)
         }
 
-        return newData
+        return {
+          ...data,
+          pages: newData
+        }
       }
     )
+
+    return response
   }
 
   const onEditSuccess = (newItem: RawItem) => {

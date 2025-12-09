@@ -1,6 +1,6 @@
 import {
-  CollectionReference,
-  Query,
+  type CollectionReference,
+  type Query,
   type WhereFilterOp
 } from "firebase-admin/firestore"
 import { type FirebaseError } from "firebase-admin"
@@ -98,10 +98,33 @@ export const getFirestoreDocs = async <T extends FirestoreCollectionsNames>(
   return data as DocWithID<FirestoreCollectionsMap[T]>[]
 }
 
+export const getUserEmail = async (uid: string) => {
+  try {
+    const [invitation] = await getFirestoreDocs({
+      collection: "invitations",
+      queries: [["uid", "==", uid]]
+    })
+
+    if (invitation) {
+      return invitation.email
+    }
+    const authUser = await firebaseAuth.getUser(uid)
+
+    return authUser.email
+  } catch {
+    return null
+  }
+}
+
 export const isEmailUsed = async (email: string) => {
   try {
     await firebaseAuth.getUserByEmail(email)
-    return true
+    const [invitation] = await getFirestoreDocs({
+      collection: "invitations",
+      queries: [["email", "==", email]]
+    })
+
+    return !!invitation
   } catch {
     return false
   }
