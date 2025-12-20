@@ -12,7 +12,7 @@ import type { FormFieldComponentProps } from "@/components/basic/Form/Form.model
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
 export type InputProps = Partial<FormFieldComponentProps<string>> &
-  Pick<InputHTMLAttributes<HTMLInputElement>, "className"> & {
+  Pick<InputHTMLAttributes<HTMLInputElement>, "className" | "disabled"> & {
     type?: InputHTMLAttributes<HTMLInputElement>["type"] | "textarea"
     onClick?: MouseEventHandler<HTMLDivElement | HTMLInputElement>
     startAdornment?: ReactNode
@@ -31,7 +31,8 @@ export const Input = ({
   onClick,
   onChange,
   type,
-  onBlur
+  onBlur,
+  disabled
 }: InputProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
@@ -52,7 +53,7 @@ export const Input = ({
 
   if (type === "password") {
     const iconProps = {
-      className: "text-primary",
+      className: error ? "text-error" : "text-primary",
       height: 20,
       width: 20
     }
@@ -86,6 +87,7 @@ export const Input = ({
       onClick={e => e.preventDefault()}
       className={mergeClassNames(
         !label && "w-full max-w-sm",
+        disabled && "opacity-50 dark:opacity-70",
         additionalContainerClassName
       )}
     >
@@ -93,7 +95,7 @@ export const Input = ({
 
       <div
         className={mergeClassNames(
-          "w-full p-2 border border-primary rounded-sm h-[40px] outline-none disabled:opacity-50 focus:ring focus:ring-primary focus-within:ring focus-within:ring-primary",
+          "w-full p-2 border border-primary rounded-sm h-[40px] outline-none focus:ring focus:ring-primary focus-within:ring focus-within:ring-primary",
           "flex items-center cursor-text h-fit",
           error && "invalid-input",
           className
@@ -108,6 +110,7 @@ export const Input = ({
             value={value}
             onBlur={onBlur}
             onChange={handleChange}
+            disabled={disabled}
           />
         ) : (
           <input
@@ -116,6 +119,7 @@ export const Input = ({
             value={value}
             onChange={handleChange}
             onBlur={onBlur}
+            disabled={disabled}
           />
         )}
         {endAdornment}

@@ -7,6 +7,7 @@ import { handleGetRequest } from "./get"
 import { handleUserPostRequest } from "./post"
 import { handleDeleteRequest } from "./delete"
 import { handleUserPatchRequest } from "./patch"
+import { handleUserRegistration } from "./register/post"
 
 export const usersRouter = Router()
 
@@ -31,6 +32,7 @@ usersRouter.patch(
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleUserPatchRequest
 )
+
 usersRouter.options("/reinvite", cors({ origin: process.env.ALLOWED_ORIGIN }))
 usersRouter.post(
   "/reinvite",
@@ -38,9 +40,27 @@ usersRouter.post(
   handleUserReinvitation
 )
 
+usersRouter.options("/register", cors({ origin: process.env.ALLOWED_ORIGIN }))
+usersRouter.post(
+  "/register",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleUserRegistration
+)
+
 usersRouter.options("/generate-auth-token", cors({ origin: "*" }))
 usersRouter.get(
   "/generate-auth-token",
   cors({ origin: "*" }),
   handleAuthTokenGeneration
+)
+
+usersRouter.options(
+  "/update-active-state",
+  cors({ origin: process.env.ALLOWED_ORIGIN })
+)
+import { handleUserActiveStateUpdate } from "./update-active-state/post"
+usersRouter.post(
+  "/update-active-state",
+  cors({ origin: process.env.ALLOWED_ORIGIN }),
+  handleUserActiveStateUpdate
 )

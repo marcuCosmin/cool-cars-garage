@@ -4,7 +4,7 @@ import { getFirestoreDoc } from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
 
-import { InvitationDoc } from "@/shared/firestore/firestore.model"
+import type { InvitationDoc } from "@/shared/firestore/firestore.model"
 
 import { SignUpForm } from "./SignUpForm"
 
@@ -26,7 +26,7 @@ export const SignUp = ({ invitationId }: SignUpProps) => {
     return <Loader enableOverlay text="Loading invitation" />
   }
 
-  if (!invitation?.isActive) {
+  if (!invitation || !invitation.isActive) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center gap-4">
         <h1 className="flex items-center gap-2">
@@ -38,5 +38,5 @@ export const SignUp = ({ invitationId }: SignUpProps) => {
     )
   }
 
-  return <SignUpForm invitation={{ ...invitation, id: invitationId }} />
+  return <SignUpForm invitation={invitation} />
 }

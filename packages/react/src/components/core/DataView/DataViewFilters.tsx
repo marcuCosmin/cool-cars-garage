@@ -50,7 +50,7 @@ export const DataViewFilters = <
       </Tooltip>
 
       <div
-        className={`mt-5 max-h-[50vh] px-3 flex-wrap gap-5 justify-center sm:justify-start items-end overflow-y-auto scrollbar ${isOpen ? "flex" : "hidden sm:flex"}`}
+        className={`mt-5 max-h-[50vh] px-3 flex-wrap gap-5 justify-center sm:justify-start items-end overflow-y-auto ${isOpen ? "flex" : "hidden sm:flex"}`}
       >
         {filters.map((filterProps, index) => {
           const { type, label } = filterProps

@@ -105,7 +105,7 @@ export const ReportsQuestionsConfigList = ({
           items={questions}
           strategy={verticalListSortingStrategy}
         >
-          <ul className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden scrollbar mb-2">
+          <ul className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden mb-2">
             {questions.map(({ label, id }, index) => {
               const isLast = index === questions.length - 1
               const onDelete = () => deleteItem(id)

@@ -28,7 +28,7 @@ type FormSelectAdditionalProps<T extends FormData> = Omit<
   options: string[]
 }
 
-type AdditionalFieldsProps<T extends FormData> = {
+export type AdditionalFieldsProps<T extends FormData> = {
   [key in keyof T]:
     | FormInputAdditionalProps<T>
     | FormSelectAdditionalProps<T>

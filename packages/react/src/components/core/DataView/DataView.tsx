@@ -14,7 +14,8 @@ import type {
   FiltersConfig,
   FetchItems,
   DataListItemMetadataConfig,
-  OpenDataViewModal
+  OpenDataViewModal,
+  GetListItemActionsConfig
 } from "./DataView.model"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
@@ -26,14 +27,13 @@ type DataViewProps<
     : RawDataListItem,
   ServerSideFetching extends boolean
 > = {
+  getItemActionsConfig?: GetListItemActionsConfig<RawItem>
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
   serverSideFetching?: ServerSideFetching
-  itemDetailedViewBasePath?: string
   showSearch?: boolean
   fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
   openModal?: OpenDataViewModal<RawItem>
-  deleteItem?: (item: RawItem) => Promise<void>
 }
 
 export const DataView = <
@@ -47,29 +47,24 @@ export const DataView = <
   serverSideFetching = false as ServerSideFetching,
   itemMetadataConfig,
   showSearch = true,
-  itemDetailedViewBasePath,
-  deleteItem,
+  getItemActionsConfig,
   openModal,
   fetchItems
 }: DataViewProps<RawItem, FilterItem, ServerSideFetching>) => {
   const {
     error,
     isLoading,
-    items,
+    rawItems,
     searchQuery,
     onSearchChange,
     filters,
     onFilterChange,
-    onItemDelete,
-    onItemEdit,
     onScrollEnd,
     onAddButtonClick
   } = useDataViewList({
     filtersConfig,
     fetchItems,
     serverSideFetching,
-    itemMetadataConfig,
-    deleteItem,
     openModal
   })
 
@@ -116,10 +111,9 @@ export const DataView = <
       <hr className="w-[95%] sm:w-[98%] mx-auto my-5" />
 
       <DataViewList
-        itemDetailedViewBasePath={itemDetailedViewBasePath}
-        items={items}
-        onItemDelete={onItemDelete}
-        onItemEdit={onItemEdit}
+        itemMetadataConfig={itemMetadataConfig}
+        getItemActionsConfig={getItemActionsConfig}
+        rawItems={rawItems}
         onScrollEnd={onScrollEnd}
       />
     </div>

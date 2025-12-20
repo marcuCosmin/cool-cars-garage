@@ -1,3 +1,5 @@
+import type { DriverDVLAData } from "@/shared/firestore/firestore.model"
+
 const getTimestampFromDVLADate = (dvlaDate: string) => {
   const [year, month, day] = dvlaDate.split("-").map(Number)
 
@@ -24,11 +26,11 @@ type DVLAEndorsement = {
   penaltyPoints?: number
 }
 
-type DVLACPC = {
+type DVLACPC = Partial<{
   lgvValidTo: string
   pcvValidTo: string
   national: boolean
-}
+}>
 
 type DVLATachoCard = {
   cardNumber: string
@@ -37,7 +39,7 @@ type DVLATachoCard = {
   cardStartOfValidityDate: string
 }
 
-type DriverDVLAData = {
+type DVLAResponse = {
   driver: {
     drivingLicenceNumber: string
     firstNames: string
@@ -56,7 +58,14 @@ type DriverDVLAData = {
   }
 }
 
-export const getDVLADriverData = async (jwt: string) => {
+type GetDVLADriverDataProps = {
+  jwt: string
+  drivingLicenceNumber: string
+}
+export const getDVLADriverData = async ({
+  jwt,
+  drivingLicenceNumber
+}: GetDVLADriverDataProps): Promise<DriverDVLAData> => {
   const response = await fetch(
     "https://uat.driver-vehicle-licensing.api.gov.uk/full-driver-enquiry/v1/driving-licences/retrieve",
     {
@@ -67,7 +76,7 @@ export const getDVLADriverData = async (jwt: string) => {
         "X-Api-Key": process.env.DVLA_API_KEY as string
       },
       body: JSON.stringify({
-        drivingLicenceNumber: "BTJMG803070FY9WJ",
+        drivingLicenceNumber,
         includeCPC: true,
         includeTacho: true,
         acceptPartialResponse: "false"
@@ -75,8 +84,9 @@ export const getDVLADriverData = async (jwt: string) => {
     }
   )
 
-  const { driver, licence, entitlement, endorsements, cpc, holder } =
-    (await response.json()) as DriverDVLAData
+  const data = (await response.json()) as DVLAResponse
+
+  const { driver, licence, entitlement, endorsements, cpc, holder } = data
 
   const penaltyPoints = endorsements.reduce((total, endorsement) => {
     return total + (endorsement.penaltyPoints || 0)
@@ -88,18 +98,27 @@ export const getDVLADriverData = async (jwt: string) => {
     lastName: driver.lastName,
     firstName: driver.firstNames,
     penaltyPoints,
-    cpcs: cpc?.cpcs.map(({ lgvValidTo, pcvValidTo }) => ({
-      lgvExpiryTimestamp: getTimestampFromDVLADate(lgvValidTo),
-      pcvExpiryTimestamp: getTimestampFromDVLADate(pcvValidTo)
-    })),
-    tachoCards: holder?.tachoCards.map(({ cardNumber, cardExpiryDate }) => ({
-      cardNumber,
-      cardExpiryTimestamp: getTimestampFromDVLADate(cardExpiryDate)
-    })),
-    licence: {
-      type: licence.type,
-      status: licence.status
-    },
+    cpcs:
+      cpc?.cpcs.map(({ lgvValidTo, pcvValidTo }) => {
+        const cpc: DriverDVLAData["cpcs"][number] = {}
+
+        if (lgvValidTo) {
+          cpc.lgvExpiryTimestamp = getTimestampFromDVLADate(lgvValidTo)
+        }
+
+        if (pcvValidTo) {
+          cpc.pcvExpiryTimestamp = getTimestampFromDVLADate(pcvValidTo)
+        }
+
+        return cpc
+      }) || [],
+    tachoCards:
+      holder?.tachoCards.map(({ cardNumber, cardExpiryDate }) => ({
+        cardNumber,
+        cardExpiryTimestamp: getTimestampFromDVLADate(cardExpiryDate)
+      })) || [],
+    licenceType: licence.type,
+    licenceStatus: licence.status,
     entitlements: entitlement.map(
       ({
         categoryCode,

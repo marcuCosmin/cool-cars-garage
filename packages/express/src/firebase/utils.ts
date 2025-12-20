@@ -116,15 +116,11 @@ export const getUserEmail = async (uid: string) => {
   }
 }
 
-export const isEmailUsed = async (email: string) => {
+export const isAuthEmail = async (email: string) => {
   try {
     await firebaseAuth.getUserByEmail(email)
-    const [invitation] = await getFirestoreDocs({
-      collection: "invitations",
-      queries: [["email", "==", email]]
-    })
 
-    return !!invitation
+    return true
   } catch {
     return false
   }

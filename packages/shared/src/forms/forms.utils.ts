@@ -102,7 +102,7 @@ export const getPhoneNumberError = createValidator({
 export const getDrivingLicenceNumberError = createValidator({
   required: true,
   regex: {
-    pattern: /^[A-Z]{5}[0-9]{6}[0-9][A-Z0-9]{2}[0-9]$/,
+    pattern: /^[A-Z9]{5}\d{6}[A-Z9]{2}\d[A-Z]{2}$/,
     error: "Invalid driving licence number"
   }
 })

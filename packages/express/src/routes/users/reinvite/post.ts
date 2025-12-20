@@ -1,6 +1,6 @@
 import { type Request } from "express"
 
-import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
+import { getFirestoreDocs } from "@/firebase/utils"
 import { firestore } from "@/firebase/config"
 
 import type { Response } from "@/models"
@@ -15,33 +15,22 @@ export const handleUserReinvitation = async (
 ) => {
   const { uid } = req.body
 
-  const user = await getFirestoreDoc({
-    collection: "users",
-    docId: uid
-  })
-
-  if (!user) {
-    res.status(404).json({ error: "User not found" })
-    return
-  }
-
-  const [existingInvitation] = await getFirestoreDocs({
+  const [invitation] = await getFirestoreDocs({
     collection: "invitations",
     queries: [["uid", "==", uid]]
   })
 
-  if (existingInvitation?.isActive) {
+  if (!invitation?.isActive) {
     res.status(400).json({
-      error: "An invitation for this email already exists"
+      error: "Invalid uid"
     })
     return
   }
 
-  await inviteUser(existingInvitation)
-
-  await firestore.collection("invitations").doc(existingInvitation.id).delete()
+  await firestore.collection("invitations").doc(invitation.id).delete()
+  await inviteUser(invitation)
 
   res.status(200).json({
-    message: "User reinvited successfully"
+    message: "Invitation resent successfully"
   })
 }

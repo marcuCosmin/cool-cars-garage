@@ -14,9 +14,10 @@ export const handleUserRegistration = async (
   req: Request<undefined, RegisterUserResponse, SignUpData>,
   res: Response<RegisterUserResponse>
 ) => {
+  const { invitationId, ...payload } = req.body
   const { errors, filteredData: registerPayload } = getFormValidationResult({
     schema: signUpFormFields,
-    data: req.body
+    data: payload
   })
 
   if (errors) {
@@ -28,14 +29,14 @@ export const handleUserRegistration = async (
     return
   }
 
-  const { email, password, invitationId } = registerPayload
+  const { email, password } = registerPayload
 
   const invitation = await getFirestoreDoc({
     collection: "invitations",
-    docId: invitationId as string
+    docId: invitationId
   })
 
-  if (!invitation) {
+  if (!invitation?.isActive || invitation.email !== email) {
     res.status(400).json({
       error: "Invalid invitation id"
     })

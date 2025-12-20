@@ -9,7 +9,6 @@ import {
 import { type DocumentData } from "firebase/firestore"
 
 import {
-  extendDataListItems,
   filtersConfigToState,
   getFilteredItems,
   getNextPageParam,
@@ -17,7 +16,6 @@ import {
 } from "./DataView.utils"
 
 import type {
-  DataListItemMetadataConfig,
   FetchItems,
   FilterChangeHandler,
   FiltersConfig,
@@ -37,9 +35,7 @@ type UseDataViewList<
   filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
   fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
   openModal?: OpenDataViewModal<RawItem>
-  deleteItem?: (item: RawItem) => Promise<void>
   serverSideFetching: boolean
-  itemMetadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
 export const useDataViewList = <
@@ -51,10 +47,8 @@ export const useDataViewList = <
 >({
   filtersConfig,
   fetchItems,
-  deleteItem,
   openModal,
-  serverSideFetching,
-  itemMetadataConfig
+  serverSideFetching
 }: UseDataViewList<RawItem, FilterItem, ServerSideFetching>) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
@@ -86,11 +80,6 @@ export const useDataViewList = <
       })
     : rawItems
 
-  const items = extendDataListItems({
-    items: filteredRawItems,
-    metadataConfig: itemMetadataConfig
-  })
-
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
     const newFilters = filters.slice() as FiltersState<
       FilterItem,
@@ -108,77 +97,21 @@ export const useDataViewList = <
   const onSearchChange = (searchQuery: string = "") =>
     setSearchQuery(searchQuery)
 
-  const onItemDelete = async (id: RawItem["id"]) => {
-    const rawItem = rawItems.find(item => item.id === id)
-
-    if (!rawItem) {
-      return
-    }
-
-    const response = await deleteItem?.(rawItem)
-
-    queryClient.setQueriesData(
-      {
-        queryKey: [location.pathname],
-        exact: false
-      },
-      (data: InfiniteData<RawItem>) => {
-        const newData = data.pages.slice()
-        const itemIndex = newData.findIndex(item => item.id === id)
-
-        if (itemIndex !== -1) {
-          newData.splice(itemIndex, 1)
-        }
-
-        return {
-          ...data,
-          pages: newData
-        }
-      }
-    )
-
-    return response
-  }
-
-  const onEditSuccess = (newItem: RawItem) => {
-    queryClient.setQueriesData(
-      {
-        queryKey: [location.pathname],
-        exact: false
-      },
-      (data: RawItem[]) => {
-        const newData = data.slice()
-        const itemIndex = newData.findIndex(item => item.id === newItem.id)
-
-        if (itemIndex !== -1) {
-          newData[itemIndex] = newItem
-        }
-
-        return newData
-      }
-    )
-  }
-
-  const onItemEdit = (id: RawItem["id"]) => {
-    const rawItem = rawItems.find(item => item.id === id)
-
-    if (!rawItem) {
-      return
-    }
-
-    openModal?.({ item: rawItem, onSuccess: onEditSuccess })
-  }
-
   const onAddSuccess = (newItem: RawItem) => {
     queryClient.setQueriesData(
       {
         queryKey: [location.pathname],
         exact: false
       },
-      (data: InfiniteData<RawItem[]>) => ({
-        ...data,
-        pages: [...data.pages, newItem]
-      })
+      (data: InfiniteData<RawItem[]>) => {
+        const firstPage = data.pages[0] || []
+        const otherPages = data.pages.slice(1)
+
+        return {
+          ...data,
+          pages: [[newItem, ...firstPage], ...otherPages]
+        }
+      }
     )
   }
 
@@ -188,14 +121,12 @@ export const useDataViewList = <
     error,
     isLoading: isFetching && !isFetchingNextPage,
     isLoadingNextChunk: isFetchingNextPage,
-    items,
+    rawItems: filteredRawItems,
     searchQuery,
     onSearchChange,
     filters,
     onFilterChange,
     onScrollEnd: serverSideFetching ? fetchNextPage : undefined,
-    onItemDelete: deleteItem ? onItemDelete : undefined,
-    onItemEdit: openModal ? onItemEdit : undefined,
     onAddButtonClick: openModal ? onAddButtonClick : undefined
   }
 }

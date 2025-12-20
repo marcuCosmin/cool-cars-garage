@@ -13,7 +13,9 @@ import type {
   CreateUserResponse,
   RegisterUserResponse,
   DeleteUserQueryParams,
-  GetUsersResponse
+  GetUsersResponse,
+  UserActiveStateUpdatePayload,
+  ReiniviteUserPayload
 } from "@/shared/requests/requests.model"
 
 export const getAllUsers = async () => {
@@ -55,9 +57,9 @@ export const deleteUser = ({ uid }: DeleteUserQueryParams) =>
   })
 
 export const updateUser = (payload: UserEditData) =>
-  executeApiRequest({
+  executeApiRequest<CreateUserResponse>({
     path: "/users",
-    method: "PUT",
+    method: "PATCH",
     payload
   })
 
@@ -111,3 +113,19 @@ export const exportChecks = async (payload: CarsCheckExportURLQuery) => {
 
   return response
 }
+
+export const updateUserActiveState = async (
+  payload: UserActiveStateUpdatePayload
+) =>
+  await executeApiRequest({
+    path: "/users/update-active-state",
+    method: "POST",
+    payload
+  })
+
+export const reinviteUser = async (payload: ReiniviteUserPayload) =>
+  await executeApiRequest({
+    path: "/users/reinvite",
+    method: "POST",
+    payload
+  })

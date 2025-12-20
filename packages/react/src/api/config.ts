@@ -8,7 +8,9 @@ import type {
 } from "@/shared/forms/forms.const"
 import type {
   MarkFaultsAsResolvedPayload,
-  MarkIncidentAsResolvedPayload
+  MarkIncidentAsResolvedPayload,
+  ReiniviteUserPayload,
+  UserActiveStateUpdatePayload
 } from "@/shared/requests/requests.model"
 
 const baseUrl = import.meta.env.VITE_API_URL
@@ -20,7 +22,7 @@ type ExecuteApiRequestProps =
     }
   | {
       path: "/users"
-      method: "PUT"
+      method: "PATCH"
       payload: UserEditData
     }
   | {
@@ -32,6 +34,11 @@ type ExecuteApiRequestProps =
       path: "/users"
       method: "POST"
       payload: UserCreateData
+    }
+  | {
+      path: "/users/update-active-state"
+      method: "POST"
+      payload: UserActiveStateUpdatePayload
     }
   | {
       path: "/users/generate-auth-token"
@@ -55,6 +62,11 @@ type ExecuteApiRequestProps =
       path: "/cars/checks/incidents"
       method: "PATCH"
       payload: MarkIncidentAsResolvedPayload
+    }
+  | {
+      path: "/users/reinvite"
+      method: "POST"
+      payload: ReiniviteUserPayload
     }
   | {
       path: `/cars/checks/exports?${string}`

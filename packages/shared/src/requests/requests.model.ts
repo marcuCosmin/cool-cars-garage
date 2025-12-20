@@ -41,3 +41,5 @@ export type DeleteUserQueryParams = Pick<User, "uid">
 export type GetUsersResponse = {
   users: User[]
 }
+
+export type UserActiveStateUpdatePayload = Pick<User, "uid" | "isActive">

@@ -34,7 +34,7 @@ export const getFormValidationResult = <T extends FormData>({
       return
     }
 
-    if (isOptional?.(data) === false && !value) {
+    if (isOptional?.(data) === true && !value) {
       return
     }
 

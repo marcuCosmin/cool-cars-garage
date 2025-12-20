@@ -30,10 +30,9 @@ export const FormField = <T extends FormData>({
   onTouchedChange,
   validate,
   optional,
+  label,
   ...props
 }: FormFieldProps<T>) => {
-  const forwardedLabel = optional ? `${props.label} (optional)` : props.label
-
   const handleValidation = (value?: FormFieldValue) => {
     if (!validate) {
       return
@@ -64,7 +63,7 @@ export const FormField = <T extends FormData>({
 
   const passedProps = {
     ...props,
-    label: forwardedLabel,
+    label,
     value,
     onChange,
     onBlur

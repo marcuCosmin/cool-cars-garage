@@ -42,7 +42,7 @@ export const Collapsible = ({
       >
         <div
           className={mergeClassNames(
-            "pl-5 py-2",
+            `flex flex-col gap-3 pl-5 transition-all duration-300 ${isOpen ? "mt-3" : "mt-0"}`,
             contentClassName,
             "overflow-hidden"
           )}

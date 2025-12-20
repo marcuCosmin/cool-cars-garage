@@ -51,68 +51,57 @@ export const filtersConfigToState = <
     }
   }) as FiltersState<FilterItem, ServerSideFetching>
 
-type ExtendDataListItemsProps<RawItem extends RawDataListItem> = {
-  items: RawItem[]
+type ExtendRawItemMetadata<RawItem extends RawDataListItem> = {
+  rawMetadata: RawItem["metadata"]
   metadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
-export const extendDataListItems = <RawItem extends RawDataListItem>({
-  items,
+export const extendRawItemMetadata = <RawItem extends RawDataListItem>({
+  rawMetadata,
   metadataConfig
-}: ExtendDataListItemsProps<RawItem>) => {
-  const extendedItems = items.map(item => {
-    const { id, title, subtitle, metadata } = item
+}: ExtendRawItemMetadata<RawItem>) => {
+  const extendedMetadata = Object.entries(rawMetadata).reduce(
+    (acc, [key, value]) => {
+      const castedKey = key as keyof DataListItemMetadataConfig<RawItem>
+      const config = metadataConfig[castedKey]
 
-    const extendedMetadata = Object.entries(metadata).reduce(
-      (acc, [key, value]) => {
-        const castedKey = key as keyof DataListItemMetadataConfig<RawItem>
-        const config = metadataConfig[castedKey]
+      if (config.type === "collapsible") {
+        const fields = (
+          value as DefaultDataListItemCollapsibleMetadataValue
+        ).map(field => {
+          const extendedField = Object.entries(field).reduce(
+            (fieldAcc, [fieldKey, fieldValue]) => {
+              const fieldConfig = config.fields[fieldKey]
 
-        if (config.type === "collapsible") {
-          const fields = (
-            value as DefaultDataListItemCollapsibleMetadataValue
-          ).map(field => {
-            const extendedField = Object.entries(field).reduce(
-              (fieldAcc, [fieldKey, fieldValue]) => {
-                const fieldConfig = config.fields[fieldKey]
+              fieldAcc[fieldKey] = {
+                ...fieldConfig,
+                value: fieldValue
+              } as PrimitiveMetadata
 
-                fieldAcc[fieldKey] = {
-                  ...fieldConfig,
-                  value: fieldValue
-                } as PrimitiveMetadata
+              return fieldAcc
+            },
+            {} as ItemCollapsibleMetadata["fields"][number]
+          )
 
-                return fieldAcc
-              },
-              {} as ItemCollapsibleMetadata["fields"][number]
-            )
+          return extendedField
+        })
 
-            return extendedField
-          })
-
-          acc[castedKey] = {
-            ...config,
-            fields
-          } as ItemMetadata
-
-          return acc
-        }
-
-        acc[castedKey] = { ...config, value } as ItemMetadata
+        acc[castedKey] = {
+          ...config,
+          fields
+        } as ItemMetadata
 
         return acc
-      },
-      {} as DataListItem<RawItem>["metadata"]
-    )
+      }
 
-    return {
-      id,
-      title,
-      subtitle,
-      metadata: extendedMetadata
-    }
-  })
+      acc[castedKey] = { ...config, value } as ItemMetadata
 
-  return extendedItems
+      return acc
+    },
+    {} as DataListItem<RawItem>["metadata"]
+  )
+
+  return extendedMetadata
 }
 
 type GetQueryKeyProps<

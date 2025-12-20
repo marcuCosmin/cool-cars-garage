@@ -8,16 +8,14 @@ import {
 import type { FormFieldsSchema } from "./forms.models"
 import type {
   DriverDVLAData,
-  DriverMetadata,
+  DriverData,
   User
 } from "../firestore/firestore.model"
 import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
 export type UserCreateData = Pick<User, "role" | "email"> &
   Partial<Pick<User, "firstName" | "lastName">> &
-  Partial<
-    Omit<DriverMetadata, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>
-  >
+  Partial<Omit<DriverData, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>>
 
 export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   drivingLicenceNumber: {
@@ -74,26 +72,9 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   }
 }
 
-type UserInviteEditableFields = Omit<UserCreateData, "drivingLicenceNumber">
-
-export type UserEditData = Partial<UserInviteEditableFields> & {
+export type UserEditData = UserCreateData & {
   uid: User["uid"]
 }
-
-export const userEditFields = Object.entries(userCreateFields).reduce(
-  (acc, [key, value]) => {
-    if (key === "drivingLicenceNumber") {
-      return acc
-    }
-
-    acc[key as keyof UserInviteEditableFields] = {
-      ...value,
-      isOptional: () => true
-    }
-    return acc
-  },
-  {} as FormFieldsSchema<UserInviteEditableFields>
-)
 
 export type SignInFormData = Pick<User, "email"> & {
   password: string
@@ -116,8 +97,8 @@ export type SignUpData = SignUpFormData & {
   invitationId: string
 }
 
-export const signUpFormFields = {
-  ...(signInFormFields as FormFieldsSchema<SignUpFormData>)
+export const signUpFormFields: FormFieldsSchema<SignUpFormData> = {
+  ...signInFormFields
 }
 
 export type ChecksBulkExportData = Omit<

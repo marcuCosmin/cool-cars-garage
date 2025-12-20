@@ -1,53 +1,36 @@
-import {
-  Trash3Fill,
-  PencilSquare,
-  BoxArrowInUpRight
-} from "react-bootstrap-icons"
-import { Link } from "react-router"
-
-import { useModalContext } from "@/contexts/Modal/Modal.context"
-
 import { Tooltip } from "@/components/basic/Tooltip"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 
-import type { DataListItem } from "../../DataView.model"
+import { extendRawItemMetadata } from "../../DataView.utils"
+
+import type {
+  DataListItemActionProps,
+  DataListItemMetadataConfig
+} from "../../DataView.model"
 
 import { DataViewListItemMetadata } from "./DataViewListItemMetadata"
 
-type DataCardProps = Pick<
-  DataListItem<RawDataListItem>,
-  "title" | "subtitle"
-> & {
-  metadata: DataListItem<RawDataListItem>["metadata"]
-  detailedViewPath?: string
-  onDelete?: () => Promise<void>
-  onEdit?: () => void
+type DataCardProps<RawItem extends RawDataListItem> = {
+  rawItem: RawItem
+  actionsConfig?: DataListItemActionProps[]
+  itemMetadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
-export const DataListViewItem = ({
-  title,
-  subtitle,
-  metadata,
-  detailedViewPath,
-  onDelete,
-  onEdit
-}: DataCardProps) => {
-  const { setModalProps } = useModalContext()
+export const DataListViewItem = <RawItem extends RawDataListItem>({
+  rawItem,
+  actionsConfig,
+  itemMetadataConfig
+}: DataCardProps<RawItem>) => {
+  const { title, subtitle } = rawItem
 
-  const onDeleteClick = onDelete
-    ? () =>
-        setModalProps({
-          type: "confirmation",
-          props: {
-            onConfirm: onDelete,
-            text: `Are you sure you want to delete ${title}?`
-          }
-        })
-    : undefined
+  const metadata = extendRawItemMetadata<RawItem>({
+    rawMetadata: rawItem.metadata,
+    metadataConfig: itemMetadataConfig
+  })
 
   return (
-    <li className="relative flex flex-col w-full gap-4 p-5 max-w-sm border-primary border shadow-sm rounded-md">
+    <li className="relative flex flex-col w-full gap-4 p-5 max-w-md border-primary border shadow-sm rounded-md">
       <div className="flex justify-between items-center">
         {title && <p className="font-bold text-primary">{title}</p>}
 
@@ -55,36 +38,31 @@ export const DataListViewItem = ({
           {subtitle}
         </p>
 
-        {(onEdit || onDelete || detailedViewPath) && (
-          <div className="flex items-center gap-4">
-            {onEdit && (
-              <button
-                type="button"
-                className="bg-transparent w-fit p-0 text-primary"
-                onClick={onEdit}
-              >
-                <PencilSquare width={20} height={20} />
-              </button>
-            )}
+        {!!actionsConfig?.length && (
+          <ul className="flex items-center gap-4">
+            {actionsConfig.map((actionConfig, index) => {
+              const { tooltip, Icon, onClick, hidden } = actionConfig
 
-            {onDeleteClick && (
-              <button
-                type="button"
-                className="bg-transparent w-fit p-0 text-primary"
-                onClick={onDeleteClick}
-              >
-                <Trash3Fill width={20} height={20} />
-              </button>
-            )}
+              if (hidden) {
+                return null
+              }
 
-            {detailedViewPath && (
-              <Tooltip label="Detailed view">
-                <Link to={detailedViewPath} className="h-fit">
-                  <BoxArrowInUpRight width={20} height={20} />
-                </Link>
-              </Tooltip>
-            )}
-          </div>
+              return (
+                <li key={index}>
+                  <Tooltip
+                    label={tooltip}
+                    containerTag="button"
+                    containerProps={{
+                      onClick,
+                      className: "bg-transparent w-fit p-0 text-primary"
+                    }}
+                  >
+                    <Icon width={20} height={20} />
+                  </Tooltip>
+                </li>
+              )
+            })}
+          </ul>
         )}
       </div>
 

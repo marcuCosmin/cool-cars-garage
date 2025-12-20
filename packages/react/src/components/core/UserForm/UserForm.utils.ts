@@ -15,13 +15,14 @@ export const getUserDataFromRawUserListItem = (item?: RawUserListItem) => {
     email: metadata.email,
     firstName,
     lastName,
-    role: subtitle as User["role"],
+    role: subtitle.toLowerCase() as User["role"],
     dbsUpdate: metadata.dbsUpdate!,
     isTaxiDriver: metadata.isTaxiDriver!,
     badgeNumber: metadata.badgeNumber!,
     badgeExpirationTimestamp: metadata.badgeExpirationTimestamp!,
     badgeAuthority: metadata.badgeAuthority!,
-    isPSVDriver: metadata.isPSVDriver!
+    isPSVDriver: metadata.isPSVDriver!,
+    drivingLicenceNumber: metadata.drivingLicenceNumber!
   }
 
   return userEditData

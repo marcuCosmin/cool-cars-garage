@@ -10,7 +10,7 @@ import type { UserDoc } from "@/shared/firestore/firestore.model"
 const publicPathsConfig = {
   "/": ["GET"],
   "/mail": ["POST"],
-  "/users": ["POST"],
+  "/users/register": ["POST"],
   "/wapp-webhook": ["GET", "POST"]
 }
 
@@ -57,6 +57,14 @@ export const authorizationMiddleware = async (
 
   const user = await getAuthUser(uid)
 
+  if (user?.disabled) {
+    res.status(403).json({
+      error: "User account is deactivated"
+    })
+
+    return
+  }
+
   const userDoc = await getFirestoreDoc({
     collection: "users",
     docId: uid
@@ -81,6 +89,7 @@ export const authorizationMiddleware = async (
   req.authorizedUser = {
     uid,
     email: user?.email as string,
+    isActive: !user?.disabled,
     ...(userDoc as UserDoc)
   }
   next()

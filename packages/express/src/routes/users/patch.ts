@@ -1,27 +1,56 @@
-import { type Response } from "express"
-
 import {
   getAuthUser,
   getFirestoreDoc,
-  getFirestoreDocs,
-  isEmailUsed
+  getFirestoreDocs
 } from "@/firebase/utils"
 import { firebaseAuth, firestore } from "@/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
-import type { Request } from "@/models"
+import type { Request, Response } from "@/models"
 
-import { userEditFields, type UserEditData } from "@/shared/forms/forms.const"
+import { userCreateFields, type UserEditData } from "@/shared/forms/forms.const"
+import type {
+  DocWithID,
+  InvitationDoc,
+  User,
+  UserDoc
+} from "@/shared/firestore/firestore.model"
+import type { CreateUserResponse } from "@/shared/requests/requests.model"
+
+import { getUserDocData, inviteUser, isEmailUsed } from "./utils"
+
+type UpdateUserEmailProps = Pick<User, "uid" | "email"> & {
+  invitation?: DocWithID<InvitationDoc>
+}
+
+const updateUserEmail = async ({
+  email,
+  uid,
+  invitation
+}: UpdateUserEmailProps) => {
+  if (invitation) {
+    const invitationRef = firestore.collection("invitations").doc(invitation.id)
+
+    await invitationRef.delete()
+    await inviteUser({ ...invitation, email })
+
+    return
+  }
+
+  await firebaseAuth.updateUser(uid, {
+    email
+  })
+}
 
 export const handleUserPatchRequest = async (
-  req: Request<undefined, undefined, UserEditData>,
-  res: Response
+  req: Request<undefined, CreateUserResponse, UserEditData>,
+  res: Response<CreateUserResponse>
 ) => {
-  const { uid, ...payload } = req.body
-  const { errors, filteredData: updatedData } = getFormValidationResult({
-    schema: userEditFields,
-    data: payload
+  const { uid, ...data } = req.body
+  const { errors, filteredData: validatedPayload } = getFormValidationResult({
+    schema: userCreateFields,
+    data
   })
 
   if (errors) {
@@ -43,13 +72,31 @@ export const handleUserPatchRequest = async (
     return
   }
 
-  const { email, ...userMetadata } = updatedData
+  const { email, ...userPayloadData } = validatedPayload
 
-  const emailIsUsed = await isEmailUsed(email as string)
+  let invitation: DocWithID<InvitationDoc> | undefined
 
   const authUser = await getAuthUser(uid)
 
-  if (authUser && authUser.email !== email) {
+  if (authUser?.disabled) {
+    res.status(400).json({ error: "User account is disabled" })
+    return
+  }
+
+  if (!authUser) {
+    const [invitationDoc] = await getFirestoreDocs({
+      collection: "invitations",
+      queries: [["uid", "==", uid]]
+    })
+
+    invitation = invitationDoc
+  }
+
+  const existingEmail = authUser?.email || invitation?.email
+
+  if (email !== existingEmail) {
+    const emailIsUsed = await isEmailUsed(email)
+
     if (emailIsUsed) {
       res.status(400).json({
         error: "The provided email is already in use"
@@ -58,23 +105,31 @@ export const handleUserPatchRequest = async (
       return
     }
 
-    await firebaseAuth.updateUser(uid, {
-      email
-    })
+    await updateUserEmail({ email, uid, invitation })
   }
 
-  const [invitation] = await getFirestoreDocs({
-    collection: "invitations",
-    queries: [["uid", "==", uid]]
+  if (userDoc.role !== userPayloadData.role) {
+    const userDocData = await getUserDocData(userPayloadData)
+
+    await firestore.collection("users").doc(uid).set(userDocData)
+
+    res
+      .status(200)
+      .json({ user: { ...userDocData, email, uid, isActive: true } })
+
+    return
+  }
+
+  if (Object.keys(userPayloadData).length) {
+    await firestore.collection("users").doc(uid).update(userPayloadData)
+  }
+
+  const userDocData = {
+    ...userDoc,
+    ...userPayloadData
+  } as DocWithID<UserDoc>
+
+  res.status(200).json({
+    user: { ...userDocData, email, uid, isActive: true } as User
   })
-
-  if (invitation && invitation.email !== email) {
-    await firestore.collection("invitations").doc(invitation.id).update({
-      email
-    })
-  }
-
-  await firestore.collection("users").doc(uid).update(userMetadata)
-
-  res.status(200).json({ message: "User updated successfully" })
 }

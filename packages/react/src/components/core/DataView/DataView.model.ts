@@ -1,9 +1,10 @@
 import type { QueryFunctionContext } from "@tanstack/react-query"
+import type { Icon } from "react-bootstrap-icons"
 
-import { DocumentData } from "firebase/firestore"
+import type { DocumentData } from "firebase/firestore"
 
 import type { SelectProps } from "@/components/basic/Select"
-import { DatePickerProps } from "@/components/basic/DatePicker"
+import type { DatePickerProps } from "@/components/basic/DatePicker"
 
 import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
 import type { FormFieldValue } from "@/shared/forms/forms.models"
@@ -61,6 +62,17 @@ export type ItemMetadata = PrimitiveMetadata | ItemCollapsibleMetadata
 export type DataListItemMetadataConfig<RawItem extends RawDataListItem> = {
   [key in keyof RawItem["metadata"]]: ItemMetadataConfig
 }
+
+export type DataListItemActionProps = {
+  Icon: Icon
+  tooltip: string
+  hidden?: boolean
+  onClick: () => void
+}
+
+export type GetListItemActionsConfig<RawItem extends RawDataListItem> = (
+  item: RawItem
+) => DataListItemActionProps[]
 
 export type DataListItem<RawItem extends RawDataListItem> = Omit<
   RawDataListItem,

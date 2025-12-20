@@ -4,46 +4,41 @@ import { useInfiniteScroll } from "./useInfiniteScroll"
 
 import { DataListViewItem } from "./DataViewListItem/DataViewListItem"
 
-import type { DataListItem } from "../DataView.model"
+import type {
+  GetListItemActionsConfig,
+  DataListItemMetadataConfig
+} from "../DataView.model"
 
 type DataViewListProps<RawItem extends RawDataListItem> = {
-  items: DataListItem<RawItem>[]
-  itemDetailedViewBasePath?: string
+  rawItems: RawItem[]
+  getItemActionsConfig?: GetListItemActionsConfig<RawItem>
+  itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   onScrollEnd?: () => void
-  onItemEdit?: (id: string) => void
-  onItemDelete?: (id: string) => Promise<void>
 }
 
 export const DataViewList = <RawItem extends RawDataListItem>({
-  items,
-  itemDetailedViewBasePath,
-  onItemEdit,
-  onItemDelete,
+  rawItems,
+  getItemActionsConfig,
+  itemMetadataConfig,
   onScrollEnd
 }: DataViewListProps<RawItem>) => {
   const { sentinelRef } = useInfiniteScroll(onScrollEnd)
 
   return (
-    <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full scrollbar justify-center">
-      {items.map(({ title, subtitle, id, metadata }) => {
-        const onEdit = onItemEdit ? () => onItemEdit(id) : undefined
-        const onDelete = onItemDelete ? () => onItemDelete(id) : undefined
-        const detailedViewPath = itemDetailedViewBasePath
-          ? `${itemDetailedViewBasePath}/${id}`
-          : undefined
+    <ul className="p-5 flex flex-wrap gap-10 overflow-y-auto h-fit max-h-full w-full justify-center">
+      {rawItems.map(rawItem => {
+        const actionsConfig = getItemActionsConfig?.(rawItem)
 
         return (
           <DataListViewItem
-            key={id}
-            title={title}
-            detailedViewPath={detailedViewPath}
-            subtitle={subtitle}
-            metadata={metadata}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            key={rawItem.id}
+            rawItem={rawItem}
+            actionsConfig={actionsConfig}
+            itemMetadataConfig={itemMetadataConfig}
           />
         )
       })}
+
       <div ref={sentinelRef} className="h-px w-full bg-transparent" />
     </ul>
   )

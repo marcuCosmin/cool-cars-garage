@@ -1,8 +1,4 @@
-import type {
-  CheckDoc,
-  DriverMetadata,
-  User
-} from "../firestore/firestore.model"
+import type { CheckDoc, DriverData, User } from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
 export type DefaultDataListItemCollapsibleMetadataValue = Record<
@@ -28,7 +24,7 @@ export type RawDataListItem<
 
 export type RawUserListItem = RawDataListItem<
   Omit<User, "firstName" | "lastName" | "role" | "uid"> &
-    Partial<DriverMetadata> & {
+    Partial<DriverData> & {
       invitationPending?: boolean
     }
 >

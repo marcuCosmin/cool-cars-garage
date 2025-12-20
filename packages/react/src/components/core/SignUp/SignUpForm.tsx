@@ -51,7 +51,7 @@ export const SignUpForm = ({ invitation }: SignUpFormProps) => {
   return (
     <Form
       containerClassName="fixed non-relative-center"
-      title="Cool Cars Garage"
+      title="Sign Up"
       submitLabel="Sign Up"
       fields={fields}
       action={action}

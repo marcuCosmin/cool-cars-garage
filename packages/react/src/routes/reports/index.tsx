@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
+import { BoxArrowInUpRight } from "react-bootstrap-icons"
+import { useNavigate } from "react-router"
 
 import {
   getFirestoreCollectionChunks,
@@ -9,10 +11,11 @@ import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { Loader } from "@/components/basic/Loader"
 import { DataView } from "@/components/core/DataView/DataView"
-import {
+import type {
   FiltersConfig,
-  type DataListItemMetadataConfig,
-  type FetchItems
+  DataListItemMetadataConfig,
+  FetchItems,
+  GetListItemActionsConfig
 } from "@/components/core/DataView/DataView.model"
 
 import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
@@ -38,6 +41,7 @@ const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListIt
   }
 
 export const Reports = () => {
+  const navigate = useNavigate()
   const { setModalProps } = useModalContext()
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["/users-docs"],
@@ -125,6 +129,16 @@ export const Reports = () => {
     }
   ]
 
+  const getItemActionsConfig: GetListItemActionsConfig<CheckRawListItem> = ({
+    id
+  }) => [
+    {
+      tooltip: "Detailed view",
+      Icon: BoxArrowInUpRight,
+      onClick: () => navigate(`/reports/${id}`)
+    }
+  ]
+
   const fetchItems: FetchItems<
     CheckRawListItem,
     CheckDoc,
@@ -176,7 +190,7 @@ export const Reports = () => {
         showSearch={false}
         filtersConfig={filtersConfig}
         fetchItems={fetchItems}
-        itemDetailedViewBasePath="/reports"
+        getItemActionsConfig={getItemActionsConfig}
         itemMetadataConfig={checkDataListItemMetadataConfig}
         serverSideFetching
       />

@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
-@plugin "tailwind-scrollbar";
+/* @plugin "tailwind-scrollbar"; */
 
 @theme {
     --color-primary: #007bff;
+    --color-primary-dark: #0069d9;
     --color-black: #000000;
     --color-white: #ffffff;
     --color-secondary: #d1d5dc;
@@ -12,11 +13,24 @@
     --text-base: 15px;
     --height-input: 40px;
     --breakpoint-sm: 475px;
+    --scrollbar-width: 8px;
 }
 
 @layer base {
+    *::-webkit-scrollbar-track {
+        @apply bg-transparent
+    }
+
+    *::-webkit-scrollbar-thumb {
+        @apply bg-primary rounded-lg;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        @apply bg-primary-dark;
+    }
+
     * {
-        @apply scrollbar;
+        scrollbar-color: #007bff transparent;
     }
 
     html, body {
@@ -289,9 +303,5 @@
 
     .overlay {
         @apply flex absolute top-0 left-0 w-full h-full rounded-md backdrop-blur-xs justify-center items-center z-[9999];
-    }
-
-    .scrollbar {
-        @apply scrollbar scrollbar-track-transparent scrollbar-thumb-primary; 
     }
 }

@@ -53,15 +53,22 @@ export const handleGetRequest = async (
     })
   }
 
-  const users: User[] = usersDocs.map(({ id, ...user }) => {
+  const users: User[] = usersDocs.map(({ id, ...userDoc }) => {
     const authData = authUsers.find(({ uid }) => uid === id)
     const inivitationData = invitations.find(({ uid }) => uid === id)
 
-    return {
-      ...user,
+    const user: User = {
+      ...userDoc,
       uid: id,
+      isActive: authData ? !authData.disabled : !!inivitationData?.isActive,
       email: authData?.email || inivitationData?.email || ""
     }
+
+    if (inivitationData) {
+      user.invitationPending = true
+    }
+
+    return user
   })
 
   res.status(200).json({ users })

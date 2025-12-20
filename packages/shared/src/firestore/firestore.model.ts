@@ -1,12 +1,14 @@
 type Councils = "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
 
 export type DriverDVLAData = {
+  lastName: string
+  firstName: string
   drivingLicenceNumber: string
   birthTimestamp: number
   penaltyPoints: number
   cpcs: {
-    lgvExpiryTimestamp: number
-    pcvExpiryTimestamp: number
+    lgvExpiryTimestamp?: number
+    pcvExpiryTimestamp?: number
   }[]
   licenceType: "Full" | "Provisional"
   licenceStatus: "Valid" | "Disqualified"
@@ -23,7 +25,7 @@ export type DriverDVLAData = {
   }[]
 }
 
-export type DriverMetadata = DriverDVLAData & {
+export type DriverData = DriverDVLAData & {
   dbsUpdate: boolean
   badgeNumber?: string
   badgeExpirationTimestamp?: number
@@ -40,16 +42,15 @@ type ManagerProps = {
   role: "manager"
 }
 
-type DriverProps = {
+type DriverProps = DriverData & {
   role: "driver"
-  metadata: DriverMetadata
 }
 
-export type UserBaseProps = {
+type UserBaseProps = {
   firstName: string
   lastName: string
-  isActive: boolean
   creationTimestamp: number
+  invitationPending?: true
 }
 
 export type UserDoc = UserBaseProps & (DriverProps | ManagerProps | AdminProps)
@@ -57,13 +58,13 @@ export type UserDoc = UserBaseProps & (DriverProps | ManagerProps | AdminProps)
 export type User = UserDoc & {
   uid: string
   email: string
+  isActive: boolean
 }
 
-export type InvitationDoc = Pick<User, "email" | "role" | "uid"> &
-  Partial<Pick<User, "firstName" | "lastName">> & {
-    creationTimestamp: number
-    isActive: boolean
-  }
+export type InvitationDoc = Pick<User, "email" | "role" | "uid"> & {
+  creationTimestamp: number
+  isActive: boolean
+}
 
 export type DocWithID<T> = T & { id: string }
 
