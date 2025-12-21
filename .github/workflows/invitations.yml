@@ -1,0 +1,27 @@
+name: Run Invitations Deactivation Job
+
+on:
+    schedule:
+        - cron: "0 */4 * * *"
+
+jobs:
+    run-notifications:
+        runs-on: ubuntu-latest
+        env:
+            NODE_ENV: development
+            FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+            WAPP_API_ACCESS_TOKEN: ${{ secrets.WAPP_API_ACCESS_TOKEN }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.15.0"
+
+            - name: Build Project
+              run: npm install && npm run build:express
+
+            - name: Run invitations script
+              run: node ./packages/express/dist/jobs/invitations.js
