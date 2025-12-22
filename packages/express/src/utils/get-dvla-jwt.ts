@@ -1,4 +1,8 @@
+import { getSecretValue } from "@/utils/get-secret-value"
+
 export const getDVLAJWT = async () => {
+  const dvlaApiPassword = await getSecretValue("DVLA_API_PASSWORD")
+
   const response = await fetch(
     "https://uat.driver-vehicle-licensing.api.gov.uk/thirdparty-access/v1/authenticate",
     {
@@ -9,7 +13,7 @@ export const getDVLAJWT = async () => {
       },
       body: JSON.stringify({
         userName: process.env.DVLA_API_USERNAME,
-        password: process.env.DVLA_API_PASSWORD
+        password: dvlaApiPassword
       })
     }
   )

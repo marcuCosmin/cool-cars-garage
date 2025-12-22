@@ -1,3 +1,5 @@
+import { getSecretValue } from "@/utils/get-secret-value"
+
 import type { DriverDVLAData } from "@/shared/firestore/firestore.model"
 
 const getTimestampFromDVLADate = (dvlaDate: string) => {
@@ -66,6 +68,8 @@ export const getDVLADriverData = async ({
   jwt,
   drivingLicenceNumber
 }: GetDVLADriverDataProps): Promise<DriverDVLAData> => {
+  const dvlaApiKey = await getSecretValue("DVLA_API_KEY")
+
   const response = await fetch(
     "https://uat.driver-vehicle-licensing.api.gov.uk/full-driver-enquiry/v1/driving-licences/retrieve",
     {
@@ -73,7 +77,7 @@ export const getDVLADriverData = async ({
       headers: {
         "Content-Type": "application/json",
         "Authorization": jwt,
-        "X-Api-Key": process.env.DVLA_API_KEY as string
+        "X-Api-Key": dvlaApiKey
       },
       body: JSON.stringify({
         drivingLicenceNumber,
