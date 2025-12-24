@@ -1,5 +1,3 @@
-import type { MOTHistoryAPIResponse } from "./model"
-
 type MOTHistoryAccessTokenAPIResponse = {
   access_token: string
 }
@@ -35,6 +33,9 @@ type GetCarOutstandingRecallStatusProps = {
   accessToken: string
 }
 
+type MOTHistoryAPIResponse = {
+  hasOutstandingRecall: "Yes" | "No" | "Unknown" | "Unavailable"
+}
 export const getCarOutstandingRecallStatus = async ({
   carId,
   accessToken

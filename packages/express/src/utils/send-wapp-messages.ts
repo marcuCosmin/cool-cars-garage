@@ -39,6 +39,13 @@ type OutstandingRecallFailedTemplate = {
   }
 }
 
+type BulkOutstandingRecallFailedTemplate = {
+  type: "outstanding_recalls_failed"
+  params: {
+    cars_reg_numbers: string
+  }
+}
+
 type SendWappMessageProps = {
   template:
     | MissingCheckTemplate
@@ -46,6 +53,7 @@ type SendWappMessageProps = {
     | IncidentSubmittedTemplate
     | OutstandingRecallFoundTemplate
     | OutstandingRecallFailedTemplate
+    | BulkOutstandingRecallFailedTemplate
   phoneNumber: string
 }
 

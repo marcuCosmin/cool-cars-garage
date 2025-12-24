@@ -55,19 +55,30 @@ const handleOutstandingRecallsJob = async () => {
     return
   }
 
-  const failedCarsIdsPromises = failedCarsIds.map(carId =>
-    sendWappMessages({
+  if (!recalledCarsIds.length && !failedCarsIds.length) {
+    console.log("No outstanding recalls notifications to send")
+    return
+  }
+
+  if (failedCarsIds.length) {
+    await sendWappMessages({
       phoneNumbers,
       template: {
-        type: "outstanding_recall_failed",
+        type: "outstanding_recalls_failed",
         params: {
-          car_reg_number: carId
+          cars_reg_numbers: failedCarsIds.join(", ")
         }
       }
     })
+  }
+
+  console.log(
+    `Sending ${recalledCarsIds.length} outstanding recalls notifications for cars `,
+    recalledCarsIds
   )
-  const recalledCarsIdsPromises = recalledCarsIds.map(carId =>
-    sendWappMessages({
+
+  for (const carId of recalledCarsIds) {
+    await sendWappMessages({
       phoneNumbers,
       template: {
         type: "outstanding_recall_found",
@@ -76,28 +87,7 @@ const handleOutstandingRecallsJob = async () => {
         }
       }
     })
-  )
-
-  const messagesPromises = [
-    ...failedCarsIdsPromises,
-    ...recalledCarsIdsPromises
-  ]
-
-  if (!messagesPromises.length) {
-    console.log("No outstanding recalls notifications to send")
-    return
   }
-
-  console.log(
-    `Sending ${failedCarsIdsPromises.length} failed outstanding recalls notifications for cars `,
-    failedCarsIds
-  )
-  console.log(
-    `Sending ${recalledCarsIdsPromises.length} outstanding recalls notifications for cars `,
-    recalledCarsIds
-  )
-
-  await Promise.all(messagesPromises)
 }
 
 handleOutstandingRecallsJob()
