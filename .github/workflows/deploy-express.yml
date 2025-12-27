@@ -25,13 +25,11 @@ jobs:
       - name: Build Project
         run: npm install && npm run build:express
 
-      - name: FTP Upload
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: packages/express/dist/
-          server-dir: api/
-          exclude: |
-            **/jobs/**
+      - name: Sync Files
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" --exclude 'node_modules' --exclude '.git' ./packages/express/dist/
