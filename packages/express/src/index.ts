@@ -1,9 +1,9 @@
 import express from "express"
 
-import { usersRouter } from "./routes/users"
-import { mailRouter } from "./routes/mail"
-import { carsRouter } from "./routes/cars"
-import { wappWebhook } from "./routes/wapp-webhook"
+import { usersRouter } from "@/routes/users"
+import { mailRouter } from "@/routes/mail"
+import { carsRouter } from "@/routes/cars"
+import { wappWebhook } from "@/routes/wapp-webhook"
 
 import { authorizationMiddleware } from "@/middlewares/authorization-middleware"
 import { errorMiddleware } from "@/middlewares/error-middleware"

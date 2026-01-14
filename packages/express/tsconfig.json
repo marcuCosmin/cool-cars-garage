@@ -7,6 +7,7 @@
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "paths": {
+      "@/routes/*": ["./src/routes/*"],
       "@/shared/*": ["../shared/src/*"],
       "@/utils/*": ["./src/utils/*"],
       "@/middlewares/*": ["./src/middlewares/*"],
