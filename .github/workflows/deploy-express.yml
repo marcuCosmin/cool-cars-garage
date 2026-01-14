@@ -5,6 +5,7 @@ on:
     paths:
       - "packages/express/**"
       - "packages/shared/**"
+      - ".github/workflows/deploy-express.yml"
 name: Deploy
 jobs:
   deploy:
@@ -37,7 +38,7 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Sync Files
-        run: rsync -avz --progress --delete --exclude='.deploy' -e "ssh -i ~/.ssh/id_ed25519" ./packages/express/dist/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/api/
+        run: rsync -avz --progress --delete --exclude='.deploy' --exclude='jobs/' -e "ssh -i ~/.ssh/id_ed25519" ./packages/express/dist/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/api/
 
       - name: Create deploy File
         run: echo "deploy_$(date +'%Y%m%d%H%M%S')" > .deploy
