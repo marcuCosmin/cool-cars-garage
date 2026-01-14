@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "main": "./dist/index.js",
   "scripts": {
-    "prebuild": "node prebuild.js",
-    "build": "node build.mjs",
-    "dev": "concurrently \"node dev.mjs\" \"wait-on ./dist/index.js && cross-env NODE_ENV=development nodemon ./dist/index.js\"",
+    "build": "cross-env NODE_ENV=production node build.mjs",
+    "dev": "concurrently \"node build.mjs\" \"wait-on ./dist/index.js && cross-env NODE_ENV=development nodemon ./dist/index.js\"",
     "lint": "eslint ."
   },
   "keywords": [],

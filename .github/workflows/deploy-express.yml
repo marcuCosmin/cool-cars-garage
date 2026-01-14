@@ -25,11 +25,22 @@ jobs:
       - name: Build Project
         run: npm install && npm run build:express
 
-      - name: Sync Files
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519" --exclude 'node_modules' --exclude '.git' ./packages/express/dist/
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Files
+        run: rsync -avz --progress --delete --exclude='.deploy' -e "ssh -i ~/.ssh/id_ed25519" ./dist/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/api/
+
+      - name: Create deploy File
+        run: echo "deploy_$(date +'%Y%m%d%H%M%S')" > .deploy
+
+      - name: Update Deploy File
+        run: rsync -avz --progress -e "ssh -i ~/.ssh/id_ed25519" .deploy ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/api/
