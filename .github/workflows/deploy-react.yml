@@ -5,7 +5,8 @@ on:
     paths:
       - "packages/react/**"
       - "packages/shared/**"
-name: Deploy
+      - ".github/workflows/deploy-react.yml"
+name: Deploy React
 jobs:
   deploy:
     name: Deploy React
@@ -25,10 +26,22 @@ jobs:
           VITE_API_URL: https://api.cool-cars-garage.co.uk
           VITE_REPORTS_AUTH_URL: coolcarsreports://auth
 
-      - name: FTP Upload
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: packages/react/dist/
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Files
+        run: rsync -avz --progress --delete --exclude='.deploy' -e "ssh -i ~/.ssh/id_ed25519" ./packages/react/dist/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/client/
+
+      - name: Create deploy File
+        run: echo "deploy_$(date +'%Y%m%d%H%M%S')" > .deploy
+
+      - name: Update Deploy File
+        run: rsync -avz --progress -e "ssh -i ~/.ssh/id_ed25519" .deploy ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage/client/

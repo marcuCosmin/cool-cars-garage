@@ -6,7 +6,7 @@ on:
       - "packages/express/**"
       - "packages/shared/**"
       - ".github/workflows/deploy-express.yml"
-name: Deploy
+name: Deploy Express
 jobs:
   deploy:
     name: Deploy Express
