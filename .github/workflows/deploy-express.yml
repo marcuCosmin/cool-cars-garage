@@ -26,6 +26,9 @@ jobs:
       - name: Build Project
         run: npm install && npm run build:express
 
+      - name: Copy package.json and package-lock.json to dist
+        run: cp packages/express/package*.json packages/express/dist/
+
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
