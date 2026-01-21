@@ -4,7 +4,7 @@ on:
       - main
     paths:
       - "packages/react/**"
-      - "packages/shared/**"
+      - "packages/shared/globals/**"
       - ".github/workflows/deploy-react.yml"
 name: Deploy React
 jobs:
