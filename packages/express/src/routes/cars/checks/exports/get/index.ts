@@ -1,6 +1,6 @@
 import { type Response } from "express"
 
-import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
+import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
 
 import type { Request } from "@/models"
 

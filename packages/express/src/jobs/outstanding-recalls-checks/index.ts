@@ -1,5 +1,8 @@
-import { getFirestoreDocs, getNotificationPhoneNumbers } from "@/firebase/utils"
-import { firestore } from "@/firebase/config"
+import {
+  getFirestoreDocs,
+  getNotificationPhoneNumbers
+} from "@/backend/firebase/utils"
+import { firestore } from "@/backend/firebase/config"
 
 import { sendWappMessages } from "@/utils/send-wapp-messages"
 

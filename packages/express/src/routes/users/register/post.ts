@@ -1,7 +1,7 @@
 import { type Request } from "express"
 
-import { getFirestoreDoc } from "@/firebase/utils"
-import { firebaseAuth, firestore } from "@/firebase/config"
+import { getFirestoreDoc } from "@/backend/firebase/utils"
+import { firebaseAuth, firestore } from "@/backend/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 

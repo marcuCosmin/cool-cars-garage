@@ -2,8 +2,8 @@ import {
   getAuthUser,
   getFirestoreDoc,
   getFirestoreDocs
-} from "@/firebase/utils"
-import { firebaseAuth, firestore } from "@/firebase/config"
+} from "@/backend/firebase/utils"
+import { firebaseAuth, firestore } from "@/backend/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 

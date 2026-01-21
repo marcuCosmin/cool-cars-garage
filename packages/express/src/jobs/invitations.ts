@@ -1,5 +1,5 @@
-import { firestore } from "@/firebase/config"
-import { getFirestoreDocs } from "@/firebase/utils"
+import { firestore } from "@/backend/firebase/config"
+import { getFirestoreDocs } from "@/backend/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 

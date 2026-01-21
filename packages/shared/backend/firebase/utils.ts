@@ -9,7 +9,7 @@ import type {
   DocWithID,
   FirestoreCollectionsMap,
   FirestoreCollectionsNames
-} from "@/globals/firestore/firestore.model"
+} from "../../globals/firestore/firestore.model"
 
 import { firebaseAuth, firestore } from "./config"
 

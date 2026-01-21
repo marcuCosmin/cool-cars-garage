@@ -1,5 +1,5 @@
-import { firebaseAuth } from "@/firebase/config"
-import { getFirestoreDocs } from "@/firebase/utils"
+import { firebaseAuth } from "@/backend/firebase/config"
+import { getFirestoreDocs } from "@/backend/firebase/utils"
 
 import type { Request, Response } from "@/models"
 

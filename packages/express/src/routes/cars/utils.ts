@@ -1,4 +1,4 @@
-import { firestore } from "@/firebase/config"
+import { firestore } from "@/backend/firebase/config"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 

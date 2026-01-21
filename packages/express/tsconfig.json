@@ -7,6 +7,7 @@
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "paths": {
+      "@/backend/*": ["../shared/backend/*"],
       "@/globals/*": ["../shared/globals/*"],
       "@/routes/*": ["./src/routes/*"],
       "@/utils/*": ["./src/utils/*"],

@@ -3,7 +3,7 @@ import { type Request, type Response } from "express"
 import { add } from "date-fns"
 
 import { Timestamp } from "firebase-admin/firestore"
-import { firestore } from "../../../firebase/config"
+import { firestore } from "@/backend/firebase/config"
 
 import { getCheckpointConfig } from "@/globals/utils"
 import type { Car, CarCheckField } from "@/globals/models"

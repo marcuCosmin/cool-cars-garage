@@ -1,5 +1,5 @@
-import { firestore } from "@/firebase/config"
-import { getFirestoreDocs, isAuthEmail } from "@/firebase/utils"
+import { firestore } from "@/backend/firebase/config"
+import { getFirestoreDocs, isAuthEmail } from "@/backend/firebase/utils"
 
 import { sendMail } from "@/utils/send-mail"
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"

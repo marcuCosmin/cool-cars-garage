@@ -1,7 +1,7 @@
 import { type Response, type NextFunction } from "express"
 
-import { firebaseAuth } from "@/firebase/config"
-import { getAuthUser, getFirestoreDoc } from "@/firebase/utils"
+import { firebaseAuth } from "@/backend/firebase/config"
+import { getAuthUser, getFirestoreDoc } from "@/backend/firebase/utils"
 
 import type { Request } from "@/models"
 

@@ -1,7 +1,11 @@
 import { type Request, type Response } from "express"
 
-import { firestore } from "@/firebase/config"
-import { deleteUser, getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
+import { firestore } from "@/backend/firebase/config"
+import {
+  deleteUser,
+  getFirestoreDoc,
+  getFirestoreDocs
+} from "@/backend/firebase/utils"
 
 import type { DeleteUserQueryParams } from "@/globals/requests/requests.model"
 

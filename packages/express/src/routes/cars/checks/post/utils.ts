@@ -1,4 +1,4 @@
-import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
+import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
 
 import { getTimestampDayTimeRange } from "@/globals/utils/getDateTimeRange"
 

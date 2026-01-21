@@ -1,8 +1,11 @@
 import { type Response } from "express"
 
 import { FieldValue } from "firebase-admin/firestore"
-import { firestore } from "@/firebase/config"
-import { getFirestoreDoc, getNotificationPhoneNumbers } from "@/firebase/utils"
+import { firestore } from "@/backend/firebase/config"
+import {
+  getFirestoreDoc,
+  getNotificationPhoneNumbers
+} from "@/backend/firebase/utils"
 
 import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 
