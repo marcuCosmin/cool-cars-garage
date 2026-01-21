@@ -2,8 +2,8 @@ import { type Response } from "express"
 
 import { firestore } from "@/backend/firebase/config"
 import { getNotificationPhoneNumbers } from "@/backend/firebase/utils"
+import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 
-import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import { sendWappMessages } from "@/utils/send-wapp-messages"
 
 import type { Request } from "@/models"

@@ -1,6 +1,6 @@
 import { firestore } from "@/backend/firebase/config"
 
-import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
+import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 
 type ReportsNotificationType =
   | "incident"

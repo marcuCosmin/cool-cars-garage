@@ -2,8 +2,7 @@ import { type Response } from "express"
 
 import { firestore } from "@/backend/firebase/config"
 import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
-
-import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
+import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 
 import { createReportsNotification } from "../utils"
 
