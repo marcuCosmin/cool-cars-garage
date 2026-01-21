@@ -1,4 +1,4 @@
-import type { FormData } from "@/shared/forms/forms.models"
+import type { FormData } from "@/globals/forms/forms.models"
 
 import type { ExtendedFormFieldsSchema, FieldValue } from "@/models"
 

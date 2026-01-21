@@ -1,8 +1,8 @@
 import { Timestamp } from "firebase-admin/firestore"
 
-import { getCheckpointNotificationsDates } from "@/shared/utils"
+import { getCheckpointNotificationsDates } from "@/globals/utils"
 
-import type { CarCheckField } from "@/shared/models"
+import type { CarCheckField } from "@/globals/models"
 
 import type { CarItemData } from "./CarsList.model"
 

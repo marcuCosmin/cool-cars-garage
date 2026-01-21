@@ -1,4 +1,4 @@
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
 import type { PrimitiveMetadata } from "../../DataView.model"
 

@@ -7,8 +7,8 @@
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
     "paths": {
+      "@/globals/*": ["../shared/globals/*"],
       "@/routes/*": ["./src/routes/*"],
-      "@/shared/*": ["../shared/src/*"],
       "@/utils/*": ["./src/utils/*"],
       "@/middlewares/*": ["./src/middlewares/*"],
       "@/models": ["./src/models"],

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 import { deleteFirestoreDoc, getFirestoreDocs } from "../firebase/utils"
 
-import type { Car } from "@/shared/models"
+import type { Car } from "@/globals/models"
 
 type CarState = Record<string, Omit<Car, "registrationNumber">>
 

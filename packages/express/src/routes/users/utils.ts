@@ -6,8 +6,11 @@ import { getCurrentTimestamp } from "@/utils/get-current-timestamp"
 import { getDVLAJWT } from "@/utils/get-dvla-jwt"
 import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
 
-import { type UserCreateData } from "@/shared/forms/forms.const"
-import type { InvitationDoc, UserDoc } from "@/shared/firestore/firestore.model"
+import { type UserCreateData } from "@/globals/forms/forms.const"
+import type {
+  InvitationDoc,
+  UserDoc
+} from "@/globals/firestore/firestore.model"
 
 export const inviteUser = async (
   invitationData: Omit<InvitationDoc, "creationTimestamp" | "isActive">

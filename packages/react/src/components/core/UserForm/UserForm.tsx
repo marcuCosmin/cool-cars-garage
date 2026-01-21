@@ -15,8 +15,8 @@ import {
 import {
   userCreateFields,
   type UserCreateData
-} from "@/shared/forms/forms.const"
-import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
+} from "@/globals/forms/forms.const"
+import type { RawUserListItem } from "@/globals/dataLists/dataLists.model"
 
 import { getUserDataFromRawUserListItem } from "./UserForm.utils"
 

@@ -7,8 +7,8 @@ import { getFormValidationResult } from "@/utils/get-form-validation-result"
 import {
   userCreateFields,
   type UserCreateData
-} from "@/shared/forms/forms.const"
-import type { CreateUserResponse } from "@/shared/requests/requests.model"
+} from "@/globals/forms/forms.const"
+import type { CreateUserResponse } from "@/globals/requests/requests.model"
 
 import type { Response } from "@/models"
 

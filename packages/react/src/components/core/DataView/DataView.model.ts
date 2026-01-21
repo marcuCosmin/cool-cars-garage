@@ -6,8 +6,8 @@ import type { DocumentData } from "firebase/firestore"
 import type { SelectProps } from "@/components/basic/Select"
 import type { DatePickerProps } from "@/components/basic/DatePicker"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
-import type { FormFieldValue } from "@/shared/forms/forms.models"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
+import type { FormFieldValue } from "@/globals/forms/forms.models"
 
 type ItemTextMetadata = {
   type: "text"

@@ -1,4 +1,4 @@
-import type { FormData, FormFieldValue } from "@/shared/forms/forms.models"
+import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
 import type { ExtendedFormFieldProps } from "@/models"
 
 export type FieldStateProps<T extends FormData> = Omit<

@@ -5,7 +5,7 @@ import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
 import { Select, type SelectProps } from "@/components/basic/Select"
 import { DatePicker } from "@/components/basic/DatePicker"
 
-import type { FormData, FormFieldValue } from "@/shared/forms/forms.models"
+import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
 
 import type { FieldStateProps, FormFieldComponentProps } from "./Form.models"
 

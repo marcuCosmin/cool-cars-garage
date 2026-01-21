@@ -1,7 +1,7 @@
 import PDFDocument from "pdfkit"
 
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
-import { capitalize } from "@/shared/utils/capitalize"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
+import { capitalize } from "@/globals/utils/capitalize"
 
 import type {
   CheckAnswer,
@@ -10,7 +10,7 @@ import type {
   FullCheck,
   IncidentDoc,
   UserDoc
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 const pdfGap = 0.5
 const pdfMargin = 25

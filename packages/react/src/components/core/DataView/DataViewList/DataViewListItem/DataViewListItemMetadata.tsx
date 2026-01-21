@@ -8,7 +8,7 @@ import {
 
 import { Collapsible } from "@/components/basic/Collapsible"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
 

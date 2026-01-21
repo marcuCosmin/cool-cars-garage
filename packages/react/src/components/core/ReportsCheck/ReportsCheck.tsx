@@ -8,9 +8,9 @@ import { Loader } from "@/components/basic/Loader"
 
 import { downloadBlob } from "@/utils/downloadBlob"
 
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
-import type { FullCheck } from "@/shared/firestore/firestore.model"
+import type { FullCheck } from "@/globals/firestore/firestore.model"
 
 import { ReportsCheckAnswersTable } from "./ReportsCheckAnswersTable/ReportsCheckAnswersTable"
 import { ReportsCheckIncidentsList } from "./ReportsCheckIncidentsList/ReportsCheckIncidentsList"

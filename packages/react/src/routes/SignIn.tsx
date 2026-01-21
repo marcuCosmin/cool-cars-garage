@@ -4,7 +4,7 @@ import { Form } from "@/components/basic/Form/Form"
 
 import { extendFormFields } from "@/utils/extendFormFields"
 
-import { signInFormFields } from "@/shared/forms/forms.const"
+import { signInFormFields } from "@/globals/forms/forms.const"
 
 const fields = extendFormFields({
   fieldsSchema: signInFormFields,

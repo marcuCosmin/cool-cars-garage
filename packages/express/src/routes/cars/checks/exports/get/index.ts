@@ -4,7 +4,7 @@ import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
 import type { Request } from "@/models"
 
-import type { CarsCheckExportURLQuery } from "@/shared/requests/requests.model"
+import type { CarsCheckExportURLQuery } from "@/globals/requests/requests.model"
 
 import { buildBulkPDFDoc, buildIndividualPDFDoc } from "./utils"
 

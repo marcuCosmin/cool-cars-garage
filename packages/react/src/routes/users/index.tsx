@@ -28,10 +28,10 @@ import type {
 } from "@/components/core/DataView/DataView.model"
 import { useCommonItemsActions } from "@/components/core/DataView/useCommonItemsActions"
 
-import { capitalize } from "@/shared/utils/capitalize"
+import { capitalize } from "@/globals/utils/capitalize"
 
-import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
-import type { UserActiveStateUpdatePayload } from "@/shared/requests/requests.model"
+import type { RawUserListItem } from "@/globals/dataLists/dataLists.model"
+import type { UserActiveStateUpdatePayload } from "@/globals/requests/requests.model"
 
 const filtersConfig: FiltersConfig<RawUserListItem, false> = []
 

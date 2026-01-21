@@ -23,7 +23,7 @@ import type {
   OpenDataViewModal
 } from "./DataView.model"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 type UseDataViewList<
   RawItem extends RawDataListItem,

@@ -7,8 +7,8 @@ import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
 import type { Response } from "@/models"
 
-import type { RegisterUserResponse } from "@/shared/requests/requests.model"
-import { signUpFormFields, type SignUpData } from "@/shared/forms/forms.const"
+import type { RegisterUserResponse } from "@/globals/requests/requests.model"
+import { signUpFormFields, type SignUpData } from "@/globals/forms/forms.const"
 
 export const handleUserRegistration = async (
   req: Request<undefined, RegisterUserResponse, SignUpData>,

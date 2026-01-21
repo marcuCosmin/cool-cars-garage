@@ -5,9 +5,9 @@ import {
   type MissingCheckTemplate
 } from "@/utils/send-wapp-messages"
 
-import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
+import { getTimestampDayTimeRange } from "@/globals/utils/getDateTimeRange"
 
-import { type UserDoc } from "@/shared/firestore/firestore.model"
+import { type UserDoc } from "@/globals/firestore/firestore.model"
 
 type MissingCheckTemplateParams = MissingCheckTemplate["params"]
 

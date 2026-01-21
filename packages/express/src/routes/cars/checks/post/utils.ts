@@ -1,6 +1,6 @@
 import { getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
-import { getTimestampDayTimeRange } from "@/shared/utils/getDateTimeRange"
+import { getTimestampDayTimeRange } from "@/globals/utils/getDateTimeRange"
 
 import type {
   CarDoc,
@@ -8,7 +8,7 @@ import type {
   CheckDoc,
   DocWithID,
   ReportsQuestion
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 import type { ReqBody } from "./model"
 

@@ -18,7 +18,7 @@ import type {
   GetListItemActionsConfig
 } from "./DataView.model"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 type DataViewProps<
   RawItem extends RawDataListItem,

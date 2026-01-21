@@ -3,7 +3,7 @@ import { type Request, type Response } from "express"
 import { firestore } from "@/firebase/config"
 import { deleteUser, getFirestoreDoc, getFirestoreDocs } from "@/firebase/utils"
 
-import type { DeleteUserQueryParams } from "@/shared/requests/requests.model"
+import type { DeleteUserQueryParams } from "@/globals/requests/requests.model"
 
 export const handleDeleteRequest = async (
   req: Request<undefined, undefined, undefined, DeleteUserQueryParams>,

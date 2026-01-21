@@ -9,7 +9,7 @@ import { Tooltip } from "@/components/basic/Tooltip"
 import type {
   DocWithID,
   ReportsQuestion
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 import { ReportsQuestionsConfigAddButton } from "./ReportsQuestionsConfigAddButton"
 

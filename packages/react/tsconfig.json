@@ -12,7 +12,7 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/shared/*": ["../shared/src/*"],
+      "@/globals/*": ["../shared/globals/*"],
       "@/contexts/*": ["./src/contexts/*"],
       "@/hooks/*": ["./src/hooks/*"],
       "@/routes/*": ["./src/routes/*"],

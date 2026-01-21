@@ -5,13 +5,13 @@ import type {
   SignUpData,
   UserEditData,
   SignUpFormData
-} from "@/shared/forms/forms.const"
+} from "@/globals/forms/forms.const"
 import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload,
   ReiniviteUserPayload,
   UserActiveStateUpdatePayload
-} from "@/shared/requests/requests.model"
+} from "@/globals/requests/requests.model"
 
 const baseUrl = import.meta.env.VITE_API_URL
 

@@ -2,7 +2,7 @@ import type {
   DocWithID,
   ReportsQuestion,
   ReportsQuestionsSection
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 export type ReportsQuestionsCategory =
   | "psv-questions"

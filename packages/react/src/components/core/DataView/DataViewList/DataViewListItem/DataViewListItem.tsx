@@ -1,6 +1,6 @@
 import { Tooltip } from "@/components/basic/Tooltip"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { extendRawItemMetadata } from "../../DataView.utils"
 

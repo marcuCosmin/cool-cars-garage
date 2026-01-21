@@ -12,7 +12,7 @@ import type { Request } from "@/models"
 import type {
   MarkIncidentAsResolvedPayload,
   MarkDefectAsResolvedResponse
-} from "@/shared/requests/requests.model"
+} from "@/globals/requests/requests.model"
 
 export const handleIncidentPatch = async (
   req: Request<undefined, undefined, MarkIncidentAsResolvedPayload>,

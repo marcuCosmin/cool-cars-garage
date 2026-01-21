@@ -3,8 +3,8 @@ import { getFirestoreDocs } from "@/firebase/utils"
 
 import type { Request, Response } from "@/models"
 
-import type { GetUsersResponse } from "@/shared/requests/requests.model"
-import type { InvitationDoc, User } from "@/shared/firestore/firestore.model"
+import type { GetUsersResponse } from "@/globals/requests/requests.model"
+import type { InvitationDoc, User } from "@/globals/firestore/firestore.model"
 
 export const handleGetRequest = async (
   req: Request,

@@ -1,4 +1,4 @@
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { useInfiniteScroll } from "./useInfiniteScroll"
 

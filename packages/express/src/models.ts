@@ -3,7 +3,7 @@ import type {
   Response as ExpressResponse
 } from "express"
 
-import type { User } from "@/shared/firestore/firestore.model"
+import type { User } from "@/globals/firestore/firestore.model"
 
 export type UserMetadata = {
   role: "admin" | "user"

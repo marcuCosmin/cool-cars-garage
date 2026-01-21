@@ -4,7 +4,7 @@ import { getFirestoreDoc } from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
 
-import type { InvitationDoc } from "@/shared/firestore/firestore.model"
+import type { InvitationDoc } from "@/globals/firestore/firestore.model"
 
 import { SignUpForm } from "./SignUpForm"
 

@@ -9,14 +9,17 @@ import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
 import type { Request, Response } from "@/models"
 
-import { userCreateFields, type UserEditData } from "@/shared/forms/forms.const"
+import {
+  userCreateFields,
+  type UserEditData
+} from "@/globals/forms/forms.const"
 import type {
   DocWithID,
   InvitationDoc,
   User,
   UserDoc
-} from "@/shared/firestore/firestore.model"
-import type { CreateUserResponse } from "@/shared/requests/requests.model"
+} from "@/globals/firestore/firestore.model"
+import type { CreateUserResponse } from "@/globals/requests/requests.model"
 
 import { getUserDocData, inviteUser, isEmailUsed } from "./utils"
 

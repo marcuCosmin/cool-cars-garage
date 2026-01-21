@@ -8,10 +8,13 @@ import {
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Checkbox } from "@/components/basic/Checkbox"
 
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
-import { capitalize } from "@/shared/utils/capitalize"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
+import { capitalize } from "@/globals/utils/capitalize"
 
-import type { CheckAnswer, FullCheck } from "@/shared/firestore/firestore.model"
+import type {
+  CheckAnswer,
+  FullCheck
+} from "@/globals/firestore/firestore.model"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 

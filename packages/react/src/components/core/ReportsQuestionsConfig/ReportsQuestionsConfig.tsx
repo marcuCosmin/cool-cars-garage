@@ -8,7 +8,7 @@ import { useAppSelector } from "@/redux/config"
 import { NotFound } from "@/components/core/NotFound"
 import { Loader } from "@/components/basic/Loader"
 
-import type { ReportsQuestionsDoc } from "@/shared/firestore/firestore.model"
+import type { ReportsQuestionsDoc } from "@/globals/firestore/firestore.model"
 
 import { ReportsQuestionsConfigList } from "./ReportsQuestionsConfigList/ReportsQuestionsConfigList"
 

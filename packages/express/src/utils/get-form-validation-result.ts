@@ -1,4 +1,4 @@
-import type { FormData, FormFieldsSchema } from "@/shared/forms/forms.models"
+import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
 
 type GetFormDataProps<T extends FormData> = {
   schema: FormFieldsSchema<T>

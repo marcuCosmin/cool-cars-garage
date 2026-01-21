@@ -5,7 +5,7 @@ import { firestore } from "@/firebase/config"
 
 import type { Response } from "@/models"
 
-import type { ReiniviteUserPayload } from "@/shared/requests/requests.model"
+import type { ReiniviteUserPayload } from "@/globals/requests/requests.model"
 
 import { inviteUser } from "../utils"
 

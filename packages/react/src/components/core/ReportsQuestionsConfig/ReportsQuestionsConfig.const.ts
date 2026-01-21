@@ -1,4 +1,4 @@
-import type { ReportsQuestionsSection } from "@/shared/firestore/firestore.model"
+import type { ReportsQuestionsSection } from "@/globals/firestore/firestore.model"
 
 type SectionConfig = {
   title: string

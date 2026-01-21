@@ -10,7 +10,7 @@ import type { Request } from "@/models"
 import type {
   MarkDefectAsResolvedResponse,
   MarkFaultsAsResolvedPayload
-} from "@/shared/requests/requests.model"
+} from "@/globals/requests/requests.model"
 
 import { createReportsNotification } from "../utils"
 

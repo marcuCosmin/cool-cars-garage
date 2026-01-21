@@ -5,7 +5,7 @@ import { getAuthUser, getFirestoreDoc } from "@/firebase/utils"
 
 import type { Request } from "@/models"
 
-import type { UserDoc } from "@/shared/firestore/firestore.model"
+import type { UserDoc } from "@/globals/firestore/firestore.model"
 
 const publicPathsConfig = {
   "/": ["GET"],

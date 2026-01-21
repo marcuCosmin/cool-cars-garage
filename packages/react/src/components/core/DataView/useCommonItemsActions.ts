@@ -1,7 +1,7 @@
 import { useLocation } from "react-router"
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query"
 
-import type { RawDataListItem } from "@/shared/dataLists/dataLists.model"
+import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 export const useCommonItemsActions = <RawItem extends RawDataListItem>() => {
   const queryClient = useQueryClient()

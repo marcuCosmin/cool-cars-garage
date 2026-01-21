@@ -8,7 +8,7 @@ import { sendWappMessages } from "@/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 
-import type { CheckDoc, User } from "@/shared/firestore/firestore.model"
+import type { CheckDoc, User } from "@/globals/firestore/firestore.model"
 
 import { createReportsNotification } from "../../utils"
 

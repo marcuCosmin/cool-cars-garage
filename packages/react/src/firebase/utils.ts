@@ -30,14 +30,14 @@ import type {
   QueryContext
 } from "@/components/core/DataView/DataView.model"
 
-import type { SignInFormData } from "@/shared/forms/forms.const"
+import type { SignInFormData } from "@/globals/forms/forms.const"
 import type {
   CheckDoc,
   FaultDoc,
   FullCheck,
   IncidentDoc,
   UserDoc
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)

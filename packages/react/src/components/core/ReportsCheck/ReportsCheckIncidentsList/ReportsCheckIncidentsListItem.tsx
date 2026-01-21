@@ -5,11 +5,14 @@ import { useAppMutation } from "@/hooks/useAppMutation"
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Loader } from "@/components/basic/Loader"
 
-import { parseTimestampForDisplay } from "@/shared/utils/parseTimestampForDisplay"
-import { capitalize } from "@/shared/utils/capitalize"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
+import { capitalize } from "@/globals/utils/capitalize"
 
-import type { DocWithID, IncidentDoc } from "@/shared/firestore/firestore.model"
-import type { MarkDefectAsResolvedResponse } from "@/shared/requests/requests.model"
+import type {
+  DocWithID,
+  IncidentDoc
+} from "@/globals/firestore/firestore.model"
+import type { MarkDefectAsResolvedResponse } from "@/globals/requests/requests.model"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 

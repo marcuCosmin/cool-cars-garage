@@ -1,6 +1,6 @@
-import { type UserEditData } from "@/shared/forms/forms.const"
-import type { RawUserListItem } from "@/shared/dataLists/dataLists.model"
-import type { User } from "@/shared/firestore/firestore.model"
+import { type UserEditData } from "@/globals/forms/forms.const"
+import type { RawUserListItem } from "@/globals/dataLists/dataLists.model"
+import type { User } from "@/globals/firestore/firestore.model"
 
 export const getUserDataFromRawUserListItem = (item?: RawUserListItem) => {
   if (!item) {

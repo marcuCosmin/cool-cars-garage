@@ -3,7 +3,7 @@ import { toast } from "react-toastify"
 import { collection, doc, getDocs, setDoc } from "firebase/firestore"
 import { firestore } from "./config"
 
-import type { Car } from "@/shared/models"
+import type { Car } from "@/globals/models"
 
 export const getAllCars = async () => {
   const carsSnapshot = await getDocs(collection(firestore, "cars"))

@@ -18,13 +18,13 @@ import type {
   GetListItemActionsConfig
 } from "@/components/core/DataView/DataView.model"
 
-import type { CheckRawListItem } from "@/shared/dataLists/dataLists.model"
+import type { CheckRawListItem } from "@/globals/dataLists/dataLists.model"
 import type {
   CarDoc,
   CheckDoc,
   DocWithID,
   UserDoc
-} from "@/shared/firestore/firestore.model"
+} from "@/globals/firestore/firestore.model"
 
 const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListItem> =
   {

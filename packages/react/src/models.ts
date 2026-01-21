@@ -11,7 +11,7 @@ import type {
   FormInputProps,
   FormSelectProps,
   FormToggleProps
-} from "@/shared/forms/forms.models"
+} from "@/globals/forms/forms.models"
 
 export type FieldValue = string | number | boolean | Timestamp
 

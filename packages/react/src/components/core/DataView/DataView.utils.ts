@@ -3,7 +3,7 @@ import { type DocumentData } from "firebase/firestore"
 import type {
   DefaultDataListItemCollapsibleMetadataValue,
   RawDataListItem
-} from "@/shared/dataLists/dataLists.model"
+} from "@/globals/dataLists/dataLists.model"
 
 import type {
   FiltersConfig,

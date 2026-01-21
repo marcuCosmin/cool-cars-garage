@@ -3,7 +3,7 @@ import { getAuthUser } from "@/firebase/utils"
 
 import type { Request, Response } from "@/models"
 
-import type { UserActiveStateUpdatePayload } from "@/shared/requests/requests.model"
+import type { UserActiveStateUpdatePayload } from "@/globals/requests/requests.model"
 
 export const handleUserActiveStateUpdate = async (
   req: Request<undefined, undefined, UserActiveStateUpdatePayload>,

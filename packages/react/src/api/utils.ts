@@ -4,7 +4,7 @@ import type {
   UserEditData,
   UserCreateData,
   SignUpData
-} from "@/shared/forms/forms.const"
+} from "@/globals/forms/forms.const"
 import type {
   MarkFaultsAsResolvedPayload,
   MarkIncidentAsResolvedPayload,
@@ -16,7 +16,7 @@ import type {
   GetUsersResponse,
   UserActiveStateUpdatePayload,
   ReiniviteUserPayload
-} from "@/shared/requests/requests.model"
+} from "@/globals/requests/requests.model"
 
 export const getAllUsers = async () => {
   const response = await executeApiRequest<GetUsersResponse>({

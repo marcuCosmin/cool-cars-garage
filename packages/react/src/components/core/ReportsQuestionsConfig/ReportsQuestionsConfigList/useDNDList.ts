@@ -7,7 +7,7 @@ import {
 } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 
-import type { DocWithID } from "@/shared/firestore/firestore.model"
+import type { DocWithID } from "@/globals/firestore/firestore.model"
 
 type UseDNDListProps<Item extends DocWithID<Record<string, any>>> = {
   items: Item[]

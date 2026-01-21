@@ -5,8 +5,8 @@ import { add } from "date-fns"
 import { Timestamp } from "firebase-admin/firestore"
 import { firestore } from "../../../firebase/config"
 
-import { getCheckpointConfig } from "@/shared/utils"
-import type { Car, CarCheckField } from "@/shared/models"
+import { getCheckpointConfig } from "@/globals/utils"
+import type { Car, CarCheckField } from "@/globals/models"
 
 type ReqBody = {
   carId: string

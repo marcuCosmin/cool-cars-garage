@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getFirestoreDoc } from "@/firebase/utils"
 import type { User as FirebaseUser } from "firebase/auth"
 
-import type { User, UserDoc } from "@/shared/firestore/firestore.model"
+import type { User, UserDoc } from "@/globals/firestore/firestore.model"
 
 type UserState = Pick<
   User,

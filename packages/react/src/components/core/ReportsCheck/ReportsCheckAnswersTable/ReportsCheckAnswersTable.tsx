@@ -8,7 +8,7 @@ import { useAppMutation } from "@/hooks/useAppMutation"
 import { Checkbox } from "@/components/basic/Checkbox"
 import { Loader } from "@/components/basic/Loader"
 
-import type { FullCheck } from "@/shared/firestore/firestore.model"
+import type { FullCheck } from "@/globals/firestore/firestore.model"
 
 import { ReportsCheckSectionRows } from "./ReportsCheckSectionRows"
 

@@ -11,7 +11,7 @@ import { extendFormFields } from "@/utils/extendFormFields"
 import {
   signUpFormFields,
   type SignUpFormData
-} from "@/shared/forms/forms.const"
+} from "@/globals/forms/forms.const"
 
 import type { Invitation } from "./SignUp.model"
 

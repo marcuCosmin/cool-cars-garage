@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query"
 
 import { markIncidentAsResolved } from "@/api/utils"
 
-import type { FullCheck } from "@/shared/firestore/firestore.model"
+import type { FullCheck } from "@/globals/firestore/firestore.model"
 
 import { ReportsCheckIncidentsListItem } from "./ReportsCheckIncidentsListItem"
 
