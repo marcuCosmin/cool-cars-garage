@@ -9,7 +9,7 @@ import {
 } from "@/backend/firebase/utils"
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 
-import { sendWappMessages } from "@/utils/send-wapp-messages"
+import { sendWappMessages } from "@/backend/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 

@@ -6,7 +6,7 @@ import {
 import {
   sendWappMessages,
   type MissingCheckTemplate
-} from "@/utils/send-wapp-messages"
+} from "@/backend/utils/send-wapp-messages"
 
 import { getTimestampDayTimeRange } from "@/globals/utils/getDateTimeRange"
 

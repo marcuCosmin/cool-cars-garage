@@ -4,7 +4,7 @@ import {
 } from "@/backend/firebase/utils"
 import { firestore } from "@/backend/firebase/config"
 
-import { sendWappMessages } from "@/utils/send-wapp-messages"
+import { sendWappMessages } from "@/backend/utils/send-wapp-messages"
 
 import {
   getCarOutstandingRecallStatus,
