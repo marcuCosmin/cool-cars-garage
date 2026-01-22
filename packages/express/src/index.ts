@@ -21,7 +21,7 @@ app.use("/mail", mailRouter)
 app.use("/wapp-webhook", wappWebhook)
 
 app.get("/", (req, res) => {
-  res.send("Cool Cars Garage API is running!")
+  res.send("Cool Cars Garage API is running")
 })
 
 app.listen(port, () => {
