@@ -7,16 +7,8 @@ import { config as configDotenv } from "dotenv"
 
 configDotenv()
 
-const isDev = process.env.NODE_ENV === "development"
-const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY as string
-const firebasePrivateKeyFile = "firebase-private-key.json"
-
-const firebaseServiceAccount = isDev
-  ? JSON.parse(firebasePrivateKey)
-  : firebasePrivateKeyFile
-
 const firebaseApp = initializeApp({
-  credential: credential.cert(firebaseServiceAccount)
+  credential: credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS!)
 })
 
 export const firestore = getFirestore(firebaseApp)
