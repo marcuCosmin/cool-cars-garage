@@ -1,12 +1,20 @@
 import * as esbuild from "esbuild"
+import fs from "fs"
 
 const isDev = process.env.NODE_ENV !== "production"
+
+const packageJson = JSON.parse(fs.readFileSync("./package.json", "utf-8"))
+
+const allDeps = {
+  ...packageJson.dependencies,
+  ...packageJson.devDependencies
+}
 
 const buildCommonOptions = {
   bundle: true,
   outdir: "./dist",
   platform: "node",
-  packages: "external",
+  external: Object.keys(allDeps),
   sourcemap: isDev
 }
 
