@@ -6,6 +6,15 @@ export type MissingCheckTemplate = {
   }
 }
 
+type CarsCheckpointsTemplate = {
+  type: "cars_checkpoints"
+  params: {
+    car_reg_number: string
+    expiry_date: string
+    checkpoint: string
+  }
+}
+
 type FaultsSubmittedTemplate = {
   type: "faults_reported"
   params: {
@@ -54,6 +63,7 @@ type SendWappMessageProps = {
     | OutstandingRecallFoundTemplate
     | OutstandingRecallFailedTemplate
     | BulkOutstandingRecallFailedTemplate
+    | CarsCheckpointsTemplate
   phoneNumber: string
 }
 

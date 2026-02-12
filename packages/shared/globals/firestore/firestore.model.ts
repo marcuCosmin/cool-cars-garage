@@ -113,27 +113,32 @@ export type IncidentDoc = {
   resolutionTimestamp?: number
 }
 
-export type CarDoc = {
-  driverId: string
-  make: string
+export type CarCheckpoints = {
   motExpiryTimestamp: number
-  motStatus:
-    | "No details held by DVLA"
-    | "No results returned"
-    | "Not valid"
-    | "Valid"
   roadTaxExpiryTimestamp: number
+  insuranceExpiryTimestamp: number
+  safetyChecksExpiryTimestamp?: number
+  tachographExpiryTimestamp?: number
+  wheelChairLiftExpiryTimestamp?: number
+  plateNumberExpiryTimestamp?: number
+  cornwallMotExpiryTimestamp?: number
+}
+
+export type CarDoc = CarCheckpoints & {
+  make: string
+  motStatus?: string
   roadTaxStatus: "Not Taxed for on Road Use" | "SORN" | "Taxed" | "Untaxed"
   color: string
   fuelType: string
-  co2Emissions: number
+  co2Emissions?: number
   engineCapacity: number
   lastIssuedV5CTimestamp: number
-  monthOfFirstRegistration: string
   isOffRoad: boolean
   council: Councils
   hasOutstandingRecall: boolean
   isRental: boolean
+  plateNumber?: string
+  type: string
 }
 
 export type NotificationConfigDoc = {
@@ -163,6 +168,31 @@ export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
   incidents: DocWithID<IncidentDoc>[]
 }
 
+type JobSkipTimestamp =
+  | {
+      type: "single"
+      timestamp: number
+    }
+  | {
+      type: "range"
+      startTimestamp: number
+      endTimestamp: number
+    }
+
+export type JobDoc = {
+  lastRunTimestamp?: number
+  interval: Partial<{
+    years: number
+    months: number
+    weeks: number
+    days: number
+    hours: number
+  }>
+  daysOfWeek?: number[]
+  runHour?: number
+  skipTimestamps?: JobSkipTimestamp[]
+}
+
 export type FirestoreCollectionsMap = {
   "cars": CarDoc
   "checks": CheckDoc
@@ -172,6 +202,7 @@ export type FirestoreCollectionsMap = {
   "phone-numbers": PhoneNumberDoc
   "reports-config": ReportsQuestionsDoc
   "users": UserDoc
+  "jobs": JobDoc
 }
 
 export type FirestoreCollectionsNames = keyof FirestoreCollectionsMap

@@ -1,4 +1,4 @@
-import { getSecretValue } from "@/backend/utils/get-secret-value"
+import { getSecretValue } from "./get-secret-value"
 
 export const getDVLAJWT = async () => {
   const dvlaApiPassword = await getSecretValue("DVLA_API_PASSWORD")
@@ -19,6 +19,8 @@ export const getDVLAJWT = async () => {
   )
 
   if (!response.ok) {
+    const data = await response.json()
+    console.log({ data })
     throw new Error("Failed to get the DVLA JWT")
   }
 

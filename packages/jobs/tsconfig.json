@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "module": "es2022",
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/backend/*": ["../shared/backend/*"],
+      "@/globals/*": ["../shared/globals/*"],
+      "@/configurable/*": ["./src/configurable/*"],
+      "@/static/*": ["./src/static/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/models": ["./src/models"],
+
+    }
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+}

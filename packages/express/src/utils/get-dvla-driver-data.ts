@@ -1,4 +1,4 @@
-import { getSecretValue } from "@/utils/get-secret-value"
+import { getSecretValue } from "@/backend/utils/get-secret-value"
 
 import type { DriverDVLAData } from "@/globals/firestore/firestore.model"
 

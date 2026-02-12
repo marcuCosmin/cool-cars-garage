@@ -1,0 +1,49 @@
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "packages/jobs/**"
+            - "packages/shared/**"
+            - ".github/workflows/deploy-jobs.yml"
+name: Deploy Jobs
+jobs:
+    deploy:
+        name: Deploy Jobs
+        runs-on: ubuntu-latest
+        env:
+            FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.15.0"
+
+            - name: Build Project
+              run: npm install && npm run build:jobs
+
+            - name: Copy package.json and package-lock.json to dist
+              run: cp packages/jobs/package*.json packages/jobs/dist/
+
+            - name: Set up SSH key
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+                  chmod 600 ~/.ssh/id_ed25519
+
+            - name: Add server to known_hosts
+              run: |
+                  mkdir -p ~/.ssh
+                  ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+            - name: Sync Files
+              run: rsync -avz --progress --delete --exclude='.deploy' --exclude='jobs/' --exclude='node_modules/' -e "ssh -i ~/.ssh/id_ed25519" ./packages/jobs/dist/ ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage-jobs/
+
+            - name: Create deploy File
+              run: echo "deploy_$(date +'%Y%m%d%H%M%S')" > .deploy
+
+            - name: Update Deploy File
+              run: rsync -avz --progress -e "ssh -i ~/.ssh/id_ed25519" .deploy ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/cool-cars-garage-jobs/

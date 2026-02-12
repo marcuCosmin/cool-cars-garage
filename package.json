@@ -9,6 +9,7 @@
   "scripts": {
     "build:react": "npm run build --workspace=cool-cars-garage-react",
     "build:express": "npm run build --workspace=cool-cars-garage-express",
+    "build:jobs": "npm run build --workspace=cool-cars-garage-jobs",
     "dev": "concurrently \"npm run dev --workspace=cool-cars-garage-react\" \"npm run dev --workspace=cool-cars-garage-express\"",
     "lint": "npm run lint --workspaces"
   },
