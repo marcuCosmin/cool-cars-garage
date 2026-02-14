@@ -1,6 +1,9 @@
 import type { JobScript } from "@/models"
 
-import { updateDVLAApiKey, updateDVLAPassword } from "./utils"
+import {
+  updateDVLAApiKey,
+  updateDVLAPassword
+} from "./dvlaCredentialsUpdate.utils"
 
 const run = async () => {
   try {

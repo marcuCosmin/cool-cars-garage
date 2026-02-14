@@ -2,7 +2,7 @@ import { createNewSecretVersion } from "@/backend/utils/get-secret-value"
 
 import type { JobScript } from "@/models"
 
-import { updateMotHistoryApiClientSecret } from "./utils"
+import { updateMotHistoryApiClientSecret } from "./motHistorySecretUpdate.utils"
 
 const run = async () => {
   try {

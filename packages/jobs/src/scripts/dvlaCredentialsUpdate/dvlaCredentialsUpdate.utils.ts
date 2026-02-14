@@ -78,6 +78,15 @@ export const updateDVLAApiKey = async () => {
 
   const data = await response.json()
 
+  if (!response.ok) {
+    const errorData = (await response.json()) as UpdateDVLAError
+    const details = errorData
+      .map(error => `${error.title}: ${error.detail}`)
+      .join("; ")
+
+    throw new Error(`DVLA API key update failed: ${details}`)
+  }
+
   await createNewSecretVersion({
     secretKey: "DVLA_API_KEY",
     secretValue: data.newApiKey

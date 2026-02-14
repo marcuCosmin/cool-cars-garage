@@ -1,12 +1,15 @@
-import { sub as substractFromDate, add as addToDate } from "date-fns"
-
 import { getFirestoreDocs } from "@/backend/firebase/utils"
 import { sendWappMessages } from "@/backend/utils/send-wapp-messages"
 import type { CarCheckpoints } from "@/globals/firestore/firestore.model"
 
 import type { JobScript } from "@/models"
 
-import { checkpointsConfig, checkpointsNotificationsLabels } from "./const"
+import { getCheckpointNotificationsRunDates } from "./carsCheckpoints.utils"
+
+import {
+  checkpointsConfig,
+  checkpointsNotificationsLabels
+} from "./carsCheckpoints.const"
 
 const run = async () => {
   const cars = await getFirestoreDocs({
@@ -44,32 +47,16 @@ const run = async () => {
       const expiryDate = new Date(expiryTimestamp)
       expiryDate.setHours(0, 0, 0, 0)
 
-      const notificationsStartDate = substractFromDate(
+      const notificationsRunDates = getCheckpointNotificationsRunDates({
         expiryDate,
-        config.timeBeforeNotificationsStart
-      )
-
-      const notificationsRunDates: Date[] = []
-      let nextNotificationDate = notificationsStartDate
-
-      while (nextNotificationDate < expiryDate) {
-        notificationsRunDates.push(nextNotificationDate)
-        nextNotificationDate = addToDate(
-          nextNotificationDate,
-          config.notificationCooldown
-        )
-      }
-
-      const notificationsRunTimestamps = notificationsRunDates.map(date =>
-        date.getTime()
-      )
+        config
+      })
 
       const currentDate = new Date()
       currentDate.setHours(0, 0, 0, 0)
-      const currentTimestamp = currentDate.getTime()
 
-      const hasMatchingTimestamp = notificationsRunTimestamps.find(
-        timestamp => timestamp === currentTimestamp
+      const hasMatchingTimestamp = notificationsRunDates.find(
+        date => date.getTime() === currentDate.getTime()
       )
 
       if (hasMatchingTimestamp) {
