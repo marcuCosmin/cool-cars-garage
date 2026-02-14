@@ -25,7 +25,7 @@ export const updateDVLAPassword = async () => {
   })
 
   const response = await fetch(
-    "https://driver-vehicle-licensing.api.gov.uk/thirdparty-access/v1/password",
+    `${process.env.DVLA_API_URL}/thirdparty-access/v1/password`,
     {
       method: "POST",
       headers: {
@@ -63,7 +63,7 @@ export const updateDVLAApiKey = async () => {
   const jwt = await getDVLAJWT()
 
   const response = await fetch(
-    "https://driver-vehicle-licensing.api.gov.uk/thirdparty-access/v1/new-api-key",
+    `${process.env.DVLA_API_URL}/thirdparty-access/v1/new-api-key`,
     {
       method: "POST",
       headers: {
