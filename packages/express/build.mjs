@@ -31,7 +31,7 @@ const build = async () => {
   }
 
   await esbuild.build({
-    entryPoints: ["./src/index.ts", "./src/jobs/**"],
+    entryPoints: ["./src/index.ts"],
     ...buildCommonOptions
   })
 }
