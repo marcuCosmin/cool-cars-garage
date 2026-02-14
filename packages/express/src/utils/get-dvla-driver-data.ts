@@ -129,15 +129,13 @@ export const getDVLADriverData = async ({
         categoryLegalLiteral,
         categoryType,
         fromDate,
-        expiryDate,
-        restrictions
+        expiryDate
       }) => ({
         categoryCode,
         categoryLegalLiteral,
         categoryType,
         activationTimestamp: getTimestampFromDVLADate(fromDate),
-        expiryTimestamp: getTimestampFromDVLADate(expiryDate),
-        restrictions
+        expiryTimestamp: getTimestampFromDVLADate(expiryDate)
       })
     )
   }
