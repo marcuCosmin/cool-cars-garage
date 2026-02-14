@@ -18,13 +18,11 @@ export const getDVLAJWT = async () => {
     }
   )
 
-  if (!response.ok) {
-    const data = await response.json()
-    console.log({ data })
-    throw new Error("Failed to get the DVLA JWT")
-  }
-
   const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(`Failed to get the DVLA JWT, ${JSON.stringify(data)}`)
+  }
 
   const idToken = data["id-token"] as string | undefined
 
