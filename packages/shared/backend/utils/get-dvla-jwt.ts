@@ -4,7 +4,7 @@ export const getDVLAJWT = async () => {
   const dvlaApiPassword = await getSecretValue("DVLA_API_PASSWORD")
 
   const response = await fetch(
-    "https://uat.driver-vehicle-licensing.api.gov.uk/thirdparty-access/v1/authenticate",
+    `${process.env.DVLA_API_URL}/thirdparty-access/v1/authenticate`,
     {
       method: "POST",
       headers: {

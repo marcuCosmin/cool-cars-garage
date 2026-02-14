@@ -71,7 +71,7 @@ export const getDVLADriverData = async ({
   const dvlaApiKey = await getSecretValue("DVLA_API_KEY")
 
   const response = await fetch(
-    "https://uat.driver-vehicle-licensing.api.gov.uk/full-driver-enquiry/v1/driving-licences/retrieve",
+    `${process.env.DVLA_API_URL}/full-driver-enquiry/v1/driving-licences/retrieve`,
     {
       method: "POST",
       headers: {
