@@ -29,7 +29,7 @@ export type RawDataListItem<
 
 export type RawUserListItem = RawDataListItem<
   Omit<User, "firstName" | "lastName" | "role" | "uid"> &
-    Partial<DriverData> & {
+    Partial<Omit<DriverData, "firstName" | "lastName">> & {
       invitationPending?: boolean
     }
 >
@@ -37,7 +37,12 @@ export type RawUserListItem = RawDataListItem<
 export type CheckRawListItem = RawDataListItem<
   Omit<
     CheckDoc,
-    "carId" | "odoReading" | "interior" | "exterior" | "driverId"
+    | "carId"
+    | "odoReading"
+    | "interior"
+    | "exterior"
+    | "driverId"
+    | "faultsDetails"
   > & {
     odoReading: string
     driver: string
