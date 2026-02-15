@@ -6,11 +6,10 @@ import {
 import { configureStore } from "@reduxjs/toolkit"
 
 import { user } from "./userSlice"
-import { carsReducer } from "./carsSlice"
 import { screen } from "./screenSlice"
 
 export const store = configureStore({
-  reducer: { user, carsReducer, screen }
+  reducer: { user, screen }
 })
 
 type State = ReturnType<typeof store.getState>

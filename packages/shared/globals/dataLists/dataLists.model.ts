@@ -1,4 +1,9 @@
-import type { CheckDoc, DriverData, User } from "../firestore/firestore.model"
+import type {
+  CarDoc,
+  CheckDoc,
+  DriverData,
+  User
+} from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
 export type DefaultDataListItemCollapsibleMetadataValue = Record<
@@ -10,7 +15,7 @@ type DefaultDataListItemMetadata = Record<
   string,
   FormFieldValue | undefined | DefaultDataListItemCollapsibleMetadataValue
 > & {
-  creationTimestamp: number
+  creationTimestamp?: number
 }
 
 export type RawDataListItem<
@@ -38,3 +43,5 @@ export type CheckRawListItem = RawDataListItem<
     driver: string
   }
 >
+
+export type RawCarListItem = RawDataListItem<Omit<CarDoc, "council">>

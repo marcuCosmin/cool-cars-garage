@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getFirestoreDoc } from "@/firebase/utils"
 import type { User as FirebaseUser } from "firebase/auth"
 
-import type { User, UserDoc } from "@/globals/firestore/firestore.model"
+import type { User } from "@/globals/firestore/firestore.model"
 
 type UserState = Pick<
   User,
@@ -29,7 +29,7 @@ const handleUserInit = async (user: FirebaseUser | null) => {
   }
 
   const { uid, email } = user
-  const userDoc = await getFirestoreDoc<UserDoc>({
+  const userDoc = await getFirestoreDoc({
     collectionId: "users",
     docId: uid
   })

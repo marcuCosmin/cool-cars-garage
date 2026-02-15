@@ -4,8 +4,6 @@ import { getFirestoreDoc } from "@/firebase/utils"
 
 import { Loader } from "@/components/basic/Loader"
 
-import type { InvitationDoc } from "@/globals/firestore/firestore.model"
-
 import { SignUpForm } from "./SignUpForm"
 
 type SignUpProps = {
@@ -16,7 +14,7 @@ export const SignUp = ({ invitationId }: SignUpProps) => {
   const { data: invitation, isLoading } = useQuery({
     queryKey: ["invitation"],
     queryFn: () =>
-      getFirestoreDoc<InvitationDoc>({
+      getFirestoreDoc({
         collectionId: "invitations",
         docId: invitationId
       })

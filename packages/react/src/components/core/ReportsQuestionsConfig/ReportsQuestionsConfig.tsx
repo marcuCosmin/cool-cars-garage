@@ -30,7 +30,7 @@ export const ReportsQuestionsConfig = ({
   const { data, isLoading } = useQuery({
     queryKey: ["/reports-questions-config", category],
     queryFn: async () => {
-      const data = await getFirestoreDoc<ReportsQuestionsDoc>({
+      const data = await getFirestoreDoc({
         collectionId: "reports-config",
         docId: category
       })

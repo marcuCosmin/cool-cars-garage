@@ -32,11 +32,10 @@ import type {
 
 import type { SignInFormData } from "@/globals/forms/forms.const"
 import type {
-  CheckDoc,
-  FaultDoc,
-  FullCheck,
-  IncidentDoc,
-  UserDoc
+  DocWithID,
+  FirestoreCollectionsMap,
+  FirestoreCollectionsNames,
+  FullCheck
 } from "@/globals/firestore/firestore.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
@@ -49,15 +48,15 @@ export const signInUserAfterCreation = (authToken: string) =>
 
 export const signOutUser = () => signOut(firebaseAuth)
 
-type GetFirestoreDocProps = {
-  collectionId: string
+type GetFirestoreDocProps<T extends FirestoreCollectionsNames> = {
+  collectionId: T
   docId: string
 }
 
-export const getFirestoreDoc = async <T extends DocumentData>({
+export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
   collectionId,
   docId
-}: GetFirestoreDocProps) => {
+}: GetFirestoreDocProps<T>) => {
   const docRef = doc(firestore, collectionId, docId)
   const docSnapshot = await getDoc(docRef)
 
@@ -65,7 +64,7 @@ export const getFirestoreDoc = async <T extends DocumentData>({
     return null
   }
 
-  const data = docSnapshot.data() as T
+  const data = docSnapshot.data() as FirestoreCollectionsMap[T]
 
   return {
     ...data,
@@ -75,21 +74,21 @@ export const getFirestoreDoc = async <T extends DocumentData>({
 
 type FirestoreFilter = [string, WhereFilterOp, unknown]
 
-type GetFirestoreDocsProps = {
-  collectionId: string
+type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> = {
+  collectionId: T
   filters?: FirestoreFilter[]
   cap?: number
   order?: { field: string; direction: "asc" | "desc" }
   lastRefValue?: any
 }
 
-export const getFirestoreDocs = async <T extends DocumentData>({
+export const getFirestoreDocs = async <T extends FirestoreCollectionsNames>({
   collectionId,
   filters,
   cap,
   order,
   lastRefValue
-}: GetFirestoreDocsProps) => {
+}: GetFirestoreDocsProps<T>) => {
   let path: CollectionReference<DocumentData> | Query<DocumentData> =
     collection(firestore, collectionId)
 
@@ -115,12 +114,12 @@ export const getFirestoreDocs = async <T extends DocumentData>({
   }
 
   const data = snapshot.docs.map(doc => {
-    const docData = doc.data() as T
+    const docData = doc.data() as FirestoreCollectionsMap[T]
 
     return {
       ...docData,
       id: doc.id
-    }
+    } as DocWithID<FirestoreCollectionsMap[T]>
   })
 
   return data
@@ -207,12 +206,14 @@ export const updateFirestoreDoc = async <T extends DocumentData>({
   await updateDoc(docRef, data)
 }
 
-type GetFirestoreCollectionChunksProps<T extends DocumentData> = {
-  collectionId: string
-  queryContext: QueryContext<T, true>
+type GetFirestoreCollectionChunksProps<T extends FirestoreCollectionsNames> = {
+  collectionId: T
+  queryContext: QueryContext<FirestoreCollectionsMap[T], true>
 }
 
-export const getFirestoreCollectionChunks = async <T extends DocumentData>({
+export const getFirestoreCollectionChunks = async <
+  T extends FirestoreCollectionsNames
+>({
   collectionId,
   queryContext
 }: GetFirestoreCollectionChunksProps<T>) => {
@@ -232,7 +233,7 @@ export const getFirestoreCollectionChunks = async <T extends DocumentData>({
 export const getFullCheck = async (
   checkId: string
 ): Promise<FullCheck | null> => {
-  const checkData = await getFirestoreDoc<CheckDoc>({
+  const checkData = await getFirestoreDoc({
     collectionId: "checks",
     docId: checkId
   })
@@ -243,17 +244,17 @@ export const getFullCheck = async (
 
   const { driverId, ...check } = checkData
 
-  const user = await getFirestoreDoc<UserDoc>({
+  const user = await getFirestoreDoc({
     collectionId: "users",
     docId: driverId
   })
 
-  const faults = await getFirestoreDocs<FaultDoc>({
+  const faults = await getFirestoreDocs({
     collectionId: "faults",
     filters: [["checkId", "==", checkId]]
   })
 
-  const incidents = await getFirestoreDocs<IncidentDoc>({
+  const incidents = await getFirestoreDocs({
     collectionId: "incidents",
     filters: [["checkId", "==", checkId]]
   })

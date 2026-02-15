@@ -20,7 +20,6 @@ import type {
 
 import type { CheckRawListItem } from "@/globals/dataLists/dataLists.model"
 import type {
-  CarDoc,
   CheckDoc,
   DocWithID,
   UserDoc
@@ -45,12 +44,12 @@ export const Reports = () => {
   const { setModalProps } = useModalContext()
   const { data: users, isLoading: isLoadingUsers } = useQuery({
     queryKey: ["/users-docs"],
-    queryFn: () => getFirestoreDocs<UserDoc>({ collectionId: "users" }),
+    queryFn: () => getFirestoreDocs({ collectionId: "users" }),
     staleTime: Infinity
   })
   const { data: cars, isLoading: isLoadingCars } = useQuery({
     queryKey: ["/cars-docs"],
-    queryFn: () => getFirestoreDocs<CarDoc>({ collectionId: "cars" }),
+    queryFn: () => getFirestoreDocs({ collectionId: "cars" }),
     staleTime: Infinity
   })
 
@@ -144,7 +143,7 @@ export const Reports = () => {
     CheckDoc,
     true
   > = async queryContext => {
-    const checks = await getFirestoreCollectionChunks<CheckDoc>({
+    const checks = await getFirestoreCollectionChunks({
       collectionId: "checks",
       queryContext: queryContext!
     })

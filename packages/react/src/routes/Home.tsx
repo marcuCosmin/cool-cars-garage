@@ -1,31 +1,55 @@
-import { useEffect } from "react"
-import { useNavigate } from "react-router"
+import { getFirestoreDocs } from "@/firebase/utils"
 
-import { useAppSelector } from "@/redux/config"
+import { DataView } from "@/components/core/DataView/DataView"
+import type {
+  DataListItemMetadataConfig,
+  FiltersConfig
+} from "@/components/core/DataView/DataView.model"
 
-import { CarsList } from "@/components/core/CarsList/CarsList"
-import { Loader } from "@/components/basic/Loader"
+import type { RawCarListItem } from "@/globals/dataLists/dataLists.model"
 
-export const Home = () => {
-  const userRole = useAppSelector(state => state.user.role)
-  const navigate = useNavigate()
+const filtersConfig: FiltersConfig<RawCarListItem, false> = []
 
-  useEffect(() => {
-    if (userRole === "admin") {
-      return
-    }
-
-    if (userRole === "manager") {
-      navigate("/reports", { replace: true })
-      return
-    }
-
-    navigate("/reports/auth", { replace: true })
-  }, [userRole])
-
-  if (userRole !== "admin") {
-    return <Loader enableOverlay />
+const carsDataItemsMetadataConfig: DataListItemMetadataConfig<RawCarListItem> =
+  {
+    make: { type: "text", label: "Make" },
+    motStatus: { type: "text", label: "MOT Status" },
+    roadTaxStatus: { type: "text", label: "Road Tax Status" },
+    color: { type: "text", label: "Color" },
+    fuelType: { type: "text", label: "Fuel Type" },
+    co2Emissions: { type: "text", label: "CO2 Emissions" },
+    engineCapacity: { type: "text", label: "Engine Capacity" },
+    lastIssuedV5CTimestamp: { type: "date", label: "Last Issued V5C" },
+    isOffRoad: { type: "boolean", label: "Off Road" },
+    hasOutstandingRecall: { type: "boolean", label: "Outstanding Recall" },
+    isRental: { type: "boolean", label: "Rental" },
+    plateNumber: { type: "text", label: "Plate Number" },
+    type: { type: "text", label: "Type" },
+    motExpiryTimestamp: { type: "date", label: "MOT Expiry" },
+    roadTaxExpiryTimestamp: { type: "date", label: "Road Tax Expiry" },
+    insuranceExpiryTimestamp: { type: "date", label: "Insurance Expiry" },
+    plateNumberExpiryTimestamp: { type: "date", label: "Plate Number Expiry" }
   }
 
-  return <CarsList />
+const fetchItems = async (): Promise<RawCarListItem[]> => {
+  const cars = await getFirestoreDocs({
+    collectionId: "cars"
+  })
+
+  return cars.map(({ id, council, ...metadata }) => ({
+    id,
+    title: id,
+    subtitle: council,
+    metadata
+  }))
+}
+
+export const Home = () => {
+  return (
+    <DataView
+      filtersConfig={filtersConfig}
+      fetchItems={fetchItems}
+      itemMetadataConfig={carsDataItemsMetadataConfig}
+    />
+  )
 }
