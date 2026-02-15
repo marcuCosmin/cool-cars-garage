@@ -1,9 +1,12 @@
+import { useState } from "react"
+import { Popover } from "react-tiny-popover"
 import {
   Calendar2Week,
   CheckCircle,
   BoxArrowUp,
   InfoCircle,
-  XCircle
+  XCircle,
+  ArrowDownCircle
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
@@ -12,22 +15,60 @@ import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
 
-import type { DataListItem, ItemMetadata } from "../../DataView.model"
+import type {
+  DataListItem,
+  ItemListMetadata,
+  ItemMetadata
+} from "../../DataView.model"
 
-type CollapsibleIconProps = { itemsCount: number }
+type DataViewMetadataListProps = {
+  label: string
+  fields: ItemListMetadata["fields"]
+}
 
-const CollapsibleIcon = ({ itemsCount }: CollapsibleIconProps) => (
-  <div className="flex items-center justify-center border-[1.5px] text-primary border-primary rounded-full h-[20px] w-[20px]">
-    {itemsCount}
-  </div>
-)
+const DataViewMetadataList = ({ label, fields }: DataViewMetadataListProps) => {
+  const Icon = metadataIconsMap.list
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+
+  const togglePopover = () => setIsPopoverOpen(!isPopoverOpen)
+  const onClickOutside = () => setIsPopoverOpen(false)
+
+  const content = (
+    <div className="flex flex-col items-center bg-white dark:bg-black p-2 border border-primary rounded-sm gap-2 max-h-64 overflow-y-auto">
+      {fields.map((field, index) => (
+        <>
+          <DataViewListItemMetadata key={index} metadata={field} isNested />
+          {index < fields.length - 1 && (
+            <hr className="border-primary w-[85%]" />
+          )}
+        </>
+      ))}
+    </div>
+  )
+
+  return (
+    <Popover
+      isOpen={isPopoverOpen}
+      onClickOutside={onClickOutside}
+      positions={["bottom", "top", "left", "right"]}
+      content={content}
+    >
+      <button
+        onClick={togglePopover}
+        className="bg-transparent p-0 flex items-center gap-2 text-primary"
+      >
+        <Icon height={20} width={20} /> {label} {`(${fields.length})`}
+      </button>
+    </Popover>
+  )
+}
 
 const metadataIconsMap = {
   text: InfoCircle,
   boolean: (value: boolean) => (value ? CheckCircle : XCircle),
   date: Calendar2Week,
   link: BoxArrowUp,
-  collapsible: CollapsibleIcon
+  list: ArrowDownCircle
 } as const
 
 type DataViewListItemMetadataProps = {
@@ -53,7 +94,7 @@ export const DataViewListItemMetadata = ({
       className={`flex flex-col max-h-96 ${isNested ? "gap-1" : "gap-2 overflow-y-auto"}`}
     >
       {sortedMetadata.map((props, index) => {
-        if (props.type === "collapsible") {
+        if (props.type === "list") {
           const { label, fields, type } = props
 
           if (!fields.length) {
@@ -62,22 +103,33 @@ export const DataViewListItemMetadata = ({
 
           const Icon = metadataIconsMap[type]
 
+          if (!isNested) {
+            return (
+              <DataViewMetadataList key={index} label={label} fields={fields} />
+            )
+          }
+
           return (
             <Collapsible
               title={
                 <>
-                  <Icon itemsCount={fields.length} /> {label}
+                  <Icon height={20} width={20} /> {label}
                 </>
               }
               buttonClassName="p-0 bg-transparent w-fit flex gap-2 text-primary"
               key={index}
             >
               {fields.map((field, index) => (
-                <DataViewListItemMetadata
-                  key={index}
-                  metadata={field}
-                  isNested
-                />
+                <>
+                  <DataViewListItemMetadata
+                    key={index}
+                    metadata={field}
+                    isNested
+                  />
+                  {index < fields.length - 1 && (
+                    <hr className="border-primary w-[85%]" />
+                  )}
+                </>
               ))}
             </Collapsible>
           )

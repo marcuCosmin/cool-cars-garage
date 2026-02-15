@@ -40,24 +40,24 @@ export type PrimitiveMetadata =
   | ItemDateMetadata
   | ItemLinkMetadata
 
-type ItemCollapsibleBase = {
-  type: "collapsible"
+type ItemListBase = {
+  type: "list"
   label: string
 }
 
-type ItemCollapsibleMetadataConfig = ItemCollapsibleBase & {
+type ItemListMetadataConfig = ItemListBase & {
   fields: Record<string, Omit<PrimitiveMetadata, "value">>
 }
 
-export type ItemCollapsibleMetadata = ItemCollapsibleBase & {
+export type ItemListMetadata = ItemListBase & {
   fields: Record<string, PrimitiveMetadata>[]
 }
 
 type ItemMetadataConfig =
   | Omit<PrimitiveMetadata, "value">
-  | ItemCollapsibleMetadataConfig
+  | ItemListMetadataConfig
 
-export type ItemMetadata = PrimitiveMetadata | ItemCollapsibleMetadata
+export type ItemMetadata = PrimitiveMetadata | ItemListMetadata
 
 export type DataListItemMetadataConfig<RawItem extends RawDataListItem> =
   Required<{
@@ -96,11 +96,13 @@ type SelectFilterProps<Item extends Record<string, any>> = {
   field: keyof Item
 } & ComponentFilterProps
 
+export type FilterOperator = "==" | "!=" | ">" | "<" | ">=" | "<="
+
 type ToggleFilterProps<Item extends Record<string, any>> = {
   type: "toggle"
   filterOptions: {
     field: keyof Item
-    operator: "==" | "!=" | ">" | "<" | ">=" | "<="
+    operator: FilterOperator
     value: FormFieldValue
   }
   value: boolean

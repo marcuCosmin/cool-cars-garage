@@ -6,14 +6,14 @@ import type {
 } from "../firestore/firestore.model"
 import type { FormFieldValue } from "../forms/forms.models"
 
-export type DefaultDataListItemCollapsibleMetadataValue = Record<
+export type DefaultListMetadataValue = Record<
   string,
   FormFieldValue | undefined
 >[]
 
 type DefaultDataListItemMetadata = Record<
   string,
-  FormFieldValue | undefined | DefaultDataListItemCollapsibleMetadataValue
+  FormFieldValue | undefined | DefaultListMetadataValue
 > & {
   creationTimestamp?: number
 }

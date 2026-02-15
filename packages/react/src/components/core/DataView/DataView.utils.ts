@@ -1,9 +1,10 @@
 import { type DocumentData } from "firebase/firestore"
 
 import type {
-  DefaultDataListItemCollapsibleMetadataValue,
+  DefaultListMetadataValue,
   RawDataListItem
 } from "@/globals/dataLists/dataLists.model"
+import type { FormFieldValue } from "@/globals/forms/forms.models"
 
 import type {
   FiltersConfig,
@@ -11,8 +12,9 @@ import type {
   ItemMetadata,
   DataListItemMetadataConfig,
   DataListItem,
-  ItemCollapsibleMetadata,
-  PrimitiveMetadata
+  ItemListMetadata,
+  PrimitiveMetadata,
+  FilterOperator
 } from "./DataView.model"
 
 export const parseSearchString = (searchString: string) =>
@@ -65,10 +67,8 @@ export const extendRawItemMetadata = <RawItem extends RawDataListItem>({
       const castedKey = key as keyof DataListItemMetadataConfig<RawItem>
       const config = metadataConfig[castedKey]
 
-      if (config.type === "collapsible") {
-        const fields = (
-          value as DefaultDataListItemCollapsibleMetadataValue
-        ).map(field => {
+      if (config.type === "list") {
+        const fields = (value as DefaultListMetadataValue).map(field => {
           const extendedField = Object.entries(field).reduce(
             (fieldAcc, [fieldKey, fieldValue]) => {
               const fieldConfig = config.fields[fieldKey]
@@ -80,7 +80,7 @@ export const extendRawItemMetadata = <RawItem extends RawDataListItem>({
 
               return fieldAcc
             },
-            {} as ItemCollapsibleMetadata["fields"][number]
+            {} as ItemListMetadata["fields"][number]
           )
 
           return extendedField
@@ -172,6 +172,40 @@ const getItemsBySearchQuery = <RawItem extends RawDataListItem>({
   return filteredItems
 }
 
+type EvaluateFilterExpressionProps = {
+  itemFieldValue?: FormFieldValue | DefaultListMetadataValue
+  operator: FilterOperator
+  filterValue: FormFieldValue
+}
+
+const evaluateFilterExpression = ({
+  itemFieldValue,
+  operator,
+  filterValue
+}: EvaluateFilterExpressionProps) => {
+  // TODO: Think if you need to handle the array value
+  if (itemFieldValue === undefined || Array.isArray(itemFieldValue)) {
+    return false
+  }
+
+  switch (operator) {
+    case "==":
+      return itemFieldValue === filterValue
+    case "!=":
+      return itemFieldValue !== filterValue
+    case ">":
+      return itemFieldValue > filterValue
+    case "<":
+      return itemFieldValue < filterValue
+    case ">=":
+      return itemFieldValue >= filterValue
+    case "<=":
+      return itemFieldValue <= filterValue
+    default:
+      return false
+  }
+}
+
 type GetItemsByFiltersProps<RawItem extends RawDataListItem> = {
   items: RawItem[]
   filters: FiltersState<RawItem, false>
@@ -194,17 +228,15 @@ const getItemsByFilters = <RawItem extends RawDataListItem>({
       }
 
       filteredItems = filteredItems.filter(item => {
-        const filterFieldValue = (item.metadata as RawItem["metadata"])[
+        const itemFieldValue = (item.metadata as RawItem["metadata"])[
           filterOptions.field
         ]
 
-        const filterExpression = [
-          String(filterFieldValue),
-          filterOptions.operator,
-          filterOptions.value
-        ].join(" ")
-
-        const isMatch = eval(filterExpression)
+        const isMatch = evaluateFilterExpression({
+          itemFieldValue,
+          operator: filterOptions.operator,
+          filterValue: filterOptions.value
+        })
 
         return isMatch
       })
@@ -235,13 +267,11 @@ const getItemsByFilters = <RawItem extends RawDataListItem>({
       filteredItems = filteredItems.filter(item => {
         const itemMetadata = (item.metadata as RawItem["metadata"])[field]
 
-        const filterExpression = [
-          String(itemMetadata),
+        const isMatch = evaluateFilterExpression({
+          itemFieldValue: itemMetadata,
           operator,
-          String(value)
-        ].join(" ")
-
-        const isMatch = eval(filterExpression)
+          filterValue: value
+        })
 
         return isMatch
       })

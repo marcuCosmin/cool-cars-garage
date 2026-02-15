@@ -43,7 +43,7 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
     licenceType: { type: "text", label: "Licence Type" },
     licenceStatus: { type: "text", label: "Licence Status" },
     cpcs: {
-      type: "collapsible",
+      type: "list",
       label: "CPCs",
       fields: {
         lgvExpiryTimestamp: { type: "date", label: "LGV Expiry Date" },
@@ -51,7 +51,7 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
       }
     },
     tachoCards: {
-      type: "collapsible",
+      type: "list",
       label: "Tacho Cards",
       fields: {
         cardNumber: { type: "text", label: "Card Number" },
@@ -59,7 +59,7 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
       }
     },
     entitlements: {
-      type: "collapsible",
+      type: "list",
       label: "Entitlements",
       fields: {
         categoryCode: { type: "text", label: "Category Code" },
