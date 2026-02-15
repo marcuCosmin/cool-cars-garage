@@ -28,7 +28,17 @@ const carsDataItemsMetadataConfig: DataListItemMetadataConfig<RawCarListItem> =
     motExpiryTimestamp: { type: "date", label: "MOT Expiry" },
     roadTaxExpiryTimestamp: { type: "date", label: "Road Tax Expiry" },
     insuranceExpiryTimestamp: { type: "date", label: "Insurance Expiry" },
-    plateNumberExpiryTimestamp: { type: "date", label: "Plate Number Expiry" }
+    plateNumberExpiryTimestamp: { type: "date", label: "Plate Number Expiry" },
+    safetyChecksExpiryTimestamp: {
+      type: "date",
+      label: "Safety Checks Expiry"
+    },
+    tachographExpiryTimestamp: { type: "date", label: "Tachograph Expiry" },
+    wheelChairLiftExpiryTimestamp: {
+      type: "date",
+      label: "Wheel Chair Lift Expiry"
+    },
+    cornwallMotExpiryTimestamp: { type: "date", label: "Cornwall MOT Expiry" }
   }
 
 const fetchItems = async (): Promise<RawCarListItem[]> => {

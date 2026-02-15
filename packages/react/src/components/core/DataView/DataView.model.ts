@@ -59,9 +59,10 @@ type ItemMetadataConfig =
 
 export type ItemMetadata = PrimitiveMetadata | ItemCollapsibleMetadata
 
-export type DataListItemMetadataConfig<RawItem extends RawDataListItem> = {
-  [key in keyof RawItem["metadata"]]: ItemMetadataConfig
-}
+export type DataListItemMetadataConfig<RawItem extends RawDataListItem> =
+  Required<{
+    [key in keyof RawItem["metadata"]]: ItemMetadataConfig
+  }>
 
 export type DataListItemActionProps = {
   Icon: Icon
