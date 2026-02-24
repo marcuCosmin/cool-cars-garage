@@ -68,20 +68,16 @@ export const DataView = <
     openModal
   })
 
-  if (isLoading) {
-    return <Loader enableOverlay />
-  }
-
   if (error) {
     return (
       <div className="text-xl mt-10 max-w-5xl font-bold m-auto break-all">
-        {error.message}
+        {JSON.stringify(error)}
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className="flex flex-col overflow-hidden h-full">
       <div className="p-5 flex flex-wrap items-end gap-5">
         {onAddButtonClick && (
           <button
@@ -110,12 +106,16 @@ export const DataView = <
 
       <hr className="w-[95%] sm:w-[98%] mx-auto my-5" />
 
-      <DataViewList
-        itemMetadataConfig={itemMetadataConfig}
-        getItemActionsConfig={getItemActionsConfig}
-        rawItems={rawItems}
-        onScrollEnd={onScrollEnd}
-      />
+      {isLoading ? (
+        <Loader className="m-auto" />
+      ) : (
+        <DataViewList
+          itemMetadataConfig={itemMetadataConfig}
+          getItemActionsConfig={getItemActionsConfig}
+          rawItems={rawItems}
+          onScrollEnd={onScrollEnd}
+        />
+      )}
     </div>
   )
 }

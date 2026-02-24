@@ -179,7 +179,7 @@ export const Reports = () => {
   const onBulkExportClick = () => setModalProps({ type: "checks-bulk-export" })
 
   return (
-    <div>
+    <div className="h-full flex flex-col overflow-hidden">
       <div className="p-5">
         <button type="button" className="w-fit" onClick={onBulkExportClick}>
           Bulk Export
