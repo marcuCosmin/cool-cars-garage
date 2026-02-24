@@ -1,5 +1,5 @@
-import { useRef, useState, type FocusEvent } from "react"
-import { Calendar4Week } from "react-bootstrap-icons"
+import { useRef, useState, type FocusEvent, type MouseEvent } from "react"
+import { X } from "react-bootstrap-icons"
 import Calendar from "react-calendar"
 import { Popover } from "react-tiny-popover"
 
@@ -29,15 +29,24 @@ export const DatePicker = ({
   const date = value ? new Date(value) : null
   const displayedValue = date ? date.toLocaleDateString() : ""
   const buttonClassName = mergeClassNames(
-    "flex items-center justify-between p-2 bg-transparent text-start font-normal text-nowrap border border-primary rounded-sm text-primary dark:text-secondary h-input focus:ring-primary",
+    "flex items-center justify-between p-2 bg-transparent text-start font-normal text-nowrap border border-primary rounded-sm text-primary dark:text-secondary h-input focus:ring-primary hover:opacity-100",
     error && "invalid-input"
   )
   const adornmentClassName = mergeClassNames(
-    "fill-primary h-5 w-5",
+    "fill-primary h-6 w-6 hover:fill-primary/80",
     error && "fill-error"
   )
 
-  const onPopupClose = () => setIsPopupOpen(false)
+  const onPopupClose = ({ target }: globalThis.MouseEvent) => {
+    const castTarget = target as HTMLElement
+
+    if (castTarget.closest(".react-calendar__tile")) {
+      return
+    }
+
+    setIsPopupOpen(false)
+  }
+
   const onClick = () => setIsPopupOpen(!isPopupOpen)
   const handleDateChange = (date: Value) => {
     if (date instanceof Date) {
@@ -52,6 +61,11 @@ export const DatePicker = ({
       return
     }
 
+    onChange()
+  }
+
+  const onClearClick = (e: MouseEvent<SVGElement>) => {
+    e.stopPropagation()
     onChange()
   }
 
@@ -75,9 +89,9 @@ export const DatePicker = ({
         content={
           <Calendar
             inputRef={calendarRef}
-            view="month"
             value={date?.toDateString()}
             onChange={handleDateChange}
+            minDetail="decade"
           />
         }
         isOpen={isPopupOpen}
@@ -90,7 +104,7 @@ export const DatePicker = ({
           type="button"
         >
           <div className="overflow-hidden">{displayedValue}</div>
-          <Calendar4Week className={adornmentClassName} />
+          {value && <X className={adornmentClassName} onClick={onClearClick} />}
         </button>
       </Popover>
 
