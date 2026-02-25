@@ -1,7 +1,7 @@
 import { Suspense, lazy } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 
-import { useAppSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/redux.config"
 
 import { Loader } from "@/components/basic/Loader"
 
@@ -12,13 +12,13 @@ const SignIn = lazy(() =>
   import("./SignIn").then(module => ({ default: module.SignIn }))
 )
 const SignUp = lazy(() =>
-  import("./sign-up").then(module => ({ default: module.SignUp }))
+  import("./SignUp").then(module => ({ default: module.SignUp }))
 )
 const Users = lazy(() =>
-  import("./users").then(module => ({ default: module.Users }))
+  import("./Users").then(module => ({ default: module.Users }))
 )
-const Layout = lazy(() =>
-  import("./Layout").then(module => ({ default: module.Layout }))
+const MainLayout = lazy(() =>
+  import("./MainLayout").then(module => ({ default: module.MainLayout }))
 )
 const UnauthorizedLayout = lazy(() =>
   import("./UnauthorizedLayout").then(module => ({
@@ -26,27 +26,27 @@ const UnauthorizedLayout = lazy(() =>
   }))
 )
 const ReportsLayout = lazy(() =>
-  import("./reports/Layout").then(module => ({
+  import("./Reports/ReportsLayout").then(module => ({
     default: module.ReportsLayout
   }))
 )
 const Reports = lazy(() =>
-  import("./reports").then(module => ({
+  import("./Reports/Reports").then(module => ({
     default: module.Reports
   }))
 )
 const ReportsAuth = lazy(() =>
-  import("./reports/auth").then(module => ({
+  import("./Reports/ReportsAuth").then(module => ({
     default: module.ReportsAuth
   }))
 )
-const ReportsCheckPage = lazy(() =>
-  import("./reports/[checkId]").then(module => ({
-    default: module.ReportsCheckPage
+const ReportsCheck = lazy(() =>
+  import("./Reports/ReportsCheck").then(module => ({
+    default: module.ReportsCheck
   }))
 )
 const ReportsConfig = lazy(() =>
-  import("./reports/config").then(module => ({
+  import("./Reports/ReportsConfig").then(module => ({
     default: module.ReportsConfig
   }))
 )
@@ -56,7 +56,7 @@ const NotFound = lazy(() =>
   }))
 )
 const PrivacyPolicy = lazy(() =>
-  import("./privacy-policy").then(module => ({
+  import("./PrivacyPolicy").then(module => ({
     default: module.PrivacyPolicy
   }))
 )
@@ -76,7 +76,7 @@ export const Router = () => {
           <Route index path="/" element={<Home />} />
           <Route path="/reports" element={<ReportsLayout />}>
             <Route index element={<Reports />} />
-            <Route path="/reports/:checkId" element={<ReportsCheckPage />} />
+            <Route path="/reports/:checkId" element={<ReportsCheck />} />
           </Route>
         </>
       )
@@ -88,7 +88,7 @@ export const Router = () => {
         <Route path="/users" element={<Users />} />
         <Route path="/reports" element={<ReportsLayout />}>
           <Route index element={<Reports />} />
-          <Route path="/reports/:checkId" element={<ReportsCheckPage />} />
+          <Route path="/reports/:checkId" element={<ReportsCheck />} />
           <Route path="/reports/config" element={<ReportsConfig />} />
           <Route path="/reports/auth" element={<ReportsAuth />} />
         </Route>
@@ -107,7 +107,7 @@ export const Router = () => {
               <Route path="*" element={<NotFound />} />
             </Route>
           ) : (
-            <Route element={<Layout />}>
+            <Route element={<MainLayout />}>
               {renderRoleBasedRoutes()}
               <Route path="*" element={<NotFound />} />
             </Route>

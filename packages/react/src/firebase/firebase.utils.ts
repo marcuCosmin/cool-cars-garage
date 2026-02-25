@@ -23,7 +23,7 @@ import {
   signInWithEmailAndPassword,
   signOut
 } from "firebase/auth"
-import { firebaseAuth, firestore } from "./config"
+import { firebaseAuth, firestore } from "./firebase.config"
 
 import type {
   FiltersState,

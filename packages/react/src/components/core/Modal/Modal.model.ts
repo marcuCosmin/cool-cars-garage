@@ -1,4 +1,4 @@
-import type { ConfirmationModalContentProps } from "@/components/core/ConfirmationModalContent"
+import type { ConfirmationModalContentProps } from "@/components/core/ConfirmationModal"
 import type { UserFormProps } from "@/components/core/UserForm/UserForm"
 
 export type ModalProps =

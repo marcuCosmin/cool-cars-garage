@@ -1,4 +1,4 @@
-import { getFirestoreDocs } from "@/firebase/utils"
+import { getFirestoreDocs } from "@/firebase/firebase.utils"
 
 import { DataView } from "@/components/core/DataView/DataView"
 import type {

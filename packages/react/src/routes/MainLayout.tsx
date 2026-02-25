@@ -6,15 +6,15 @@ import {
   type NavLinkRenderProps
 } from "react-router"
 
-import { signOutUser } from "@/firebase/utils"
+import { signOutUser } from "@/firebase/firebase.utils"
 
-import { useAppSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/redux.config"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
 
-export const Layout = () => {
+export const MainLayout = () => {
   const userRole = useAppSelector(state => state.user.role)
   const navigate = useNavigate()
 

@@ -1,4 +1,4 @@
-import { executeApiRequest } from "./config"
+import { executeApiRequest } from "./api.config"
 
 import type {
   UserEditData,

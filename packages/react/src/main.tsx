@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import { Provider as ReduxProvider } from "react-redux"
-import { store } from "./redux/config.ts"
+import { store } from "./redux/redux.config.ts"
 
 import { App } from "./App.tsx"
 

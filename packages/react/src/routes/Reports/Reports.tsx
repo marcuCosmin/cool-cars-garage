@@ -5,7 +5,7 @@ import { useNavigate } from "react-router"
 import {
   getFirestoreCollectionChunks,
   getFirestoreDocs
-} from "@/firebase/utils"
+} from "@/firebase/firebase.utils"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 

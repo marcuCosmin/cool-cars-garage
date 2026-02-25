@@ -1,9 +1,9 @@
 import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 
-import { getFirestoreDoc } from "@/firebase/utils"
+import { getFirestoreDoc } from "@/firebase/firebase.utils"
 
-import { useAppSelector } from "@/redux/config"
+import { useAppSelector } from "@/redux/redux.config"
 
 import { NotFound } from "@/components/core/NotFound"
 import { Loader } from "@/components/basic/Loader"

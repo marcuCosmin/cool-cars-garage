@@ -1,6 +1,6 @@
 import { Android2, Apple } from "react-bootstrap-icons"
 
-import { getAuthToken } from "@/api/utils"
+import { getAuthToken } from "@/api/api.utils"
 
 const deviceLinkConfig = {
   android: {

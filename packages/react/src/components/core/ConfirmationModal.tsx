@@ -8,7 +8,7 @@ import { mergeClassNames } from "@/utils/mergeClassNames"
 
 import { Loader } from "@/components/basic/Loader"
 
-export type ConfirmationModalContentProps = {
+export type ConfirmationModalProps = {
   text: string
   onConfirm: () => Promise<void>
 }
@@ -17,10 +17,10 @@ const iconsSize = 20
 const buttonsClassNames =
   "flex gap-2 justify-center items-center border border-primary"
 
-export const ConfirmationModalContent = ({
+export const ConfirmationModal = ({
   text,
   onConfirm
-}: ConfirmationModalContentProps) => {
+}: ConfirmationModalProps) => {
   const { setModalProps } = useModalContext()
   const handleConfirm = async () => {
     const response = await onConfirm()

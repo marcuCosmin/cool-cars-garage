@@ -12,7 +12,7 @@ import {
   getAllUsers,
   reinviteUser,
   updateUserActiveState
-} from "@/api/utils"
+} from "@/api/api.utils"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 

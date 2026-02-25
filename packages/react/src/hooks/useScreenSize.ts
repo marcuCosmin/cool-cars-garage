@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useDebouncedCallback } from "use-debounce"
 
-import { useAppDispatch } from "@/redux/config"
+import { useAppDispatch } from "@/redux/redux.config"
 import { setScreenWidth } from "@/redux/screenSlice"
 
 export const useScreenSizeListener = () => {

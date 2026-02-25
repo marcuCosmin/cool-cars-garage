@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { updateFirestoreDoc } from "@/firebase/utils"
+import { updateFirestoreDoc } from "@/firebase/firebase.utils"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 

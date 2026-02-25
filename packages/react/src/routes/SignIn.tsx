@@ -1,4 +1,4 @@
-import { signInUser } from "@/firebase/utils"
+import { signInUser } from "@/firebase/firebase.utils"
 
 import { Form } from "@/components/basic/Form/Form"
 

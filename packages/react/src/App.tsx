@@ -2,10 +2,10 @@ import { useEffect } from "react"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { onIdTokenChanged } from "firebase/auth"
-import { firebaseAuth } from "@/firebase/config"
-import { signOutUser } from "@/firebase/utils"
+import { firebaseAuth } from "@/firebase/firebase.config"
+import { signOutUser } from "@/firebase/firebase.utils"
 
-import { useAppDispatch, useAppSelector } from "@/redux/config"
+import { useAppDispatch, useAppSelector } from "@/redux/redux.config"
 import { initUserData } from "@/redux/userSlice"
 
 import { useScreenSizeListener } from "@/hooks/useScreenSize"

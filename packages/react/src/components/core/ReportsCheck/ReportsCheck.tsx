@@ -1,6 +1,6 @@
 import { PersonCircle, Speedometer } from "react-bootstrap-icons"
 
-import { exportChecks } from "@/api/utils"
+import { exportChecks } from "@/api/api.utils"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 

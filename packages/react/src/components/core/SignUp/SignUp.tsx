@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getFirestoreDoc } from "@/firebase/utils"
+import { getFirestoreDoc } from "@/firebase/firebase.utils"
 
 import { Loader } from "@/components/basic/Loader"
 

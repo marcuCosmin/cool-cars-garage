@@ -1,4 +1,4 @@
-import { firebaseAuth } from "@/firebase/config"
+import { firebaseAuth } from "@/firebase/firebase.config"
 
 import type {
   UserCreateData,

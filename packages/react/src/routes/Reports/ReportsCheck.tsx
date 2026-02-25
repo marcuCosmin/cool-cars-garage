@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "react-router"
 
-import { getFullCheck } from "@/firebase/utils"
+import { getFullCheck } from "@/firebase/firebase.utils"
 
 import { NotFound } from "@/components/core/NotFound"
 import { Loader } from "@/components/basic/Loader"
-import { ReportsCheck } from "@/components/core/ReportsCheck/ReportsCheck"
+import { ReportsCheck as ReportsCheckCore } from "@/components/core/ReportsCheck/ReportsCheck"
 
-export const ReportsCheckPage = () => {
+export const ReportsCheck = () => {
   const { checkId } = useParams()
   const { data: check, isLoading } = useQuery({
     queryKey: ["/reports", checkId],
@@ -22,5 +22,5 @@ export const ReportsCheckPage = () => {
     return <NotFound />
   }
 
-  return <ReportsCheck check={check} />
+  return <ReportsCheckCore check={check} />
 }

@@ -1,6 +1,6 @@
 import { toast } from "react-toastify"
 
-import { createUser, updateUser } from "@/api/utils"
+import { createUser, updateUser } from "@/api/api.utils"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 

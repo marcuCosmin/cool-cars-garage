@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
-import { markFaultsAsResolved } from "@/api/utils"
+import { markFaultsAsResolved } from "@/api/api.utils"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 

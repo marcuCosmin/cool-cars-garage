@@ -2,12 +2,12 @@ import { lazy } from "react"
 
 import type { ModalProps } from "./Modal.model"
 
-const ConfirmationModalContent = lazy(() =>
-  import("@/components/core/ConfirmationModalContent").then(module => ({
-    default: module.ConfirmationModalContent
+const ConfirmationModal = lazy(() =>
+  import("@/components/core/ConfirmationModal").then(module => ({
+    default: module.ConfirmationModal
   }))
 )
-const UserFrom = lazy(() =>
+const UserModal = lazy(() =>
   import("@/components/core/UserForm/UserForm").then(module => ({
     default: module.UserForm
   }))
@@ -22,9 +22,9 @@ const ChecksBulkExportModal = lazy(() =>
 export const getModalContent = ({ type, props }: ModalProps) => {
   switch (type) {
     case "confirmation":
-      return <ConfirmationModalContent {...props} />
+      return <ConfirmationModal {...props} />
     case "user":
-      return <UserFrom {...props} />
+      return <UserModal {...props} />
     case "checks-bulk-export":
       return <ChecksBulkExportModal />
   }

@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router"
 
-import { registerUser } from "@/api/utils"
+import { registerUser } from "@/api/api.utils"
 
-import { signInUserAfterCreation } from "@/firebase/utils"
+import { signInUserAfterCreation } from "@/firebase/firebase.utils"
 
 import { Form } from "@/components/basic/Form/Form"
 

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 
-import { getFirestoreDoc } from "@/firebase/utils"
+import { getFirestoreDoc } from "@/firebase/firebase.utils"
 import type { User as FirebaseUser } from "firebase/auth"
 
 import type { User } from "@/globals/firestore/firestore.model"
