@@ -282,7 +282,7 @@
 
 @Layer utilities {
     .link-button {
-        @apply font-bold cursor-pointer transition-opacity w-auto hover:opacity-80;
+        @apply font-bold cursor-pointer transition-opacity w-auto hover:opacity-80 bg-transparent p-0;
     }
 
     .logo {

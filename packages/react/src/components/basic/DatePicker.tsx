@@ -1,7 +1,8 @@
-import { useRef, useState, type FocusEvent, type MouseEvent } from "react"
+import { useRef, type FocusEvent, type MouseEvent } from "react"
 import { X } from "react-bootstrap-icons"
 import Calendar from "react-calendar"
-import { Popover } from "react-tiny-popover"
+
+import { Dropdown } from "@/components/basic/Dropdown"
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
@@ -23,7 +24,6 @@ export const DatePicker = ({
   onBlur,
   includeEndOfDay = false
 }: DatePickerProps) => {
-  const [isPopupOpen, setIsPopupOpen] = useState(false)
   const calendarRef = useRef<HTMLDivElement>(null)
 
   const date = value ? new Date(value) : null
@@ -36,18 +36,6 @@ export const DatePicker = ({
     "fill-primary h-6 w-6 hover:fill-primary/80",
     error && "fill-error"
   )
-
-  const onPopupClose = ({ target }: globalThis.MouseEvent) => {
-    const castTarget = target as HTMLElement
-
-    if (castTarget.closest(".react-calendar__tile")) {
-      return
-    }
-
-    setIsPopupOpen(false)
-  }
-
-  const onClick = () => setIsPopupOpen(!isPopupOpen)
   const handleDateChange = (date: Value) => {
     if (date instanceof Date) {
       if (includeEndOfDay) {
@@ -83,30 +71,26 @@ export const DatePicker = ({
 
   const renderedContent = (
     <>
-      <Popover
-        padding={2}
-        positions={["bottom", "top", "right", "left"]}
-        content={
-          <Calendar
-            inputRef={calendarRef}
-            value={date?.toDateString()}
-            onChange={handleDateChange}
-            minDetail="decade"
-          />
+      <Dropdown
+        title={
+          <>
+            <div className="overflow-hidden">{displayedValue}</div>
+            {value && (
+              <X className={adornmentClassName} onClick={onClearClick} />
+            )}
+          </>
         }
-        isOpen={isPopupOpen}
-        onClickOutside={onPopupClose}
+        popoverClassName="p-0 border-0"
+        buttonClassName={buttonClassName}
+        onBlur={handleBlur}
       >
-        <button
-          className={buttonClassName}
-          onBlur={handleBlur}
-          onClick={onClick}
-          type="button"
-        >
-          <div className="overflow-hidden">{displayedValue}</div>
-          {value && <X className={adornmentClassName} onClick={onClearClick} />}
-        </button>
-      </Popover>
+        <Calendar
+          inputRef={calendarRef}
+          value={date?.toDateString()}
+          onChange={handleDateChange}
+          minDetail="decade"
+        />
+      </Dropdown>
 
       {error && <span className="form-error">{error}</span>}
     </>

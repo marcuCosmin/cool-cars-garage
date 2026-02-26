@@ -1,5 +1,3 @@
-import { useState } from "react"
-import { Popover } from "react-tiny-popover"
 import {
   Calendar2Week,
   CheckCircle,
@@ -10,58 +8,13 @@ import {
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
+import { Dropdown } from "@/components/basic/Dropdown"
 
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
 
-import type {
-  DataListItem,
-  ItemListMetadata,
-  ItemMetadata
-} from "../../DataView.model"
-
-type DataViewMetadataListProps = {
-  label: string
-  fields: ItemListMetadata["fields"]
-}
-
-const DataViewMetadataList = ({ label, fields }: DataViewMetadataListProps) => {
-  const Icon = metadataIconsMap.list
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-
-  const togglePopover = () => setIsPopoverOpen(!isPopoverOpen)
-  const onClickOutside = () => setIsPopoverOpen(false)
-
-  const content = (
-    <div className="flex flex-col items-center bg-white dark:bg-black p-2 border border-primary rounded-sm gap-2 max-h-64 overflow-y-auto">
-      {fields.map((field, index) => (
-        <>
-          <DataViewListItemMetadata key={index} metadata={field} isNested />
-          {index < fields.length - 1 && (
-            <hr className="border-primary w-[85%]" />
-          )}
-        </>
-      ))}
-    </div>
-  )
-
-  return (
-    <Popover
-      isOpen={isPopoverOpen}
-      onClickOutside={onClickOutside}
-      positions={["bottom", "top", "left", "right"]}
-      content={content}
-    >
-      <button
-        onClick={togglePopover}
-        className="bg-transparent p-0 flex items-center gap-2 text-primary"
-      >
-        <Icon height={20} width={20} /> {label} {`(${fields.length})`}
-      </button>
-    </Popover>
-  )
-}
+import type { DataListItem, ItemMetadata } from "../../DataView.model"
 
 const metadataIconsMap = {
   text: InfoCircle,
@@ -104,8 +57,31 @@ export const DataViewListItemMetadata = ({
           const Icon = metadataIconsMap[type]
 
           if (!isNested) {
+            const title = (
+              <>
+                <Icon height={20} width={20} /> {label} {`(${fields.length})`}
+              </>
+            )
+
             return (
-              <DataViewMetadataList key={index} label={label} fields={fields} />
+              <Dropdown
+                title={title}
+                buttonClassName="bg-transparent p-0 flex items-center gap-2 text-primary"
+                popoverClassName="max-h-64 overflow-y-auto"
+              >
+                {fields.map((field, index) => (
+                  <>
+                    <DataViewListItemMetadata
+                      key={index}
+                      metadata={field}
+                      isNested
+                    />
+                    {index < fields.length - 1 && (
+                      <hr className="border-primary w-[85%]" />
+                    )}
+                  </>
+                ))}
+              </Dropdown>
             )
           }
 
