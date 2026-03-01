@@ -67,13 +67,14 @@ const checkAndRunJobs = async () => {
         currenDate.setHours(job.runHour || 0, 0, 0, 0)
       }
 
+      await run()
+
       const lastRunTimestamp = currenDate.getTime()
 
       await firestore.collection("jobs").doc(job.id).update({
         lastRunTimestamp
       })
 
-      await run()
       console.log(`Finished running job script: ${id}`)
     } catch (error) {
       console.error(`Error running job script: ${id}`, error)

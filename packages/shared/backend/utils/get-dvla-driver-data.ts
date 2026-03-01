@@ -1,6 +1,6 @@
-import { getSecretValue } from "@/backend/utils/get-secret-value"
+import { getSecretValue } from "./get-secret-value"
 
-import type { DriverDVLAData } from "@/globals/firestore/firestore.model"
+import type { DriverDVLAData } from "../../globals/firestore/firestore.model"
 
 const getTimestampFromDVLADate = (dvlaDate: string) => {
   const [year, month, day] = dvlaDate.split("-").map(Number)

@@ -2,11 +2,11 @@ import { firestore } from "@/backend/firebase/config"
 import { getFirestoreDocs, isAuthEmail } from "@/backend/firebase/utils"
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 import { getDVLAJWT } from "@/backend/utils/get-dvla-jwt"
+import { getDVLADriverData } from "@/backend/utils/get-dvla-driver-data"
 
 import { type UserCreateData } from "@/globals/forms/forms.const"
 
 import { sendMail } from "@/utils/send-mail"
-import { getDVLADriverData } from "@/utils/get-dvla-driver-data"
 
 import type {
   InvitationDoc,

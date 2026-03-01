@@ -193,6 +193,19 @@ export type JobDoc = {
   skipTimestamps?: JobSkipTimestamp[]
 }
 
+type RoutePerson = {
+  name: string
+  address: string
+}
+
+export type RouteDoc = {
+  school: string
+  passengerAssistant: RoutePerson
+  children: RoutePerson[]
+  carId: string
+  council: Councils
+}
+
 export type FirestoreCollectionsMap = {
   "cars": CarDoc
   "checks": CheckDoc
