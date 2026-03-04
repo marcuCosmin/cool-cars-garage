@@ -88,11 +88,10 @@ export const Router = () => {
       <>
         <Route index path="/" element={<Home />} />
         <Route path="/users" element={<Users />} />
-        <Route path="/reports" element={<Reports />}>
-          <Route path="/reports/:checkId" element={<ReportsCheck />} />
-          <Route path="/reports/config" element={<ReportsConfig />} />
-          <Route path="/reports/auth" element={<ReportsAuth />} />
-        </Route>
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/reports/:checkId" element={<ReportsCheck />} />
+        <Route path="/reports/config" element={<ReportsConfig />} />
+        <Route path="/reports/auth" element={<ReportsAuth />} />
       </>
     )
   }

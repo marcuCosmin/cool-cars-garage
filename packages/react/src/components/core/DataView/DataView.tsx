@@ -52,7 +52,6 @@ export const DataView = <
   fetchItems
 }: DataViewProps<RawItem, FilterItem, ServerSideFetching>) => {
   const {
-    error,
     isLoading,
     rawItems,
     searchQuery,
@@ -67,14 +66,6 @@ export const DataView = <
     serverSideFetching,
     openModal
   })
-
-  if (error) {
-    return (
-      <div className="text-xl mt-10 max-w-5xl font-bold m-auto break-all">
-        {JSON.stringify(error)}
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col overflow-hidden h-full">

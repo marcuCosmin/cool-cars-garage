@@ -1,5 +1,6 @@
+import { toast } from "react-toastify"
 import { useLocation } from "react-router"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   useInfiniteQuery,
   useQueryClient,
@@ -117,8 +118,15 @@ export const useDataViewList = <
 
   const onAddButtonClick = () => openModal?.({ onSuccess: onAddSuccess })
 
+  useEffect(() => {
+    if (!error?.message) {
+      return
+    }
+
+    toast.error(`An error occurred while fetching data. ${error.message}`)
+  }, [error?.message])
+
   return {
-    error,
     isLoading: isFetching && !isFetchingNextPage,
     isLoadingNextChunk: isFetchingNextPage,
     rawItems: filteredRawItems,
