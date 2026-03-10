@@ -4,7 +4,7 @@ import { add } from "date-fns"
 import { getFirestoreDocs } from "@/backend/firebase/utils"
 import { firestore } from "@/backend/firebase/config"
 
-import type { JobDoc } from "@/globals/firestore/firestore.model"
+import type { DocWithID, JobDoc } from "@/globals/firestore/firestore.model"
 
 import * as scripts from "./scripts"
 
@@ -42,6 +42,81 @@ const shouldRunJob = ({
   return true
 }
 
+const groupJobs = (jobs: DocWithID<JobDoc>[]) =>
+  jobs.reduce(
+    (acc, job) => {
+      if (job.concurrencyPreventionJobs) {
+        const conflictingJobs = jobs.filter(({ id }) =>
+          job.concurrencyPreventionJobs?.includes(id)
+        )
+
+        console.log(
+          `For job ${job.id}, found conflicting jobs:`,
+          conflictingJobs
+        )
+
+        if (conflictingJobs.length) {
+          const conflictingJobsGroup = [job, ...conflictingJobs]
+
+          const isAccEmpty = acc.length === 0
+          const isGroupDuplicate = acc.some(group => {
+            if (!Array.isArray(group)) {
+              return false
+            }
+
+            const groupIds = group.map(job => job.id)
+
+            return groupIds.every(id =>
+              conflictingJobsGroup.some(job => job.id === id)
+            )
+          })
+
+          if (isAccEmpty || !isGroupDuplicate) {
+            acc.push([job, ...conflictingJobs])
+          }
+
+          return acc
+        }
+      }
+
+      acc.push(job)
+
+      return acc
+    },
+    [] as (DocWithID<JobDoc> | DocWithID<JobDoc>[])[]
+  )
+
+const handleJobRun = async ({ id, runHour }: DocWithID<JobDoc>) => {
+  try {
+    const script = Object.values(scripts).find(
+      ({ id: scriptId }) => scriptId === id
+    )
+
+    if (!script) {
+      console.log(`No script found for job: ${id}`)
+      return
+    }
+
+    const currenDate = new Date()
+
+    if (runHour !== undefined) {
+      currenDate.setHours(runHour || 0, 0, 0, 0)
+    }
+
+    await script.run()
+
+    const lastRunTimestamp = currenDate.getTime()
+
+    await firestore.collection("jobs").doc(id).update({
+      lastRunTimestamp
+    })
+
+    console.log(`Finished running job script: ${id}`)
+  } catch (error) {
+    console.log(`Uncaught error running job script for job ${id}:`, error)
+  }
+}
+
 const checkAndRunJobs = async () => {
   const jobs = await getFirestoreDocs({ collection: "jobs" })
 
@@ -52,34 +127,28 @@ const checkAndRunJobs = async () => {
     return
   }
 
-  Object.values(scripts).forEach(async ({ id, run }) => {
-    try {
-      const job = jobsToRun.find(({ id: jobId }) => jobId === id)
+  const groupedJobs = groupJobs(jobsToRun)
 
-      if (!job) {
-        return
+  groupedJobs.forEach(async group => {
+    if (Array.isArray(group)) {
+      const jobIds = group.map(({ id }) => id)
+      console.log(
+        `Running jobs: ${jobIds.join(", ")} together due to concurrency prevention.`
+      )
+
+      for (const job of group) {
+        await handleJobRun(job)
       }
 
-      console.log(`Running job script: ${id}...`)
-      const currenDate = new Date()
+      console.log(
+        `Finished running job scripts group for jobs: ${jobIds.join(", ")}`
+      )
 
-      if (job.runHour !== undefined) {
-        currenDate.setHours(job.runHour || 0, 0, 0, 0)
-      }
-
-      await run()
-
-      const lastRunTimestamp = currenDate.getTime()
-
-      await firestore.collection("jobs").doc(job.id).update({
-        lastRunTimestamp
-      })
-
-      console.log(`Finished running job script: ${id}`)
-    } catch (error) {
-      console.error(`Error running job script: ${id}`, error)
+      return
     }
+
+    await handleJobRun(group)
   })
 }
 
-nodeCron.schedule("*/1 * * * *", checkAndRunJobs)
+nodeCron.schedule("*/5 * * * *", checkAndRunJobs)

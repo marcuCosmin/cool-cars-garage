@@ -42,11 +42,11 @@ export const ReportsCheckIncidentsList = ({
   }
 
   return (
-    <div className="w-full">
+    <div className="flex flex-col items-center">
       <h2 className="text-center mb-5">Incidents</h2>
 
       {incidents.length ? (
-        <ul className="w-full flex flex-wrap gap-5 justify-center xl:justify-start">
+        <ul className="w-fit flex flex-col gap-5 justify-center xl:justify-start">
           {incidents.map(incident => (
             <ReportsCheckIncidentsListItem
               {...incident}

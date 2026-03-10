@@ -1,4 +1,4 @@
-import ReactSelect, { MultiValue, type SingleValue } from "react-select"
+import ReactSelect, { type MultiValue, type SingleValue } from "react-select"
 
 import type { FormFieldComponentProps } from "./Form/Form.models"
 

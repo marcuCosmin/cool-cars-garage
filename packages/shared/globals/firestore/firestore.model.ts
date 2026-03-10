@@ -191,6 +191,7 @@ export type JobDoc = {
   daysOfWeek?: number[]
   runHour?: number
   skipTimestamps?: JobSkipTimestamp[]
+  concurrencyPreventionJobs?: string[]
 }
 
 type RoutePerson = {
@@ -204,6 +205,7 @@ export type RouteDoc = {
   children: RoutePerson[]
   carId: string
   council: Councils
+  estimatedMilesPerDay: number
 }
 
 export type FirestoreCollectionsMap = {

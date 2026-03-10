@@ -5,3 +5,5 @@ export { updateDVLACredentialsJob } from "./dvlaCredentialsUpdate/dvlaCredential
 export { carsCheckpointsJob } from "./carsCheckpoints/carsCheckpoints.index"
 export { carsGovDetails } from "./carsGovDetails"
 export { dvlaDriversDataJob } from "./dvlaDriversData"
+export { velocityFuelAccessTokenUpdateJob } from "./velocityFuelAccessTokenUpdate/velocityFuelAccessTokenUpdate"
+export { velocityFuelChecksJob } from "./velocityFuelChecks/velocityFuelChecks"

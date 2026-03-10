@@ -52,11 +52,31 @@ export const ReportsCheck = ({ check }: CheckProps) => {
   const onExportClick = isExporting ? undefined : handleCheckExport
 
   return (
-    <div className="flex flex-col items-center w-full mt-10">
-      <div className="flex w-full flex-start px-5 mb-3">
+    <div className="flex flex-col items-center w-full pt-3">
+      <div className="flex flex-col items-center gap-3 text-primary font-bold text-xl">
+        <h1>Check Report - {carId}</h1>
+
+        <p className="text-black dark:text-white">{displayedDate}</p>
+
+        <div className="w-full flex items-center gap-2">
+          <PersonCircle size={25} />
+          <p className="break-all">
+            Reported by:{" "}
+            <span className="text-black dark:text-white">{`${driver.firstName} ${driver.lastName}`}</span>
+          </p>
+        </div>
+
+        <div className="w-full flex items-center gap-2">
+          <Speedometer size={25} />
+          <p>
+            Odometer reading:{" "}
+            <span className="text-black dark:text-white">{`${odoReading.value} ${odoReading.unit}`}</span>
+          </p>
+        </div>
+
         <button
           type="button"
-          className="flex justify-center w-32"
+          className="flex items-center justify-center h-11 w-38 text-lg mt-3"
           onClick={onExportClick}
         >
           {isExporting ? (
@@ -67,42 +87,20 @@ export const ReportsCheck = ({ check }: CheckProps) => {
         </button>
       </div>
 
-      <div className="flex flex-col items-center gap-3 text-primary font-bold text-xl">
-        <h1>Check Report - {carId}</h1>
+      <hr className="my-7 mx-auto w-[90%]" />
 
-        <p>{displayedDate}</p>
-
-        <div className="flex justify-center items-center gap-2">
-          <PersonCircle size={25} />
-          <p className="break-all">
-            Reported by: {`${driver.firstName} ${driver.lastName}`}
-          </p>
-        </div>
-
-        <div className="flex justify-center items-center gap-2">
-          <Speedometer size={25} />
-          <p>Odometer reading: {`${odoReading.value} ${odoReading.unit}`}</p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap justify-center w-full gap-10 mt-10 p-5 items-start">
+      <div className="flex flex-wrap justify-center w-full gap-10 md:pb-5 md:px-5 items-start">
         <ReportsCheckAnswersTable
           interior={interior}
           exterior={exterior}
           faults={faults}
           checkId={id}
+          faultsDetails={faultsDetails}
         />
 
-        {faultsDetails && (
-          <div>
-            <h2 className="mb-5 text-center">Faults Details</h2>
-            <p className="whitespace-pre-wrap border border-primary rounded-md p-5">
-              {faultsDetails}
-            </p>
-          </div>
+        {!!incidents?.length && (
+          <ReportsCheckIncidentsList checkId={id} incidents={incidents} />
         )}
-
-        <ReportsCheckIncidentsList checkId={id} incidents={incidents} />
       </div>
     </div>
   )

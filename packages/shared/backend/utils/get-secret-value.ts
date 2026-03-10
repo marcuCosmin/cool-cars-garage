@@ -7,6 +7,7 @@ type SecretKey =
   | "DVLA_API_KEY"
   | "DVLA_API_PASSWORD"
   | "MOT_HISTORY_API_CLIENT_SECRET"
+  | "VELOCITY_FUEL_ACCESS_TOKEN"
 
 export const getSecretValue = async (secretKey: SecretKey) => {
   const [version] = await secretmanagerClient.accessSecretVersion({

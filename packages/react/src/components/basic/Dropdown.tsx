@@ -8,6 +8,7 @@ type DropdownProps = {
   children: ReactNode
   buttonClassName?: string
   popoverClassName?: string
+  alignment?: "start" | "center" | "end"
   onBlur?: FocusEventHandler<HTMLButtonElement>
 }
 
@@ -16,6 +17,7 @@ export const Dropdown = ({
   children,
   buttonClassName,
   popoverClassName,
+  alignment = "start",
   onBlur
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -34,7 +36,7 @@ export const Dropdown = ({
   const content = (
     <div
       className={mergeClassNames(
-        "flex flex-col items-center bg-white dark:bg-black p-2 border border-primary rounded-sm gap-2",
+        "flex flex-col bg-white dark:bg-black p-2 border border-primary rounded-sm gap-2",
         popoverClassName
       )}
     >
@@ -48,6 +50,7 @@ export const Dropdown = ({
       isOpen={isOpen}
       onClickOutside={onClickOutside}
       positions={["bottom", "top", "left", "right"]}
+      align={alignment}
     >
       <button
         type="button"

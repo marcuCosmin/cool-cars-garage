@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* @plugin "tailwind-scrollbar"; */
-
 @theme {
     --color-primary: #007bff;
     --color-primary-dark: #0069d9;
@@ -108,7 +106,7 @@
     }
 
     .loader-sm {
-        @apply w-8 h-8 border-4
+        @apply w-7 h-7 border-4
     }
 
     .loader-md {

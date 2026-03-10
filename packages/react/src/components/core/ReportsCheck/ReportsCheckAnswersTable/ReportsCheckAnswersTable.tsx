@@ -1,20 +1,15 @@
-import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 
-import { markFaultsAsResolved } from "@/api/api.utils"
-
-import { useAppMutation } from "@/hooks/useAppMutation"
-
 import { Checkbox } from "@/components/basic/Checkbox"
-import { Loader } from "@/components/basic/Loader"
 
 import type { FullCheck } from "@/globals/firestore/firestore.model"
 
 import { ReportsCheckSectionRows } from "./ReportsCheckSectionRows"
+import { ReportsCheckTableActions } from "./ReportsCheckTableActions"
 
 type ReportsCheckAnswersTableProps = Pick<
   FullCheck,
-  "interior" | "exterior" | "faults"
+  "interior" | "exterior" | "faults" | "faultsDetails"
 > & {
   checkId: string
 }
@@ -23,14 +18,9 @@ export const ReportsCheckAnswersTable = ({
   checkId,
   interior,
   exterior,
-  faults
+  faults,
+  faultsDetails
 }: ReportsCheckAnswersTableProps) => {
-  const { isLoading: isMutationLoading, mutate: handleMarkFaultsAsResolved } =
-    useAppMutation({
-      mutationFn: markFaultsAsResolved,
-      showToast: true
-    })
-  const queryClient = useQueryClient()
   const [selectedFaults, setSelectedFaults] = useState<string[]>([])
 
   const pendingFaults = faults.filter(({ status }) => status === "pending")
@@ -39,9 +29,11 @@ export const ReportsCheckAnswersTable = ({
   const pendingFaultsIds = pendingFaults.map(({ id }) => id)
   const headerCheckboxValue = selectedFaults.length === pendingFaultsIds.length
 
+  const clearSelectedFaults = () => setSelectedFaults([])
+
   const onHeaderCheckboxChange = () => {
     if (headerCheckboxValue) {
-      setSelectedFaults([])
+      clearSelectedFaults()
       return
     }
 
@@ -60,62 +52,19 @@ export const ReportsCheckAnswersTable = ({
     setSelectedFaults(prev => [...prev, faultId])
   }
 
-  const onResolveButtonClick = async () => {
-    const result = await handleMarkFaultsAsResolved({
-      checkId,
-      faultsIds: selectedFaults
-    })
-
-    if (result.error) {
-      return
-    }
-
-    queryClient.setQueryData(["/reports", checkId], (data: FullCheck) => {
-      faults = data.faults.map(fault => {
-        if (selectedFaults.includes(fault.id)) {
-          return {
-            ...fault,
-            status: "resolved",
-            resolutionTimestamp: result.response?.resolutionTimestamp
-          }
-        }
-        return fault
-      })
-
-      return {
-        ...data,
-        faults
-      }
-    })
-
-    setSelectedFaults([])
-  }
-
   return (
-    <div className="md:min-w-xl xl:min-w-3xl max-w-7xl w-full">
+    <div className="md:min-w-xl xl:min-w-3xl max-w-5xl w-full">
       <h2 className="text-center mb-5">Questions</h2>
       <table>
         <thead>
-          <tr>
-            {hasPendingFaults && (
-              <th colSpan={5}>
-                <div className="min-h-5 w-fit">
-                  {isMutationLoading ? (
-                    <Loader size="sm" />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={onResolveButtonClick}
-                      disabled={!selectedFaults.length}
-                      className="text-base px-2 py-0 font-normal"
-                    >
-                      Resolve faults
-                    </button>
-                  )}
-                </div>
-              </th>
-            )}
-          </tr>
+          {(hasPendingFaults || faultsDetails?.length) && (
+            <ReportsCheckTableActions
+              checkId={checkId}
+              selectedFaults={selectedFaults}
+              faultsDetails={faultsDetails}
+              clearSelectedFaults={clearSelectedFaults}
+            />
+          )}
           <tr>
             {hasPendingFaults && (
               <th>
