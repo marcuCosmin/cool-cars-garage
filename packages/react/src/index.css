@@ -130,11 +130,11 @@
     }
 
     .react-calendar  {
-        @apply border bg-primary border-primary rounded-sm shadow-none;
+        @apply border border-primary rounded-sm shadow-none;
     }
 
     .react-calendar__navigation {
-        @apply bg-primary flex items-center justify-center rounded-t-sm p-2;
+        @apply border-b border-primary flex items-center gap-1 justify-center rounded-t-sm m-2 mb-1 pb-2;
 
         button {
             @apply p-0 hover:opacity-75 border-none ring-0 transition-opacity;
@@ -142,15 +142,19 @@
     }
 
     .react-calendar__navigation__label {
-        @apply flex-none w-fit font-bold text-lg m-auto !grow-0;
+        @apply !px-2 flex-none w-fit font-bold text-lg m-auto !grow-0;
     }
 
     .react-calendar__navigation__arrow {
-        @apply flex items-center justify-center pb-1.5 w-8 h-8 text-3xl
+        @apply flex items-center justify-center w-7 h-7 text-3xl !pb-1.5;
+    }
+
+    .react-calendar__month-view {
+        @apply px-2;
     }
 
     .react-calendar__month-view__weekdays {
-        @apply bg-white dark:bg-black text-primary p-2;
+        @apply bg-white dark:bg-black text-primary border-b border-primary pb-1;
     }
 
     .react-calendar__month-view__weekdays__weekday {
@@ -162,7 +166,7 @@
     }
 
     .react-calendar__tile {
-        @apply p-2 text-black dark:text-white bg-white dark:bg-black ring-0 border border-white dark:border-black rounded-none last:rounded-br-sm !overflow-visible nth-[7n+1]:nth-last-[-n+7]:rounded-bl-sm;
+        @apply p-1.5 text-black dark:text-white bg-white dark:bg-black ring-0 border border-white dark:border-black rounded-none last:rounded-br-sm !overflow-visible nth-[7n+1]:nth-last-[-n+7]:rounded-bl-sm;
     }
 
     .react-calendar__tile--now {
