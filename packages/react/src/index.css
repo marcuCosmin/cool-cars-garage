@@ -153,6 +153,10 @@
         @apply px-2;
     }
 
+    .react-calendar__month-view__days {
+        @apply bg-primary;
+    }
+
     .react-calendar__month-view__weekdays {
         @apply bg-white dark:bg-black text-primary border-b border-primary pb-1;
     }
