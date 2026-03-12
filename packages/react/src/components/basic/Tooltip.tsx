@@ -42,7 +42,7 @@ export const Tooltip = <T extends HTMLElementType = "div">({
       arrowSize={10}
       arrowColor="#007bff"
     >
-      <div className="font-bold text-primary border border-primary p-2 rounded-md bg-white dark:bg-black">
+      <div className="text-black dark:text-white border border-primary p-2 rounded-md bg-white dark:bg-black">
         {label}
       </div>
     </ArrowContainer>

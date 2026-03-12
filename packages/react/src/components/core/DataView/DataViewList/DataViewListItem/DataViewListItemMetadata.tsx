@@ -1,10 +1,10 @@
 import {
-  Calendar2Week,
   CheckCircle,
   BoxArrowUp,
   InfoCircle,
   XCircle,
-  ArrowDownCircle
+  ArrowDownCircle,
+  CalendarWeek
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
@@ -19,7 +19,7 @@ import type { DataListItem, ItemMetadata } from "../../DataView.model"
 const metadataIconsMap = {
   text: InfoCircle,
   boolean: (value: boolean) => (value ? CheckCircle : XCircle),
-  date: Calendar2Week,
+  date: CalendarWeek,
   link: BoxArrowUp,
   list: ArrowDownCircle
 } as const
