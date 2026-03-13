@@ -93,7 +93,7 @@ type SelectFilterProps<Item extends Record<string, any>> = {
   type: "select"
   options: SelectProps["options"]
   value: string[]
-  field: keyof Item
+  field: Extract<keyof Item, string>
 } & ComponentFilterProps
 
 export type FilterOperator = "==" | "!=" | ">" | "<" | ">=" | "<="
@@ -101,7 +101,7 @@ export type FilterOperator = "==" | "!=" | ">" | "<" | ">=" | "<="
 type ToggleFilterProps<Item extends Record<string, any>> = {
   type: "toggle"
   filterOptions: {
-    field: keyof Item
+    field: Extract<keyof Item, string>
     operator: FilterOperator
     value: FormFieldValue
   }
@@ -114,7 +114,7 @@ type DateFilterProps<Item extends Record<string, any>> = Pick<
 > & {
   type: "date"
   operator: ">=" | "<="
-  field: keyof Item
+  field: Extract<keyof Item, string>
 } & ComponentFilterProps
 
 type ClientFiltersConfig<RawItem extends RawDataListItem> =

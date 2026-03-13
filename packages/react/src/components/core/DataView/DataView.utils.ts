@@ -55,14 +55,14 @@ export const getFilterField = <
   ServerSideFetching extends boolean
 >(
   filter: FiltersConfig<Filter, ServerSideFetching>[number]
-) => {
+): string => {
   switch (filter.type) {
     case "select":
-      return filter.field as string
+      return filter.field
     case "toggle":
-      return filter.filterOptions.field as string
+      return filter.filterOptions.field
     case "date":
-      return filter.field as string
+      return filter.field
   }
 }
 
