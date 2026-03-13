@@ -1,7 +1,5 @@
 import { PlusCircleFill, Search } from "react-bootstrap-icons"
 
-import { type DocumentData } from "firebase/firestore"
-
 import { Input } from "@/components/basic/Input"
 import { Loader } from "@/components/basic/Loader"
 
@@ -15,32 +13,29 @@ import type {
   FetchItems,
   DataListItemMetadataConfig,
   OpenDataViewModal,
-  GetListItemActionsConfig
+  GetListItemActionsConfig,
+  FilterItem
 } from "./DataView.model"
 
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 type DataViewProps<
   RawItem extends RawDataListItem,
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = {
   getItemActionsConfig?: GetListItemActionsConfig<RawItem>
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
-  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
+  filtersConfig: FiltersConfig<Filter, ServerSideFetching>
   serverSideFetching?: ServerSideFetching
   showSearch?: boolean
-  fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
+  fetchItems: FetchItems<RawItem, Filter, ServerSideFetching>
   openModal?: OpenDataViewModal<RawItem>
 }
 
 export const DataView = <
   RawItem extends RawDataListItem,
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean = false
 >({
   filtersConfig,
@@ -50,7 +45,7 @@ export const DataView = <
   getItemActionsConfig,
   openModal,
   fetchItems
-}: DataViewProps<RawItem, FilterItem, ServerSideFetching>) => {
+}: DataViewProps<RawItem, Filter, ServerSideFetching>) => {
   const {
     isLoading,
     rawItems,

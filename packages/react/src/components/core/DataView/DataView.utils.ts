@@ -1,5 +1,3 @@
-import { type DocumentData } from "firebase/firestore"
-
 import type {
   DefaultListMetadataValue,
   RawDataListItem
@@ -14,44 +12,115 @@ import type {
   DataListItem,
   ItemListMetadata,
   PrimitiveMetadata,
-  FilterOperator
+  FilterOperator,
+  FilterItem
 } from "./DataView.model"
 
 export const parseSearchString = (searchString: string) =>
   searchString.trim().toLowerCase()
 
-export const filtersConfigToState = <
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+type TransformFilterToSearchParamProps<
+  Filter extends FilterItem<ServerSideFetching>,
+  ServerSideFetching extends boolean
+> = {
+  filter: FiltersState<Filter, ServerSideFetching>[number]
+  existingSearchParam: string | null
+}
+
+export const transformFilterToSearchParam = <
+  Filter extends FilterItem<ServerSideFetching>,
+  ServerSideFetching extends boolean
+>({
+  filter,
+  existingSearchParam
+}: TransformFilterToSearchParamProps<Filter, ServerSideFetching>) => {
+  switch (filter.type) {
+    case "select":
+      return JSON.stringify(filter.value)
+    case "toggle":
+      return filter.value.toString()
+    case "date":
+      const searchParamValue = (
+        existingSearchParam ? JSON.parse(existingSearchParam) : []
+      ) as [number | undefined, number | undefined]
+      const urlIndex = filter.operator === "<=" ? 1 : 0
+      searchParamValue[urlIndex] = filter.value as number | undefined
+
+      return JSON.stringify(searchParamValue)
+  }
+}
+
+export const getFilterField = <
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 >(
-  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
-): FiltersState<FilterItem, ServerSideFetching> =>
+  filter: FiltersConfig<Filter, ServerSideFetching>[number]
+) => {
+  switch (filter.type) {
+    case "select":
+      return filter.field as string
+    case "toggle":
+      return filter.filterOptions.field as string
+    case "date":
+      return filter.field as string
+  }
+}
+
+type FiltersConfigToStateProps<
+  Filter extends FilterItem<ServerSideFetching>,
+  ServerSideFetching extends boolean
+> = {
+  filtersConfig: FiltersConfig<Filter, ServerSideFetching>
+  searchParams: URLSearchParams
+}
+
+export const filtersConfigToState = <
+  Filter extends FilterItem<ServerSideFetching>,
+  ServerSideFetching extends boolean
+>({
+  filtersConfig,
+  searchParams
+}: FiltersConfigToStateProps<Filter, ServerSideFetching>): FiltersState<
+  Filter,
+  ServerSideFetching
+> =>
   filtersConfig.map(filterProps => {
     const { type } = filterProps
 
+    const field = getFilterField<Filter, ServerSideFetching>(filterProps)
+    const searchParam = searchParams.get(field)
+
     switch (type) {
       case "select": {
+        const value = (searchParam ? JSON.parse(searchParam) : []) as string[]
         return {
           ...filterProps,
-          value: [] as string[]
+          value
         }
       }
       case "toggle": {
+        const value = searchParam === "true"
+
         return {
           ...filterProps,
-          value: false
+          value
         }
       }
       case "date": {
+        const urlRange = (searchParam ? JSON.parse(searchParam) : []) as [
+          number | undefined,
+          number | undefined
+        ]
+        const urlIndex = filterProps.operator === "<=" ? 1 : 0
+        const value = urlRange[urlIndex]
+
         return {
           ...filterProps,
-          value: undefined
+          value
         }
       }
     }
-  }) as FiltersState<FilterItem, ServerSideFetching>
+  }) as FiltersState<Filter, ServerSideFetching>
 
 type ExtendRawItemMetadata<RawItem extends RawDataListItem> = {
   rawMetadata: RawItem["metadata"]
@@ -105,17 +174,17 @@ export const extendRawItemMetadata = <RawItem extends RawDataListItem>({
 }
 
 type GetQueryKeyProps<
-  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = {
   queryName: string
   searchQuery: string
-  filters: FiltersState<Item, ServerSideFetching>
+  filters: FiltersState<Filter, ServerSideFetching>
   serverSideFetching: ServerSideFetching
 }
 
 export const getQueryKey = <
-  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  Item extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 >({
   queryName,

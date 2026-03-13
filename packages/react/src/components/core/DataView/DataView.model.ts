@@ -127,8 +127,11 @@ type ServerFiltersConfig<Document extends DocumentData> =
   | Omit<ToggleFilterProps<Document>, "value">
   | Omit<DateFilterProps<Document>, "value">
 
+export type FilterItem<ServerSideFetching extends boolean> =
+  ServerSideFetching extends true ? DocumentData : RawDataListItem
+
 export type FiltersConfig<
-  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  Item extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean = false
 > = ServerSideFetching extends true
   ? ServerFiltersConfig<Extract<Item, DocumentData>>[]
@@ -145,14 +148,14 @@ type ServerFiltersState<Document extends DocumentData> =
   | DateFilterProps<Document>
 
 export type FiltersState<
-  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  Item extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = ServerSideFetching extends true
   ? ServerFiltersState<Extract<Item, DocumentData>>[]
   : ClientFiltersState<Extract<Item, RawDataListItem>>[]
 
 export type QueryContext<
-  Item extends ServerSideFetching extends true ? DocumentData : RawDataListItem,
+  Item extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = QueryFunctionContext<
   (string | FiltersState<Item, ServerSideFetching>)[],
@@ -161,13 +164,9 @@ export type QueryContext<
 
 export type FetchItems<
   Item extends RawDataListItem,
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
-> = (
-  queryContext?: QueryContext<FilterItem, ServerSideFetching>
-) => Promise<Item[]>
+> = (queryContext?: QueryContext<Filter, ServerSideFetching>) => Promise<Item[]>
 
 export type OpenDataViewModalProps<RawItem extends RawDataListItem> = {
   item?: RawItem

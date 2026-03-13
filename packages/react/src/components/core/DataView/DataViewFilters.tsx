@@ -1,36 +1,32 @@
 import { useState } from "react"
 import { Funnel } from "react-bootstrap-icons"
 
-import { type DocumentData } from "firebase/firestore"
-
 import { Select, type SelectProps } from "@/components/basic/Select"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
 import { DatePicker, type DatePickerProps } from "@/components/basic/DatePicker"
 import { Tooltip } from "@/components/basic/Tooltip"
 
-import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
-
-import type { FiltersState, FilterChangeHandler } from "./DataView.model"
+import type {
+  FiltersState,
+  FilterChangeHandler,
+  FilterItem
+} from "./DataView.model"
 
 type DataViewFiltersProps<
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = {
-  filters: FiltersState<FilterItem, ServerSideFetching>
+  filters: FiltersState<Filter, ServerSideFetching>
   onFilterChange: FilterChangeHandler
 }
 
 export const DataViewFilters = <
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 >({
   filters,
   onFilterChange
-}: DataViewFiltersProps<FilterItem, ServerSideFetching>) => {
+}: DataViewFiltersProps<Filter, ServerSideFetching>) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const onFilterButtonClick = () => setIsOpen(!isOpen)

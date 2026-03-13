@@ -1,5 +1,5 @@
 import { toast } from "react-toastify"
-import { useLocation } from "react-router"
+import { useLocation, useSearchParams } from "react-router"
 import { useEffect, useState } from "react"
 import {
   useInfiniteQuery,
@@ -7,18 +7,19 @@ import {
   type InfiniteData
 } from "@tanstack/react-query"
 
-import { type DocumentData } from "firebase/firestore"
-
 import {
   filtersConfigToState,
   getFilteredItems,
+  getFilterField,
   getNextPageParam,
-  getQueryKey
+  getQueryKey,
+  transformFilterToSearchParam
 } from "./DataView.utils"
 
 import type {
   FetchItems,
   FilterChangeHandler,
+  FilterItem,
   FiltersConfig,
   FiltersState,
   OpenDataViewModal
@@ -28,35 +29,37 @@ import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 type UseDataViewList<
   RawItem extends RawDataListItem,
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = {
-  filtersConfig: FiltersConfig<FilterItem, ServerSideFetching>
-  fetchItems: FetchItems<RawItem, FilterItem, ServerSideFetching>
+  filtersConfig: FiltersConfig<Filter, ServerSideFetching>
+  fetchItems: FetchItems<RawItem, Filter, ServerSideFetching>
   openModal?: OpenDataViewModal<RawItem>
   serverSideFetching: boolean
 }
 
 export const useDataViewList = <
   RawItem extends RawDataListItem,
-  FilterItem extends ServerSideFetching extends true
-    ? DocumentData
-    : RawDataListItem,
+  Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 >({
   filtersConfig,
   fetchItems,
   openModal,
   serverSideFetching
-}: UseDataViewList<RawItem, FilterItem, ServerSideFetching>) => {
+}: UseDataViewList<RawItem, Filter, ServerSideFetching>) => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState("")
-  const [filters, setFilters] = useState(filtersConfigToState(filtersConfig))
+  const [filters, setFilters] = useState(
+    filtersConfigToState<Filter, ServerSideFetching>({
+      filtersConfig,
+      searchParams
+    })
+  )
   const queryClient = useQueryClient()
 
   const location = useLocation()
-  const queryKey = getQueryKey<FilterItem, ServerSideFetching>({
+  const queryKey = getQueryKey<Filter, ServerSideFetching>({
     queryName: location.pathname,
     searchQuery,
     filters,
@@ -83,16 +86,35 @@ export const useDataViewList = <
 
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
     const newFilters = filters.slice() as FiltersState<
-      FilterItem,
+      Filter,
       ServerSideFetching
     >
 
+    const oldFilter = newFilters[index]
+
     newFilters[index] = {
-      ...newFilters[index],
+      ...oldFilter,
       value
-    } as FiltersState<FilterItem, ServerSideFetching>[number]
+    } as FiltersState<Filter, ServerSideFetching>[number]
+
+    const filterField = getFilterField<Filter, ServerSideFetching>(
+      filtersConfig[index]
+    )
 
     setFilters(newFilters)
+    setSearchParams(params => {
+      const paramValue = transformFilterToSearchParam<
+        Filter,
+        ServerSideFetching
+      >({
+        filter: newFilters[index],
+        existingSearchParam: params.get(filterField)
+      })
+
+      params.set(filterField, paramValue)
+
+      return params
+    })
   }
 
   const onSearchChange = (searchQuery: string = "") =>
