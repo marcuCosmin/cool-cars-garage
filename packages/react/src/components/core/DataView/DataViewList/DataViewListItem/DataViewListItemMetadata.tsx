@@ -8,7 +8,7 @@ import {
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
-import { Dropdown } from "@/components/basic/Dropdown"
+import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 

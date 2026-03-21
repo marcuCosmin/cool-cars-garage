@@ -5,7 +5,7 @@ import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
 import { Tooltip } from "@/components/basic/Tooltip"
-import { Dropdown } from "@/components/basic/Dropdown"
+import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import { markFaultsAsResolved } from "@/api/api.utils"
 

@@ -8,7 +8,7 @@ import { useAppSelector } from "@/redux/redux.config"
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
-import { Dropdown } from "@/components/basic/Dropdown"
+import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import { MainLayoutNavLink } from "./MainLayoutNavLink"
 

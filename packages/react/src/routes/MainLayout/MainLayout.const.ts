@@ -1,6 +1,6 @@
-import type { MainLayoutNavLinkProps } from "./MainLayout.model"
+import type { NavLinkConfig } from "./MainLayout.model"
 
-export const navLinks: MainLayoutNavLinkProps[] = [
+export const navLinks: NavLinkConfig[] = [
   {
     label: "Cars",
     href: "/cars",

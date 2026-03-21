@@ -2,7 +2,7 @@ import { useRef, type FocusEvent, type MouseEvent } from "react"
 import { X } from "react-bootstrap-icons"
 import Calendar from "react-calendar"
 
-import { Dropdown } from "@/components/basic/Dropdown"
+import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 

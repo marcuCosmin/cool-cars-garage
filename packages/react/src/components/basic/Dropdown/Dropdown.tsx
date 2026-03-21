@@ -1,7 +1,14 @@
-import { useState, type ReactNode, type FocusEventHandler } from "react"
+import {
+  useState,
+  type ReactNode,
+  type FocusEventHandler,
+  type MouseEvent as ReactMouseEvent
+} from "react"
 import { Popover } from "react-tiny-popover"
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
+
+import { internalCloseSelectors } from "./Dropdown.const"
 
 type DropdownProps = {
   title: ReactNode
@@ -22,6 +29,16 @@ export const Dropdown = ({
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
+  const onContentClick = ({ target }: ReactMouseEvent) => {
+    const castTarget = target as HTMLElement
+    const isInternalCloseSelector = internalCloseSelectors.some(selector =>
+      castTarget.closest(selector)
+    )
+
+    if (isInternalCloseSelector) {
+      setIsOpen(false)
+    }
+  }
   const onButtonClick = () => setIsOpen(prev => !prev)
   const onClickOutside = ({ target }: MouseEvent) => {
     const castTarget = target as HTMLElement
@@ -39,6 +56,7 @@ export const Dropdown = ({
         "flex flex-col bg-white dark:bg-black p-2 border border-primary rounded-sm gap-2",
         popoverClassName
       )}
+      onClick={onContentClick}
     >
       {children}
     </div>

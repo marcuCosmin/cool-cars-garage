@@ -1,16 +1,16 @@
 import type { User } from "@/globals/firestore/firestore.model"
 
-type SimpleNavLink = {
+type SimpleNavLinkConfig = {
   label: string
   href: string
   permittedRoles: User["role"][]
   type: "simple"
 }
 
-type NestedNavLink = {
+type NestedNavLinkConfig = {
   label: string
-  links: SimpleNavLink[]
+  links: SimpleNavLinkConfig[]
   type: "nested"
 }
 
-export type MainLayoutNavLinkProps = SimpleNavLink | NestedNavLink
+export type NavLinkConfig = SimpleNavLinkConfig | NestedNavLinkConfig
