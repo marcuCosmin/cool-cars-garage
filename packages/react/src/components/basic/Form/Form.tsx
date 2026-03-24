@@ -1,4 +1,4 @@
-import { useReducer, type ReactNode, type FormEvent } from "react"
+import { useReducer, type ReactNode, type SubmitEvent } from "react"
 
 import { useAppMutation } from "@/hooks/useAppMutation"
 
@@ -59,11 +59,12 @@ export const Form = <T extends FormData>({
     showToast: false
   })
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const { formData, hasValidationError, validatedFieldsState } =
       getFormFieldsValidationResult(fieldsState)
+
     dispatchFieldsAction({ type: "SET_FIELDS", fields: validatedFieldsState })
 
     if (hasValidationError) {
