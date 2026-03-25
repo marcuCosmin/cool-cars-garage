@@ -86,6 +86,14 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
   })
 
   const action = async (data: UserCreateData) => {
+    const userData: UserCreateData = {
+      ...data
+    }
+
+    if (data.drivingLicenceNumber) {
+      userData.drivingLicenceNumber = data.drivingLicenceNumber?.toUpperCase()
+    }
+
     const {
       user: {
         firstName,
@@ -98,8 +106,8 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
         ...userMetadata
       }
     } = isEdit
-      ? await updateUser({ ...data, uid: user!.uid })
-      : await createUser(data as UserCreateData)
+      ? await updateUser({ ...userData, uid: user!.uid })
+      : await createUser(userData)
 
     const newRawUserListItem: RawUserListItem = {
       title: `${firstName} ${lastName}`,
