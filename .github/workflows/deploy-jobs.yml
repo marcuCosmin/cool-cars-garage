@@ -4,7 +4,6 @@ on:
       - main
     paths:
       - "packages/jobs/**"
-      - "packages/shared/**"
       - ".github/workflows/deploy-jobs.yml"
 name: Deploy Jobs
 concurrency:

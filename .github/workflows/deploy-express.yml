@@ -4,7 +4,6 @@ on:
       - main
     paths:
       - "packages/express/**"
-      - "packages/shared/**"
       - ".github/workflows/deploy-express.yml"
 name: Deploy Express
 concurrency:
