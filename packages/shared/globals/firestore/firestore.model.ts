@@ -180,6 +180,7 @@ type JobSkipTimestamp =
     }
 
 export type JobDoc = {
+  test?: boolean
   lastRunTimestamp?: number
   interval: Partial<{
     years: number
