@@ -20,7 +20,8 @@ export const handleUserReinvitation = async (
     queries: [["uid", "==", uid]]
   })
 
-  if (!invitation?.isActive) {
+  // eslint-disable-next-line eqeqeq
+  if (invitation?.isActive == null) {
     res.status(400).json({
       error: "Invalid uid"
     })
