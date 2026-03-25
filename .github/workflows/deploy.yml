@@ -12,12 +12,37 @@ on:
 name: Deploy
 
 jobs:
+    detect-changes:
+        name: Detect Changes
+        runs-on: ubuntu-latest
+        outputs:
+            react: ${{ steps.filter.outputs.react }}
+            express: ${{ steps.filter.outputs.express }}
+            jobs: ${{ steps.filter.outputs.jobs }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Filter paths
+              uses: dorny/paths-filter@v3
+              id: filter
+              with:
+                  filters: |
+                      react:
+                        - 'packages/react/**'
+                        - 'packages/shared/globals/**'
+                      express:
+                        - 'packages/express/**'
+                        - 'packages/shared/**'
+                      jobs:
+                        - 'packages/jobs/**'
+                        - 'packages/shared/**'
+
     deploy-react:
         name: Deploy React
         runs-on: ubuntu-latest
-        if: |
-            contains(toJSON(github.event.commits.*.modified), 'packages/react') ||
-            contains(toJSON(github.event.commits.*.modified), 'packages/shared/globals')
+        needs: detect-changes
+        if: needs.detect-changes.outputs.react == 'true'
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -50,11 +75,8 @@ jobs:
     deploy-express:
         name: Deploy Express
         runs-on: ubuntu-latest
-        needs: deploy-react
-        if: |
-            always() &&
-            (contains(toJSON(github.event.commits.*.modified), 'packages/express') ||
-            contains(toJSON(github.event.commits.*.modified), 'packages/shared'))
+        needs: [detect-changes, deploy-react]
+        if: always() && needs.detect-changes.outputs.express == 'true'
         env:
             FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         steps:
@@ -95,11 +117,8 @@ jobs:
     deploy-jobs:
         name: Deploy Jobs
         runs-on: ubuntu-latest
-        needs: deploy-express
-        if: |
-            always() &&
-            (contains(toJSON(github.event.commits.*.modified), 'packages/jobs') ||
-            contains(toJSON(github.event.commits.*.modified), 'packages/shared'))
+        needs: [detect-changes, deploy-express]
+        if: always() && needs.detect-changes.outputs.jobs == 'true'
         env:
             FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
         steps:
