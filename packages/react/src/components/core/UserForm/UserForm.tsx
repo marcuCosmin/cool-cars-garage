@@ -129,7 +129,9 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     }
 
     onSuccess(newRawUserListItem)
-    toast.success("Invitation sent successfully!")
+    toast.success(
+      isEdit ? "User updated successfully!" : "Invitation sent successfully!"
+    )
 
     setModalProps(null)
   }
