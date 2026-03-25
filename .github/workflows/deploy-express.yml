@@ -7,6 +7,9 @@ on:
       - "packages/shared/**"
       - ".github/workflows/deploy-express.yml"
 name: Deploy Express
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 jobs:
   deploy:
     name: Deploy Express

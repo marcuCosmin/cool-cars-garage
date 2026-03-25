@@ -7,6 +7,9 @@ on:
       - "packages/shared/globals/**"
       - ".github/workflows/deploy-react.yml"
 name: Deploy React
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 jobs:
   deploy:
     name: Deploy React
