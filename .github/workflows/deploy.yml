@@ -13,6 +13,8 @@ name: Deploy
 concurrency:
     group: deploy
     cancel-in-progress: true
+env:
+    NODE_VERSION: "24.14.1"
 jobs:
     detect-changes:
         name: Detect Changes
@@ -52,7 +54,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "24.14.1"
+                  node-version: ${{ env.NODE_VERSION }}
 
             - name: Build Project
               run: npm install && npm run build:react
@@ -88,7 +90,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20.15.0"
+                  node-version: ${{ env.NODE_VERSION }}
 
             - name: Build Project
               run: npm install && npm run build:express
@@ -130,7 +132,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "20.15.0"
+                  node-version: ${{ env.NODE_VERSION }}
 
             - name: Build Project
               run: npm install && npm run build:jobs
