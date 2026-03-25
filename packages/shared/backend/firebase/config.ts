@@ -8,7 +8,7 @@ import { config as configDotenv } from "dotenv"
 configDotenv()
 
 const firebaseApp = initializeApp({
-  credential: credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS!)
+  credential: credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS! + "")
 })
 
 export const firestore = getFirestore(firebaseApp)
