@@ -67,7 +67,8 @@ export const handleUserPatchRequest = async (
 
   const userDoc = await getFirestoreDoc({
     collection: "users",
-    docId: uid
+    docId: uid,
+    includeId: false
   })
 
   if (!userDoc) {

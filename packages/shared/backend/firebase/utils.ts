@@ -13,15 +13,33 @@ import type {
 
 import { firebaseAuth, firestore } from "./config"
 
-type GetFirestoreDocProps<T extends FirestoreCollectionsNames> = {
-  collection: T
+type GetFirestoreDocProps<
+  CollectionName extends FirestoreCollectionsNames,
+  IncludeId extends boolean
+> = {
+  collection: CollectionName
   docId: string
+  includeId?: IncludeId
 }
 
-export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
+type GetFirestoreDocsReturnType<
+  CollectionName extends FirestoreCollectionsNames,
+  IncludeId extends boolean
+> = IncludeId extends true
+  ? DocWithID<FirestoreCollectionsMap[CollectionName]>
+  : FirestoreCollectionsMap[CollectionName]
+
+export const getFirestoreDoc = async <
+  CollectionName extends FirestoreCollectionsNames,
+  IncludeId extends boolean = true
+>({
   collection,
-  docId
-}: GetFirestoreDocProps<T>) => {
+  docId,
+  includeId = true as IncludeId
+}: GetFirestoreDocProps<
+  CollectionName,
+  IncludeId
+>): Promise<GetFirestoreDocsReturnType<CollectionName, IncludeId> | null> => {
   const docRef = firestore.collection(collection).doc(docId)
   const docSnapshot = await docRef.get()
 
@@ -31,8 +49,12 @@ export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
 
   const data = docSnapshot.data()
 
+  if (!includeId) {
+    return data as GetFirestoreDocsReturnType<CollectionName, IncludeId>
+  }
+
   return { id: docSnapshot.id, ...data } as DocWithID<
-    FirestoreCollectionsMap[T]
+    FirestoreCollectionsMap[CollectionName]
   >
 }
 
