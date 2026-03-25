@@ -10,7 +10,9 @@ on:
             - ".github/workflows/deploy.yml"
 
 name: Deploy
-
+concurrency:
+    group: deploy
+    cancel-in-progress: true
 jobs:
     detect-changes:
         name: Detect Changes
