@@ -150,7 +150,7 @@ export const Users = () => {
           type: "user",
           props: { item, onSuccess: handleItemEdit }
         }),
-      hidden: !item.metadata.isActive
+      hidden: !item.metadata.isActive && !item.metadata.invitationPending
     },
     {
       tooltip: "Reinvite User",
