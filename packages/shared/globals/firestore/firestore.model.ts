@@ -139,6 +139,7 @@ export type CarDoc = CarCheckpoints & {
   isRental: boolean
   plateNumber?: string
   type: string
+  driverId?: string
 }
 
 export type NotificationConfigDoc = {

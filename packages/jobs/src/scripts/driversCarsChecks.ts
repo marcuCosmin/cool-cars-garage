@@ -26,7 +26,7 @@ const run = async () => {
 
   const psvCarsdriversIds = new Set(
     psvCarsData.map(car => car.driverId).filter(Boolean)
-  )
+  ) as Set<string>
 
   const driversData = await getFirestoreDocs({
     collection: "users",
