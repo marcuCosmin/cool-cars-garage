@@ -15,7 +15,7 @@ import type {
   FiltersConfig,
   DataListItemMetadataConfig,
   FetchItems,
-  GetListItemActionsConfig
+  GetDataListItemActionsConfig
 } from "@/components/core/DataView/DataView.model"
 
 import type { CheckRawListItem } from "@/globals/dataLists/dataLists.model"
@@ -128,15 +128,17 @@ export const Reports = () => {
     }
   ]
 
-  const getItemActionsConfig: GetListItemActionsConfig<CheckRawListItem> = ({
-    id
-  }) => [
-    {
-      tooltip: "Detailed view",
-      Icon: BoxArrowInUpRight,
-      onClick: () => navigate(`/reports/${id}`)
-    }
-  ]
+  const getItemActionsConfig: GetDataListItemActionsConfig<
+    CheckRawListItem
+  > = ({ id }) => ({
+    items: [
+      {
+        tooltip: "Detailed view",
+        Icon: BoxArrowInUpRight,
+        onClick: () => navigate(`/reports/${id}`)
+      }
+    ]
+  })
 
   const fetchItems: FetchItems<
     CheckRawListItem,

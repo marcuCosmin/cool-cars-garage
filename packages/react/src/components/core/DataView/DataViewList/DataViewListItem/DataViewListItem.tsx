@@ -1,19 +1,18 @@
-import { Tooltip } from "@/components/basic/Tooltip"
-
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
 import { extendRawItemMetadata } from "../../DataView.utils"
 
 import type {
-  DataListItemActionProps,
-  DataListItemMetadataConfig
+  DataListItemMetadataConfig,
+  DataListItemActionsConfig
 } from "../../DataView.model"
 
 import { DataViewListItemMetadata } from "./DataViewListItemMetadata"
+import { DataViewListItemActions } from "./DataViewListItemActions"
 
 type DataCardProps<RawItem extends RawDataListItem> = {
   rawItem: RawItem
-  actionsConfig?: DataListItemActionProps[]
+  actionsConfig?: DataListItemActionsConfig
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
 }
 
@@ -38,31 +37,8 @@ export const DataListViewItem = <RawItem extends RawDataListItem>({
           {subtitle}
         </p>
 
-        {!!actionsConfig?.length && (
-          <ul className="flex items-center gap-4">
-            {actionsConfig.map((actionConfig, index) => {
-              const { tooltip, Icon, onClick, hidden } = actionConfig
-
-              if (hidden) {
-                return null
-              }
-
-              return (
-                <li key={index}>
-                  <Tooltip
-                    label={tooltip}
-                    containerTag="button"
-                    containerProps={{
-                      onClick,
-                      className: "bg-transparent w-fit p-0 text-primary"
-                    }}
-                  >
-                    <Icon width={20} height={20} />
-                  </Tooltip>
-                </li>
-              )
-            })}
-          </ul>
+        {!!actionsConfig?.items?.length && (
+          <DataViewListItemActions {...actionsConfig} />
         )}
       </div>
 

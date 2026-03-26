@@ -5,13 +5,13 @@ import { useInfiniteScroll } from "./useInfiniteScroll"
 import { DataListViewItem } from "./DataViewListItem/DataViewListItem"
 
 import type {
-  GetListItemActionsConfig,
+  GetDataListItemActionsConfig,
   DataListItemMetadataConfig
 } from "../DataView.model"
 
 type DataViewListProps<RawItem extends RawDataListItem> = {
   rawItems: RawItem[]
-  getItemActionsConfig?: GetListItemActionsConfig<RawItem>
+  getItemActionsConfig?: GetDataListItemActionsConfig<RawItem>
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   onScrollEnd?: () => void
 }

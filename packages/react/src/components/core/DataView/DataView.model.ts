@@ -71,9 +71,14 @@ export type DataListItemActionProps = {
   onClick: () => void
 }
 
-export type GetListItemActionsConfig<RawItem extends RawDataListItem> = (
+export type DataListItemActionsConfig = {
+  isDisplayedAsDropdown?: boolean
+  items: DataListItemActionProps[]
+}
+
+export type GetDataListItemActionsConfig<RawItem extends RawDataListItem> = (
   item: RawItem
-) => DataListItemActionProps[]
+) => DataListItemActionsConfig
 
 export type DataListItem<RawItem extends RawDataListItem> = Omit<
   RawDataListItem,

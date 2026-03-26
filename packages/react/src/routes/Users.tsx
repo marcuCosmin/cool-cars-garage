@@ -24,7 +24,7 @@ import type {
   OpenDataViewModal,
   DataListItemMetadataConfig,
   FiltersConfig,
-  GetListItemActionsConfig
+  GetDataListItemActionsConfig
 } from "@/components/core/DataView/DataView.model"
 import { useCommonItemsActions } from "@/components/core/DataView/useCommonItemsActions"
 
@@ -139,58 +139,61 @@ export const Users = () => {
     )
   }
 
-  const getItemActionsConfig: GetListItemActionsConfig<
+  const getItemActionsConfig: GetDataListItemActionsConfig<
     RawUserListItem
-  > = item => [
-    {
-      tooltip: "Edit User",
-      Icon: PencilSquare,
-      onClick: () =>
-        setModalProps({
-          type: "user",
-          props: { item, onSuccess: handleItemEdit }
-        }),
-      hidden: !item.metadata.isActive && !item.metadata.invitationPending
-    },
-    {
-      tooltip: "Reinvite User",
-      Icon: EnvelopeArrowUp,
-      hidden: !item.metadata.invitationPending,
-      onClick: () => handleUserReinvitation({ uid: item.id })
-    },
-    {
-      tooltip: item.metadata.isActive ? "Disable User" : "Enable User",
-      Icon: item.metadata.isActive ? PersonFillSlash : PersonCheckFill,
-      hidden: item.metadata.invitationPending,
-      onClick: () =>
-        setModalProps({
-          type: "confirmation",
-          props: {
-            text: `Are you sure you want to ${item.metadata.isActive ? "disable" : "enable"} user "${item.title}"?`,
-            onConfirm: () =>
-              handleUserActiveStateUpdate({
-                uid: item.id,
-                isActive: !item.metadata.isActive
-              })
-          }
-        })
-    },
-    {
-      tooltip: "Delete User",
-      Icon: Trash3Fill,
-      onClick: () =>
-        setModalProps({
-          type: "confirmation",
-          props: {
-            text: `Are you sure you want to delete user "${item.title}"?`,
-            onConfirm: async () => {
-              await deleteUser({ uid: item.id })
-              handleItemDelete(item.id)
+  > = item => ({
+    isDisplayedAsDropdown: true,
+    items: [
+      {
+        tooltip: "Edit User",
+        Icon: PencilSquare,
+        onClick: () =>
+          setModalProps({
+            type: "user",
+            props: { item, onSuccess: handleItemEdit }
+          }),
+        hidden: !item.metadata.isActive && !item.metadata.invitationPending
+      },
+      {
+        tooltip: "Reinvite User",
+        Icon: EnvelopeArrowUp,
+        hidden: !item.metadata.invitationPending,
+        onClick: () => handleUserReinvitation({ uid: item.id })
+      },
+      {
+        tooltip: item.metadata.isActive ? "Disable User" : "Enable User",
+        Icon: item.metadata.isActive ? PersonFillSlash : PersonCheckFill,
+        hidden: item.metadata.invitationPending,
+        onClick: () =>
+          setModalProps({
+            type: "confirmation",
+            props: {
+              text: `Are you sure you want to ${item.metadata.isActive ? "disable" : "enable"} user "${item.title}"?`,
+              onConfirm: () =>
+                handleUserActiveStateUpdate({
+                  uid: item.id,
+                  isActive: !item.metadata.isActive
+                })
             }
-          }
-        })
-    }
-  ]
+          })
+      },
+      {
+        tooltip: "Delete User",
+        Icon: Trash3Fill,
+        onClick: () =>
+          setModalProps({
+            type: "confirmation",
+            props: {
+              text: `Are you sure you want to delete user "${item.title}"?`,
+              onConfirm: async () => {
+                await deleteUser({ uid: item.id })
+                handleItemDelete(item.id)
+              }
+            }
+          })
+      }
+    ]
+  })
 
   const openDataViewModal: OpenDataViewModal<RawUserListItem> = props =>
     setModalProps({ type: "user", props })

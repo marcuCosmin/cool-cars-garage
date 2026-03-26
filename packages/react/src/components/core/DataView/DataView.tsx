@@ -13,7 +13,7 @@ import type {
   FetchItems,
   DataListItemMetadataConfig,
   OpenDataViewModal,
-  GetListItemActionsConfig,
+  GetDataListItemActionsConfig,
   FilterItem
 } from "./DataView.model"
 
@@ -24,7 +24,7 @@ type DataViewProps<
   Filter extends FilterItem<ServerSideFetching>,
   ServerSideFetching extends boolean
 > = {
-  getItemActionsConfig?: GetListItemActionsConfig<RawItem>
+  getItemActionsConfig?: GetDataListItemActionsConfig<RawItem>
   itemMetadataConfig: DataListItemMetadataConfig<RawItem>
   filtersConfig: FiltersConfig<Filter, ServerSideFetching>
   serverSideFetching?: ServerSideFetching
