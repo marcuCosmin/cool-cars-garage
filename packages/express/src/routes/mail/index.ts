@@ -14,5 +14,5 @@ const contactRateLimiter = rateLimit({
 export const mailRouter = Router()
 
 mailRouter.use(cors({ origin: process.env.MAIL_ALLOWED_ORIGIN }))
-mailRouter.options("/")
+mailRouter.options("/", cors({ origin: "*" }))
 mailRouter.post("/", contactRateLimiter, handlePostRequest)

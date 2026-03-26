@@ -16,7 +16,4 @@
       "@/firebase/*": ["./src/firebase/*"],
     }
   },
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  },
 }
