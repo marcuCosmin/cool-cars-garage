@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react"
-import { BrowserRouter, Route, Routes } from "react-router"
+import { Route, Routes as ReactRoutes } from "react-router"
 
 import { useAppSelector } from "@/redux/redux.config"
 
@@ -63,7 +63,7 @@ const PrivacyPolicy = lazy(() =>
   }))
 )
 
-export const Router = () => {
+export const Routes = () => {
   const uid = useAppSelector(state => state.user.uid)
   const userRole = useAppSelector(state => state.user.role)
 
@@ -97,24 +97,22 @@ export const Router = () => {
   }
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<Loader enableOverlay text="Loading routes" />}>
-        <Routes>
-          {!uid ? (
-            <Route element={<UnauthorizedLayout />}>
-              <Route path="/" element={<SignIn />} />
-              <Route path="/sign-up" element={<SignUp />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          ) : (
-            <Route element={<MainLayout />}>
-              {renderRoleBasedRoutes()}
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          )}
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+    <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
+      <ReactRoutes>
+        {!uid ? (
+          <Route element={<UnauthorizedLayout />}>
+            <Route path="/" element={<SignIn />} />
+            <Route path="/sign-up" element={<SignUp />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        ) : (
+          <Route element={<MainLayout />}>
+            {renderRoleBasedRoutes()}
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        )}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      </ReactRoutes>
+    </Suspense>
   )
 }

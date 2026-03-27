@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import { BrowserRouter } from "react-router"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { onIdTokenChanged } from "firebase/auth"
@@ -10,7 +11,7 @@ import { initUserData } from "@/redux/userSlice"
 
 import { useScreenSizeListener } from "@/hooks/useScreenSize"
 
-import { Router } from "@/routes/Router"
+import { Routes } from "@/routes/Routes"
 
 import { ModalProvider } from "@/contexts/Modal/Modal.provider"
 
@@ -47,9 +48,11 @@ export const App = () => {
 
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <ModalProvider>
-        <Router />
-      </ModalProvider>
+      <BrowserRouter>
+        <ModalProvider>
+          <Routes />
+        </ModalProvider>
+      </BrowserRouter>
     </ErrorBoundary>
   )
 }
