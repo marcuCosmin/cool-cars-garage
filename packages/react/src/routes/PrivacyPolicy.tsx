@@ -26,11 +26,6 @@ export const PrivacyPolicy = () => (
         <ul>
           <li>Full Name</li>
           <li>Email Address</li>
-          <li>Driver Information, including:</li>
-          <ul>
-            <li>Driver&apos;s license details</li>
-            <li>Previous driving history</li>
-          </ul>
         </ul>
       </li>
       <li className="text-primary">
