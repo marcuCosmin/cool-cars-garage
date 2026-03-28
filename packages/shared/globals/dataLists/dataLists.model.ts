@@ -49,4 +49,6 @@ export type CheckRawListItem = RawDataListItem<
   }
 >
 
-export type RawCarListItem = RawDataListItem<Omit<CarDoc, "council">>
+export type RawCarListItem = RawDataListItem<
+  Omit<CarDoc, "council" | "driverId">
+>
