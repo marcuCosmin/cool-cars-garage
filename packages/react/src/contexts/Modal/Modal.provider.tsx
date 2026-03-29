@@ -1,10 +1,23 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode
+} from "react"
 import { useLocation } from "react-router"
 
-import { Modal } from "@/components/core/Modal/Modal"
-import type { ModalProps } from "@/components/core/Modal/Modal.model"
+import { Loader } from "@/components/basic/Loader"
+import type { ModalProps } from "@/components/basic/Modal/Modal.model"
 
 import { ModalContext } from "./Modal.context"
+
+const Modal = lazy(() =>
+  import("@/components/basic/Modal/Modal").then(module => ({
+    default: module.Modal
+  }))
+)
 
 type ModalProviderProps = {
   children: ReactNode
@@ -24,7 +37,11 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
   return (
     <ModalContext value={value}>
       {children}
-      {modalProps && <Modal {...modalProps} />}
+      {modalProps && (
+        <Suspense fallback={<Loader enableOverlay />}>
+          <Modal {...modalProps} />
+        </Suspense>
+      )}
     </ModalContext>
   )
 }

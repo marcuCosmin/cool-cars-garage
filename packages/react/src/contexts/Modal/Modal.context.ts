@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react"
 
-import type { ModalProps } from "@/components/core/Modal/Modal.model"
+import type { ModalProps } from "@/components/basic/Modal/Modal.model"
 
 export type ModalState = {
   setModalProps: (props: ModalProps | null) => void
