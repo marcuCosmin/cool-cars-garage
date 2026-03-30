@@ -12,7 +12,13 @@ export const handleGetRequest = async (
 ) => {
   const uid = req.authorizedUser?.uid as string
 
-  const { users: authUsers } = await firebaseAuth.listUsers()
+  const [{ users: authUsers }, usersDocs] = await Promise.all([
+    firebaseAuth.listUsers(),
+    getFirestoreDocs({
+      collection: "users",
+      queries: [["__name__", "!=", uid]]
+    })
+  ])
 
   const filteredAuthUsers = authUsers.filter(user => user.uid !== uid)
 
@@ -24,11 +30,6 @@ export const handleGetRequest = async (
 
     return
   }
-
-  const usersDocs = await getFirestoreDocs({
-    collection: "users",
-    queries: [["__name__", "!=", uid]]
-  })
 
   if (!usersDocs.length) {
     res.status(404).json({
@@ -54,7 +55,7 @@ export const handleGetRequest = async (
   }
 
   const users: User[] = usersDocs.map(({ id, ...userDoc }) => {
-    const authData = authUsers.find(({ uid }) => uid === id)
+    const authData = filteredAuthUsers.find(({ uid }) => uid === id)
     const inivitationData = invitations.find(({ uid }) => uid === id)
 
     const user: User = {
