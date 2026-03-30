@@ -56,16 +56,16 @@ export const handleGetRequest = async (
 
   const users: User[] = usersDocs.map(({ id, ...userDoc }) => {
     const authData = filteredAuthUsers.find(({ uid }) => uid === id)
-    const inivitationData = invitations.find(({ uid }) => uid === id)
+    const invitationData = invitations.find(({ uid }) => uid === id)
 
     const user: User = {
       ...userDoc,
       uid: id,
-      isActive: authData ? !authData.disabled : !!inivitationData?.isActive,
-      email: authData?.email || inivitationData?.email || ""
+      isActive: authData ? !authData.disabled : !!invitationData?.isActive,
+      email: authData?.email || invitationData?.email || ""
     }
 
-    if (inivitationData) {
+    if (invitationData) {
       user.invitationPending = true
     }
 
