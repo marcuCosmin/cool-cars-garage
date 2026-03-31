@@ -1,4 +1,6 @@
-import nodemailer from "nodemailer"
+import { Resend } from "resend"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 type SendMailOptions = {
   to: string
@@ -7,20 +9,14 @@ type SendMailOptions = {
 }
 
 export const sendMail = async ({ to, subject, html }: SendMailOptions) => {
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    }
-  })
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  const response = await resend.emails.send({
+    from: "Cool Cars Garage <noreply@cool-cars-garage.co.uk>",
     to,
     subject,
     html
   })
+
+  if (response.error) {
+    throw response.error
+  }
 }
