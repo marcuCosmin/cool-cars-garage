@@ -145,7 +145,7 @@ export const useDataViewList = <
       return
     }
 
-    toast.error(`An error occurred while fetching data. ${error.message}`)
+    toast.error(`An error occurred while fetching data: ${error.message}`)
   }, [error?.message])
 
   return {

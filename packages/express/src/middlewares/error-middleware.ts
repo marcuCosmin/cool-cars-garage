@@ -8,5 +8,5 @@ export const errorMiddleware = (
 ) => {
   console.log(error)
 
-  res.status(500).json({ error: "Internal Server Error" })
+  res.status(500).json({ error: error.message || "Internal Server Error" })
 }

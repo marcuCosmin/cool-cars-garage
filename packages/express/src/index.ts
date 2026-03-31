@@ -13,7 +13,6 @@ const port = process.env.PORT
 
 app.use(express.json())
 app.use(authorizationMiddleware)
-app.use(errorMiddleware)
 
 app.use("/users", usersRouter)
 app.use("/cars", carsRouter)
@@ -23,6 +22,8 @@ app.use("/wapp-webhook", wappWebhook)
 app.get("/", (req, res) => {
   res.send("Cool Cars Garage API is running")
 })
+
+app.use(errorMiddleware)
 
 app.listen(port, () => {
   console.log(`[express]: Server is running at http://localhost:${port}`)
