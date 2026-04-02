@@ -36,10 +36,22 @@ export const transformFilterToSearchParam = <
 }: TransformFilterToSearchParamProps<Filter, ServerSideFetching>) => {
   switch (filter.type) {
     case "select":
+      if (!filter.value.length) {
+        return
+      }
+
       return JSON.stringify(filter.value)
     case "toggle":
+      if (!filter.value) {
+        return
+      }
+
       return filter.value.toString()
     case "date":
+      if (filter.value === undefined) {
+        return
+      }
+
       const searchParamValue = (
         existingSearchParam ? JSON.parse(existingSearchParam) : []
       ) as [number | undefined, number | undefined]

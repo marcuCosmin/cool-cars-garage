@@ -50,12 +50,11 @@ export const useDataViewList = <
 }: UseDataViewList<RawItem, Filter, ServerSideFetching>) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchQuery, setSearchQuery] = useState("")
-  const [filters, setFilters] = useState(
-    filtersConfigToState<Filter, ServerSideFetching>({
-      filtersConfig,
-      searchParams
-    })
-  )
+  const filters = filtersConfigToState<Filter, ServerSideFetching>({
+    filtersConfig,
+    searchParams
+  })
+
   const queryClient = useQueryClient()
 
   const location = useLocation()
@@ -85,31 +84,28 @@ export const useDataViewList = <
     : rawItems
 
   const onFilterChange: FilterChangeHandler = ({ value, index }) => {
-    const newFilters = filters.slice() as FiltersState<
+    const filter = { ...filters[index], value } as FiltersState<
       Filter,
       ServerSideFetching
-    >
-
-    const oldFilter = newFilters[index]
-
-    newFilters[index] = {
-      ...oldFilter,
-      value
-    } as FiltersState<Filter, ServerSideFetching>[number]
+    >[number]
 
     const filterField = getFilterField<Filter, ServerSideFetching>(
       filtersConfig[index]
     )
 
-    setFilters(newFilters)
     setSearchParams(params => {
       const paramValue = transformFilterToSearchParam<
         Filter,
         ServerSideFetching
       >({
-        filter: newFilters[index],
+        filter,
         existingSearchParam: params.get(filterField)
       })
+
+      if (!paramValue) {
+        params.delete(filterField)
+        return params
+      }
 
       params.set(filterField, paramValue)
 
