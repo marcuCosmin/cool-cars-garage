@@ -9,7 +9,6 @@ import {
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 
-import { Loader } from "@/components/basic/Loader"
 import { DataView } from "@/components/core/DataView/DataView"
 import type {
   FiltersConfig,
@@ -42,31 +41,25 @@ const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListIt
 export const Reports = () => {
   const navigate = useNavigate()
   const { setModalProps } = useModalContext()
-  const { data: users, isLoading: isLoadingUsers } = useQuery({
+  const { data: users = [], isLoading: areUsersLoading } = useQuery({
     queryKey: ["/users-docs"],
     queryFn: () => getFirestoreDocs({ collectionId: "users" }),
     staleTime: Infinity
   })
-  const { data: cars, isLoading: isLoadingCars } = useQuery({
-    queryKey: ["/cars-docs"],
+  const { data: cars = [], isLoading: areCarsLoading } = useQuery({
+    queryKey: ["/cars"],
     queryFn: () => getFirestoreDocs({ collectionId: "cars" }),
     staleTime: Infinity
   })
-
-  if (isLoadingUsers || isLoadingCars) {
-    return <Loader enableOverlay />
-  }
-
-  if (!users || !cars) {
-    return <div></div>
-  }
 
   const filtersConfig: FiltersConfig<CheckDoc, true> = [
     {
       label: "Car ID",
       field: "carId",
       type: "select",
-      options: cars.map(({ id }) => ({ label: id, value: id }))
+      options: cars.map(({ id }) => ({ label: id, value: id })),
+      disabled: !cars.length,
+      isLoading: areCarsLoading
     },
     {
       label: "Driver",
@@ -75,7 +68,9 @@ export const Reports = () => {
       options: users.map(({ firstName, lastName, id }) => ({
         label: `${firstName} ${lastName}`,
         value: id
-      }))
+      })),
+      disabled: !users.length,
+      isLoading: areUsersLoading
     },
     {
       label: "Start Date",

@@ -1,6 +1,9 @@
 import ReactSelect, { type MultiValue, type SingleValue } from "react-select"
 
-import type { FormFieldComponentProps } from "./Form/Form.models"
+import { Loader } from "@/components/basic/Loader"
+import type { FormFieldComponentProps } from "@/components/basic/Form/Form.models"
+
+const LoadingIndicator = () => <Loader size="sm" />
 
 type Option = {
   value: string
@@ -11,6 +14,7 @@ export type SelectProps = FormFieldComponentProps<string | string[]> & {
   disabled?: boolean
   options: Option[]
   isMulti?: boolean
+  isLoading?: boolean
 }
 
 export const Select = ({
@@ -21,8 +25,10 @@ export const Select = ({
   label,
   isMulti,
   error,
-  disabled
+  disabled,
+  isLoading
 }: SelectProps) => {
+  const isDisabled = disabled || isLoading
   const isSearchable = options.length > 10
 
   const selectClassName = isMulti ? "react-multi-select" : "react-select"
@@ -44,8 +50,12 @@ export const Select = ({
     <div className="w-full max-w-sm">
       {label && <div className="mb-2">{label}</div>}
       <ReactSelect
+        isLoading={isLoading}
+        components={{
+          LoadingIndicator
+        }}
         menuPortalTarget={document.body}
-        isDisabled={disabled}
+        isDisabled={isDisabled}
         blurInputOnSelect={false}
         unstyled
         isMulti={isMulti}

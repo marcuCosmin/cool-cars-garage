@@ -94,9 +94,11 @@ type ComponentFilterProps = {
   label: string
 }
 
-type SelectFilterProps<Item extends Record<string, any>> = {
+type SelectFilterProps<Item extends Record<string, any>> = Pick<
+  SelectProps,
+  "options" | "isLoading" | "disabled"
+> & {
   type: "select"
-  options: SelectProps["options"]
   value: string[]
   field: Extract<keyof Item, string>
 } & ComponentFilterProps
