@@ -47,6 +47,86 @@ const getOdoReadingError = (odoReading?: CheckDoc["odoReading"]) => {
   }
 }
 
+const getFaultsDetailsError = (faultsDetails?: string) => {
+  const trimmedFaultsDetails = faultsDetails?.trim()
+
+  if (!trimmedFaultsDetails) {
+    return "The faults details field is required when reporting faults"
+  }
+
+  if (trimmedFaultsDetails.length < 20) {
+    return "The faults details field must be at least 20 characters long"
+  }
+
+  if (trimmedFaultsDetails.length > 1000) {
+    return "The faults details field must be at most 1000 characters long"
+  }
+}
+
+const getAnswersShallowValidationError = (answers?: CheckAnswer[]) => {
+  if (!answers) {
+    return "Answers are required"
+  }
+
+  if (!Array.isArray(answers)) {
+    return "Invalid answers format"
+  }
+}
+
+type GetReqBodyShallowValidationErrorProps = ReqBody & {
+  driverId: string
+}
+
+export const getReqBodyShallowValidationError = ({
+  carId,
+  odoReading,
+  interior,
+  exterior,
+  faultsDetails,
+  driverId
+}: GetReqBodyShallowValidationErrorProps) => {
+  if (!carId) {
+    return "Car registration number is required"
+  }
+
+  if (!driverId) {
+    return "Driver ID is required"
+  }
+
+  const odoReadingError = getOdoReadingError(odoReading)
+
+  if (odoReadingError) {
+    return odoReadingError
+  }
+
+  const interiorAnswersError = getAnswersShallowValidationError(interior)
+
+  if (interiorAnswersError) {
+    return `Interior section: ${interiorAnswersError}`
+  }
+
+  const exteriorAnswersError = getAnswersShallowValidationError(exterior)
+
+  if (exteriorAnswersError) {
+    return `Exterior section: ${exteriorAnswersError}`
+  }
+
+  const answersWithFaults = getAnswersWithFaults({
+    interior: interior!,
+    exterior: exterior!
+  })
+
+  const checkHasFaults = answersWithFaults.length > 0
+
+  if (checkHasFaults) {
+    const faultsDetailsError = getFaultsDetailsError(faultsDetails)
+
+    if (faultsDetailsError) {
+      return faultsDetailsError
+    }
+  }
+}
+
 const isAnswersSectionValid = (
   sectionQuestions: ReportsQuestion[],
   answers?: CheckAnswer[]
@@ -86,33 +166,19 @@ const getQuestionsConfigDoc = ({ isRental, council }: DocWithID<CarDoc>) => {
   return "non-psv-questions"
 }
 
-type GetReqBodyValidationErrorProps = ReqBody & {
-  driverId: string
+type GetReqBodyValidationErrorProps = Omit<
+  Required<GetReqBodyShallowValidationErrorProps>,
+  "carId"
+> & {
+  car: DocWithID<CarDoc> | null
 }
 
-export const getReqBodyValidationError = async ({
-  carId,
+export const getDeepReqBodyValidationError = async ({
+  car,
   interior,
   exterior,
-  odoReading,
-  driverId,
-  faultsDetails
+  driverId
 }: GetReqBodyValidationErrorProps) => {
-  if (!carId) {
-    return "Invalid car registration number"
-  }
-
-  const odoReadingError = getOdoReadingError(odoReading)
-
-  if (odoReadingError) {
-    return odoReadingError
-  }
-
-  const car = await getFirestoreDoc({
-    collection: "cars",
-    docId: carId
-  })
-
   if (!car) {
     return "Invalid car registration number"
   }
@@ -125,7 +191,7 @@ export const getReqBodyValidationError = async ({
   })
 
   if (!questionsConfig) {
-    throw new Error("Questions config not found")
+    return "Questions config not found"
   }
 
   if (!isAnswersSectionValid(questionsConfig.interior, interior)) {
@@ -136,35 +202,12 @@ export const getReqBodyValidationError = async ({
     return "Invalid answers for exterior section"
   }
 
-  const answersWithFaults = getAnswersWithFaults({
-    interior: interior!,
-    exterior: exterior!
-  })
-
-  const checkHasFaults = answersWithFaults.length > 0
-
-  if (checkHasFaults) {
-    const trimmedFaultsDetails = faultsDetails?.trim()
-
-    if (!trimmedFaultsDetails) {
-      return "The faults details field is required when reporting faults"
-    }
-
-    if (trimmedFaultsDetails.length < 20) {
-      return "The faults details field must be at least 20 characters long"
-    }
-
-    if (trimmedFaultsDetails.length > 1000) {
-      return "The faults details field must be at most 1000 characters long"
-    }
-  }
-
   const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()
 
   const [existingCheck] = await getFirestoreDocs({
     collection: "checks",
     queries: [
-      ["carId", "==", carId],
+      ["carId", "==", car.id],
       ["driverId", "==", driverId],
       ["creationTimestamp", ">=", startTimestamp],
       ["creationTimestamp", "<=", endTimestamp]

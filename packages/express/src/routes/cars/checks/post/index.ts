@@ -1,7 +1,10 @@
 import { type Response } from "express"
 
 import { firestore } from "@/backend/firebase/config"
-import { getNotificationPhoneNumbers } from "@/backend/firebase/utils"
+import {
+  getFirestoreDoc,
+  getNotificationPhoneNumbers
+} from "@/backend/firebase/utils"
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
 
 import { sendWappMessages } from "@/backend/utils/send-wapp-messages"
@@ -12,7 +15,11 @@ import type { CheckDoc, User } from "@/globals/firestore/firestore.model"
 
 import { createReportsNotification } from "../../utils"
 
-import { getAnswersWithFaults, getReqBodyValidationError } from "./utils"
+import {
+  getAnswersWithFaults,
+  getReqBodyShallowValidationError,
+  getDeepReqBodyValidationError
+} from "./utils"
 
 import type { ReqBody } from "./model"
 
@@ -22,14 +29,33 @@ export const handleCheckSubmission = async (
 ) => {
   const authorizedUser = req.authorizedUser as User
 
-  const reqBodyError = await getReqBodyValidationError({
+  const shallowReqBodyError = getReqBodyShallowValidationError({
     ...req.body,
     driverId: authorizedUser.uid
   })
 
-  if (reqBodyError) {
+  if (shallowReqBodyError) {
     res.status(400).json({
-      error: reqBodyError
+      error: shallowReqBodyError
+    })
+
+    return
+  }
+
+  const car = await getFirestoreDoc({
+    collection: "cars",
+    docId: req.body.carId as string
+  })
+
+  const deepReqBodyError = await getDeepReqBodyValidationError({
+    ...(req.body as Required<ReqBody>),
+    driverId: authorizedUser.uid,
+    car
+  })
+
+  if (deepReqBodyError) {
+    res.status(400).json({
+      error: deepReqBodyError
     })
 
     return
@@ -45,6 +71,7 @@ export const handleCheckSubmission = async (
   const creationTimestamp = getCurrentTimestamp()
 
   const checkData: CheckDoc = {
+    council: car!.council,
     carId,
     interior,
     exterior,

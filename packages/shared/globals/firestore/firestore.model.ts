@@ -79,6 +79,7 @@ type CheckOdoReading = {
 }
 
 export type CheckDoc = {
+  council: Councils
   carId: string
   creationTimestamp: number
   driverId: string
