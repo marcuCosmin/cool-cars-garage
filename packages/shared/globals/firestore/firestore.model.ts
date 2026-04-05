@@ -1,4 +1,4 @@
-type Councils = "PSV" | "Cornwall" | "Wolverhampton" | "Portsmouth" | "Other"
+import type { Council } from "../constants"
 
 export type DriverDVLAData = {
   lastName: string
@@ -29,7 +29,7 @@ export type DriverData = DriverDVLAData & {
   dbsUpdate: boolean
   badgeNumber?: string
   badgeExpirationTimestamp?: number
-  badgeAuthority?: Councils
+  badgeAuthority?: Council
   isTaxiDriver: boolean
   isPSVDriver: boolean
 }
@@ -79,7 +79,7 @@ type CheckOdoReading = {
 }
 
 export type CheckDoc = {
-  council: Councils
+  council: Council
   carId: string
   creationTimestamp: number
   driverId: string
@@ -135,7 +135,7 @@ export type CarDoc = CarCheckpoints & {
   engineCapacity: number
   lastIssuedV5CTimestamp: number
   isOffRoad: boolean
-  council: Councils
+  council: Council
   hasOutstandingRecall: boolean
   isRental: boolean
   plateNumber?: string
@@ -206,7 +206,7 @@ export type RouteDoc = {
   passengerAssistant: RoutePerson
   children: RoutePerson[]
   carId: string
-  council: Councils
+  council: Council
   estimatedMilesPerDay: number
 }
 

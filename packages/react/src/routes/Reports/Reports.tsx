@@ -17,6 +17,8 @@ import type {
   GetDataListItemActionsConfig
 } from "@/components/core/DataView/DataView.model"
 
+import { councils } from "@/globals/constants"
+
 import type { CheckRawListItem } from "@/globals/dataLists/dataLists.model"
 import type {
   CheckDoc,
@@ -26,6 +28,7 @@ import type {
 
 const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListItem> =
   {
+    council: { type: "text", label: "Council" },
     creationTimestamp: { type: "date", label: "Creation Date" },
     odoReading: { type: "text", label: "Odometer Reading" },
     driver: { type: "text", label: "Driver" },
@@ -53,6 +56,12 @@ export const Reports = () => {
   })
 
   const filtersConfig: FiltersConfig<CheckDoc, true> = [
+    {
+      label: "Council",
+      field: "council",
+      type: "select",
+      options: councils.map(council => ({ label: council, value: council }))
+    },
     {
       label: "Car ID",
       field: "carId",
@@ -161,6 +170,7 @@ export const Reports = () => {
         title: "",
         subtitle: check.carId,
         metadata: {
+          council: check.council,
           creationTimestamp: check.creationTimestamp,
           odoReading: displayedOdoReading,
           driver,

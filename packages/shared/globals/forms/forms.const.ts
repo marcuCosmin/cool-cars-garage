@@ -1,3 +1,5 @@
+import { councils } from "../constants"
+
 import {
   getDrivingLicenceNumberError,
   getEmailError,
@@ -57,7 +59,7 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   },
   badgeAuthority: {
     type: "select",
-    options: ["PSV", "Cornwall", "Wolverhampton", "Portsmouth", "Other"],
+    options: [...councils],
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   },
