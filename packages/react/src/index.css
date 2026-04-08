@@ -121,6 +121,33 @@
         @apply fill-primary dark:fill-secondary;
     }
 
+    .toast {
+        @apply px-2 py-4 flex gap-5 items-center bg-primary text-white text-lg rounded-md border border-white dark:border-black;
+
+        svg {
+            @apply w-8 h-8;
+        }
+    }
+
+    .toast-message {
+        @apply font-bold max-h-37.5 overflow-y-auto;
+        scrollbar-color: #ffffff transparent;
+    }
+
+    .toast-message::-webkit-scrollbar-thumb {
+        @apply bg-white rounded-sm;
+    }
+
+    .toast-message::-webkit-scrollbar-thumb:hover {
+        @apply bg-primary-dark;
+    }
+
+    .toast-action-button {
+        @apply w-fit text-nowrap border border-white uppercase;
+    }
+
+
+
     .ReactModal__Overlay {
         @apply !bg-transparent backdrop-blur-sm z-[9500];
     }

@@ -25,8 +25,7 @@ export const ReportsCheckTableActions = ({
 }: ReportsCheckTableActionsProps) => {
   const { isLoading: isMutationLoading, mutate: handleMarkFaultsAsResolved } =
     useAppMutation({
-      mutationFn: markFaultsAsResolved,
-      showToast: true
+      mutationFn: markFaultsAsResolved
     })
   const queryClient = useQueryClient()
 

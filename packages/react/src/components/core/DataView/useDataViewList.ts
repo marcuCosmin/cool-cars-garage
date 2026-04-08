@@ -1,4 +1,3 @@
-import { toast } from "react-toastify"
 import { useLocation, useSearchParams } from "react-router"
 import { useEffect, useState } from "react"
 import {
@@ -24,6 +23,8 @@ import type {
   FiltersState,
   OpenDataViewModal
 } from "./DataView.model"
+
+import { showToast } from "@/utils/showToast"
 
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
@@ -141,7 +142,10 @@ export const useDataViewList = <
       return
     }
 
-    toast.error(`An error occurred while fetching data: ${error.message}`)
+    showToast({
+      type: "error",
+      message: `An error occurred while fetching data: ${error?.message}`
+    })
   }, [error?.message])
 
   return {

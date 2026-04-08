@@ -31,8 +31,7 @@ export const ReportsCheckIncidentsListItem = ({
   onMarkAsResolved
 }: ReportsCheckIncidentsListItemProps) => {
   const { isLoading, mutate: onMarkAsResolvedClick } = useAppMutation({
-    mutationFn: () => onMarkAsResolved(id),
-    showToast: true
+    mutationFn: () => onMarkAsResolved(id)
   })
 
   return (

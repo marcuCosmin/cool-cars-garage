@@ -1,5 +1,3 @@
-import { toast } from "react-toastify"
-
 import { createUser, updateUser } from "@/api/api.utils"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
@@ -11,6 +9,7 @@ import {
   extendFormFields,
   type AdditionalFieldsProps
 } from "@/utils/extendFormFields"
+import { showToast } from "@/utils/showToast"
 
 import {
   userCreateFields,
@@ -129,9 +128,12 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     }
 
     onSuccess(newRawUserListItem)
-    toast.success(
-      isEdit ? "User updated successfully!" : "Invitation sent successfully!"
-    )
+    showToast({
+      type: "success",
+      message: isEdit
+        ? "User updated successfully!"
+        : "Invitation sent successfully!"
+    })
 
     setModalProps(null)
   }

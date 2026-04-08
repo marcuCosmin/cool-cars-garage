@@ -1,16 +1,17 @@
 import { useMutation } from "@tanstack/react-query"
-import { toast } from "react-toastify"
+
+import { showToast } from "@/utils/showToast"
 
 type DefaultMutationFn = (...args: any) => Promise<any | void>
 
 type UseAppMutationProps<T extends DefaultMutationFn> = {
   mutationFn: T
-  showToast?: boolean
+  shouldShowToast?: boolean
 }
 
 export const useAppMutation = <T extends DefaultMutationFn>({
   mutationFn,
-  showToast = true
+  shouldShowToast = true
 }: UseAppMutationProps<T>) => {
   const {
     isPending: isLoading,
@@ -24,8 +25,11 @@ export const useAppMutation = <T extends DefaultMutationFn>({
     try {
       const response = await mutateAsync(...args)
 
-      if (response?.message && showToast) {
-        toast.success(response.message)
+      if (response?.message && shouldShowToast) {
+        showToast({
+          type: "success",
+          message: response.message
+        })
       }
 
       return {
@@ -35,8 +39,11 @@ export const useAppMutation = <T extends DefaultMutationFn>({
     } catch (error) {
       const errorMessage = (error as Error).message
 
-      if (showToast) {
-        toast.error(errorMessage)
+      if (shouldShowToast) {
+        showToast({
+          type: "error",
+          message: errorMessage
+        })
       }
 
       return {

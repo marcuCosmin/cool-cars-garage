@@ -30,8 +30,7 @@ export const ConfirmationModal = ({
     return response
   }
   const { isLoading, mutate: onConfirmClick } = useAppMutation({
-    mutationFn: handleConfirm,
-    showToast: true
+    mutationFn: handleConfirm
   })
 
   const onCancelClick = () => setModalProps(null)

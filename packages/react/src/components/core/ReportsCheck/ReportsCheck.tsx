@@ -45,8 +45,7 @@ export const ReportsCheck = ({ check }: CheckProps) => {
   }
 
   const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({
-    mutationFn: onExportCheck,
-    showToast: true
+    mutationFn: onExportCheck
   })
 
   const onExportClick = isExporting ? undefined : handleCheckExport

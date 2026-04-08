@@ -56,7 +56,7 @@ export const Form = <T extends FormData>({
     mutate: mutateAction
   } = useAppMutation({
     mutationFn: action,
-    showToast: false
+    shouldShowToast: false
   })
 
   const onSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
