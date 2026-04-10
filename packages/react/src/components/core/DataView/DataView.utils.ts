@@ -48,15 +48,22 @@ export const transformFilterToSearchParam = <
 
       return filter.value.toString()
     case "date":
-      if (filter.value === undefined) {
-        return
-      }
-
       const searchParamValue = (
         existingSearchParam ? JSON.parse(existingSearchParam) : []
       ) as [number | undefined, number | undefined]
       const urlIndex = filter.operator === "<=" ? 1 : 0
-      searchParamValue[urlIndex] = filter.value as number | undefined
+
+      if (filter.value === undefined) {
+        searchParamValue[urlIndex] = undefined
+
+        if (searchParamValue.every(value => value === undefined)) {
+          return
+        }
+
+        return JSON.stringify(searchParamValue)
+      }
+
+      searchParamValue[urlIndex] = filter.value
 
       return JSON.stringify(searchParamValue)
   }
