@@ -27,11 +27,6 @@ const UnauthorizedLayout = lazy(() =>
     default: module.UnauthorizedLayout
   }))
 )
-const ReportsLayout = lazy(() =>
-  import("./Reports/ReportsLayout").then(module => ({
-    default: module.ReportsLayout
-  }))
-)
 const Reports = lazy(() =>
   import("./Reports/Reports").then(module => ({
     default: module.Reports
@@ -75,11 +70,8 @@ export const Routes = () => {
     if (userRole === "manager") {
       return (
         <>
-          <Route index path="/" element={<Home />} />
-          <Route path="/reports" element={<ReportsLayout />}>
-            <Route index element={<Reports />} />
-            <Route path="/reports/:checkId" element={<ReportsCheck />} />
-          </Route>
+          <Route index path="/" element={<Reports />} />
+          <Route path="/reports/:checkId" element={<ReportsCheck />} />
         </>
       )
     }
