@@ -54,7 +54,11 @@ export const MainLayout = () => {
           </div>
         )}
 
-        <Dropdown title={userName} buttonClassName="text-white link-button">
+        <Dropdown
+          title={userName}
+          popoverClassName="bg-primary dark:bg-primary border-white dark:border-black"
+          buttonClassName="text-white link-button"
+        >
           <button type="button" className="link-button" onClick={onLogoutClick}>
             {isLoading ? <Loader size="sm" /> : "Sign out"}
           </button>

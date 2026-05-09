@@ -46,7 +46,12 @@ export const MainLayoutNavLink = (props: MainLayoutNavLinkProps) => {
   )
 
   return (
-    <Dropdown title={title} key={label} buttonClassName="link-button p-0">
+    <Dropdown
+      title={title}
+      key={label}
+      popoverClassName="bg-primary dark:bg-primary border-white dark:border-black"
+      buttonClassName="link-button p-0"
+    >
       {links.map(link => (
         <MainLayoutNavLink key={link.href} {...link} isNested />
       ))}
