@@ -48,7 +48,7 @@ export type CheckRawListItem = RawDataListItem<
   > & {
     odoReading: string
     driver: string
-    checkDuration: number
+    checkDuration?: number
   }
 >
 

@@ -173,7 +173,9 @@ export const Reports = () => {
         metadata: {
           council: check.council,
           creationTimestamp: check.creationTimestamp,
-          checkDuration: check.endTimestamp - check.startTimestamp,
+          checkDuration: check.startTimestamp && check.endTimestamp
+            ? check.endTimestamp - check.startTimestamp
+            : undefined,
           odoReading: displayedOdoReading,
           driver,
           faultsCount: check.faultsCount,
