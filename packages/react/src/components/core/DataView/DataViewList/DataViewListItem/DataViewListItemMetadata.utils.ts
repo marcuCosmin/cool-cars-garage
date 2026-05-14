@@ -1,5 +1,7 @@
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
+import { formatDuration } from "@/utils/formatDuration"
+
 import type { PrimitiveMetadata } from "../../DataView.model"
 
 export const getParsedItemMetadataValue = ({
@@ -17,6 +19,8 @@ export const getParsedItemMetadataValue = ({
       return value ? "Yes" : "No"
     case "date":
       return parseTimestampForDisplay(value)
+    case "duration":
+      return formatDuration(value)
     case "link":
       return value
     default:

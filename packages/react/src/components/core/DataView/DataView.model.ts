@@ -27,6 +27,12 @@ type ItemDateMetadata = {
   value?: number
 }
 
+type ItemDurationMetadata = {
+  type: "duration"
+  label: string
+  value?: number
+}
+
 type ItemLinkMetadata = {
   type: "link"
   label: string
@@ -38,6 +44,7 @@ export type PrimitiveMetadata =
   | ItemTextMetadata
   | ItemBooleanMetadata
   | ItemDateMetadata
+  | ItemDurationMetadata
   | ItemLinkMetadata
 
 type ItemListBase = {

@@ -30,6 +30,7 @@ const checkDataListItemMetadataConfig: DataListItemMetadataConfig<CheckRawListIt
   {
     council: { type: "text", label: "Council" },
     creationTimestamp: { type: "date", label: "Creation Date" },
+    checkDuration: { type: "duration", label: "Check Duration" },
     odoReading: { type: "text", label: "Odometer Reading" },
     driver: { type: "text", label: "Driver" },
     faultsCount: { type: "text", label: "Faults Count" },
@@ -172,6 +173,7 @@ export const Reports = () => {
         metadata: {
           council: check.council,
           creationTimestamp: check.creationTimestamp,
+          checkDuration: check.endTimestamp - check.startTimestamp,
           odoReading: displayedOdoReading,
           driver,
           faultsCount: check.faultsCount,

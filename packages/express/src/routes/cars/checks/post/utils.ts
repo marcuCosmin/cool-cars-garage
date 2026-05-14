@@ -63,6 +63,39 @@ const getFaultsDetailsError = (faultsDetails?: string) => {
   }
 }
 
+const TEN_MINUTES_MS = 10 * 60 * 1000
+
+const getTimestampsError = (startTimestamp?: number, endTimestamp?: number) => {
+  const startDate = startTimestamp !== undefined ? new Date(startTimestamp) : null
+  const endDate = endTimestamp !== undefined ? new Date(endTimestamp) : null
+
+  if (!startDate || isNaN(startDate.getTime())) {
+    return "Invalid start timestamp"
+  }
+
+  if (!endDate || isNaN(endDate.getTime())) {
+    return "Invalid end timestamp"
+  }
+
+  const { startTimestamp: dayStart, endTimestamp: dayEnd } = getTimestampDayTimeRange()
+
+  if (startDate.getTime() < dayStart || startDate.getTime() > dayEnd) {
+    return "Start timestamp must be within today's range"
+  }
+
+  if (endDate.getTime() < dayStart || endDate.getTime() > dayEnd) {
+    return "End timestamp must be within today's range"
+  }
+
+  if (endDate.getTime() <= startDate.getTime()) {
+    return "End timestamp must be after start timestamp"
+  }
+
+  if (endDate.getTime() - startDate.getTime() < TEN_MINUTES_MS) {
+    return "Start and end timestamps must be at least 10 minutes apart"
+  }
+}
+
 const getAnswersShallowValidationError = (answers?: CheckAnswer[]) => {
   if (!answers) {
     return "Answers are required"
@@ -83,7 +116,9 @@ export const getReqBodyShallowValidationError = ({
   interior,
   exterior,
   faultsDetails,
-  driverId
+  driverId,
+  startTimestamp,
+  endTimestamp
 }: GetReqBodyShallowValidationErrorProps) => {
   if (!carId) {
     return "Car registration number is required"
@@ -91,6 +126,12 @@ export const getReqBodyShallowValidationError = ({
 
   if (!driverId) {
     return "Driver ID is required"
+  }
+
+  const timestampsError = getTimestampsError(startTimestamp, endTimestamp)
+
+  if (timestampsError) {
+    return timestampsError
   }
 
   const odoReadingError = getOdoReadingError(odoReading)

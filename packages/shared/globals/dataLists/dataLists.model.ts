@@ -43,9 +43,12 @@ export type CheckRawListItem = RawDataListItem<
     | "exterior"
     | "driverId"
     | "faultsDetails"
+    | "startTimestamp"
+    | "endTimestamp"
   > & {
     odoReading: string
     driver: string
+    checkDuration: number
   }
 >
 

@@ -82,6 +82,8 @@ export type CheckDoc = {
   council: Council
   carId: string
   creationTimestamp: number
+  startTimestamp: number
+  endTimestamp: number
   driverId: string
   odoReading: CheckOdoReading
   interior: CheckAnswer[]

@@ -4,7 +4,8 @@ import {
   InfoCircle,
   XCircle,
   ArrowDownCircle,
-  CalendarWeek
+  CalendarWeek,
+  Stopwatch
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
@@ -20,6 +21,7 @@ const metadataIconsMap = {
   text: InfoCircle,
   boolean: (value: boolean) => (value ? CheckCircle : XCircle),
   date: CalendarWeek,
+  duration: Stopwatch,
   link: BoxArrowUp,
   list: ArrowDownCircle
 } as const

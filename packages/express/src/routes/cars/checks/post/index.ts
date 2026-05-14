@@ -61,7 +61,7 @@ export const handleCheckSubmission = async (
     return
   }
 
-  const { carId, interior, exterior, odoReading, faultsDetails } =
+  const { carId, interior, exterior, odoReading, faultsDetails, startTimestamp, endTimestamp } =
     req.body as Required<ReqBody>
 
   const answersWithFaults = getAnswersWithFaults({ interior, exterior })
@@ -77,7 +77,9 @@ export const handleCheckSubmission = async (
     exterior,
     odoReading,
     driverId: authorizedUser.uid,
-    creationTimestamp
+    creationTimestamp,
+    startTimestamp,
+    endTimestamp
   }
 
   if (checkHasFaults) {
