@@ -1,8 +1,10 @@
 import { parseDateToTimestamp } from "./parse-string-to-timestamp"
 
-const getLastMotTest = (
-  motTests: NonNullable<MOTHistoryAPIResponse["motTests"]>
-) => {
+const getLastMotTest = (motTests: MOTHistoryAPIResponse["motTests"]) => {
+  if (!motTests) {
+    return
+  }
+
   const sortedMotTests = motTests.sort(
     (a, b) =>
       parseDateToTimestamp(b.expiryDate) - parseDateToTimestamp(a.expiryDate)
@@ -13,30 +15,10 @@ const getLastMotTest = (
   return lastMotTest
 }
 
-const getMotExpiryTimestamp = ({
-  motTests,
-  motTestDueDate,
-  expiryDate
-}: MOTHistoryAPIResponse) => {
-  if (motTests) {
-    const lastMotTest = getLastMotTest(motTests)
-
-    return parseDateToTimestamp(lastMotTest.expiryDate)
-  }
-
-  const expiryString = (expiryDate || motTestDueDate) as string
-
-  return parseDateToTimestamp(expiryString)
-}
-
-const getMotStatus = ({ motTests, testResult }: MOTHistoryAPIResponse) => {
-  if (motTests) {
-    const lastMotTest = getLastMotTest(motTests)
-
-    return lastMotTest.testResult
-  }
-
-  return testResult
+type MotTest = {
+  completedDate: string
+  expiryDate: string
+  testResult: "PASSED" | "FAILED"
 }
 
 type MOTHistoryAPIResponse = {
@@ -44,19 +26,16 @@ type MOTHistoryAPIResponse = {
   motTestDueDate?: string
   testResult?: "PASSED" | "FAILED"
   expiryDate?: string
-  motTests?: {
-    expiryDate: string
-    testResult: "PASSED" | "FAILED"
-  }[]
+  motTests?: MotTest[]
 }
 
-type GetCarOutstandingRecallStatusProps = {
+type GetCarMotHistoryProps = {
   carId: string
   accessToken: string
 }
-
 type GetCarMotHistoryResult = {
   motExpiryTimestamp: number
+  motCompletedTimestamp?: number
   outstandingRecallStatus: "Yes" | "No" | "Unknown" | "Unavailable"
   motStatus?: "PASSED" | "FAILED"
 }
@@ -64,7 +43,7 @@ type GetCarMotHistoryResult = {
 export const getCarMotHistory = async ({
   carId,
   accessToken
-}: GetCarOutstandingRecallStatusProps) => {
+}: GetCarMotHistoryProps) => {
   try {
     const response = await fetch(
       `https://history.mot.api.gov.uk/v1/trade/vehicles/registration/${carId}`,
@@ -82,19 +61,32 @@ export const getCarMotHistory = async ({
       )
     }
 
-    const data = (await response.json()) as MOTHistoryAPIResponse
+    const {
+      hasOutstandingRecall,
+      motTestDueDate,
+      motTests,
+      expiryDate,
+      testResult
+    } = (await response.json()) as MOTHistoryAPIResponse
 
-    const { hasOutstandingRecall } = data
+    const lastMotTest = getLastMotTest(motTests)
+    const motExpiryDate = (lastMotTest?.expiryDate ||
+      expiryDate ||
+      motTestDueDate) as string
 
     const result: GetCarMotHistoryResult = {
-      motExpiryTimestamp: getMotExpiryTimestamp(data),
+      motExpiryTimestamp: parseDateToTimestamp(motExpiryDate),
       outstandingRecallStatus: hasOutstandingRecall
     }
 
-    const motStatus = getMotStatus(data)
+    if (testResult) {
+      result.motStatus = testResult
+    }
 
-    if (motStatus) {
-      result.motStatus = motStatus
+    if (lastMotTest?.completedDate) {
+      result.motCompletedTimestamp = parseDateToTimestamp(
+        lastMotTest.completedDate
+      )
     }
 
     return result

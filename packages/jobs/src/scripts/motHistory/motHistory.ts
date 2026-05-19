@@ -11,6 +11,8 @@ import type { CarDoc } from "@/globals/firestore/firestore.model"
 
 import type { JobScript } from "@/models"
 
+import { getCarMotExpiryTimestamp } from "./motHistory.utils"
+
 const run = async () => {
   try {
     const cars = await getFirestoreDocs({ collection: "cars" })
@@ -44,7 +46,7 @@ const run = async () => {
         `MOT history fetched for car with registration number: ${car.id}`
       )
 
-      const { outstandingRecallStatus, motExpiryTimestamp, motStatus } =
+      const { outstandingRecallStatus, motExpiryTimestamp, motCompletedTimestamp, motStatus } =
         carMotHistory
 
       if (outstandingRecallStatus === "Unavailable") {
@@ -64,7 +66,11 @@ const run = async () => {
         CarDoc,
         "motExpiryTimestamp" | "hasOutstandingRecall" | "motStatus"
       > = {
-        motExpiryTimestamp,
+        motExpiryTimestamp: getCarMotExpiryTimestamp({
+          council: car.council,
+          motExpiryTimestamp,
+          motCompletedTimestamp
+        }),
         hasOutstandingRecall
       }
 
@@ -77,6 +83,11 @@ const run = async () => {
 
     await batch.commit()
 
+    if (!recalledCarsIds.length && !failedCarsIds.length) {
+      console.log("No outstanding recalls notifications to send")
+      return
+    }
+
     const phoneNumbers = await getNotificationPhoneNumbers(
       "outstanding-recalls"
     )
@@ -85,11 +96,6 @@ const run = async () => {
       console.log(
         "No phone numbers found for outstanding recalls notifications"
       )
-      return
-    }
-
-    if (!recalledCarsIds.length && !failedCarsIds.length) {
-      console.log("No outstanding recalls notifications to send")
       return
     }
 

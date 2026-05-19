@@ -1,4 +1,4 @@
-export { motHistoryJob } from "./motHistory"
+export { motHistoryJob } from "./motHistory/motHistory"
 export { deactivateInvitationsJob } from "./deactivateInvitations"
 export { driversCarsChecksJob } from "./driversCarsChecks"
 export { updateDVLACredentialsJob } from "./dvlaCredentialsUpdate/dvlaCredentialsUpdate.index"
