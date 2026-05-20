@@ -22,11 +22,6 @@ const MainLayout = lazy(() =>
     default: module.MainLayout
   }))
 )
-const UnauthorizedLayout = lazy(() =>
-  import("./UnauthorizedLayout").then(module => ({
-    default: module.UnauthorizedLayout
-  }))
-)
 const Reports = lazy(() =>
   import("./Reports/Reports").then(module => ({
     default: module.Reports
@@ -92,11 +87,11 @@ export const Routes = () => {
     <Suspense fallback={<Loader enableOverlay text="Loading resources" />}>
       <ReactRoutes>
         {!uid ? (
-          <Route element={<UnauthorizedLayout />}>
+          <>
             <Route path="/" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="*" element={<NotFound />} />
-          </Route>
+          </>
         ) : (
           <Route element={<MainLayout />}>
             {renderRoleBasedRoutes()}
