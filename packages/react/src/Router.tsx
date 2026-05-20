@@ -6,54 +6,54 @@ import { useAppSelector } from "@/redux/redux.config"
 import { Loader } from "@/components/basic/Loader"
 
 const Home = lazy(() =>
-  import("./Home").then(module => ({ default: module.Home }))
+  import("./pages/Home").then(module => ({ default: module.Home }))
 )
 const SignIn = lazy(() =>
-  import("./SignIn").then(module => ({ default: module.SignIn }))
+  import("./pages/SignIn").then(module => ({ default: module.SignIn }))
 )
 const SignUp = lazy(() =>
-  import("./SignUp").then(module => ({ default: module.SignUp }))
+  import("./pages/SignUp").then(module => ({ default: module.SignUp }))
 )
 const Users = lazy(() =>
-  import("./Users").then(module => ({ default: module.Users }))
+  import("./pages/Users").then(module => ({ default: module.Users }))
 )
 const MainLayout = lazy(() =>
-  import("./MainLayout/MainLayout").then(module => ({
+  import("./pages/MainLayout/MainLayout").then(module => ({
     default: module.MainLayout
   }))
 )
 const Reports = lazy(() =>
-  import("./Reports/Reports").then(module => ({
+  import("./pages/Reports/Reports").then(module => ({
     default: module.Reports
   }))
 )
 const ReportsAuth = lazy(() =>
-  import("./Reports/ReportsAuth").then(module => ({
+  import("./pages/Reports/ReportsAuth").then(module => ({
     default: module.ReportsAuth
   }))
 )
 const ReportsCheck = lazy(() =>
-  import("./Reports/ReportsCheck").then(module => ({
+  import("./pages/Reports/ReportsCheck").then(module => ({
     default: module.ReportsCheck
   }))
 )
 const ReportsConfig = lazy(() =>
-  import("./Reports/ReportsConfig").then(module => ({
+  import("./pages/Reports/ReportsConfig").then(module => ({
     default: module.ReportsConfig
   }))
 )
 const NotFound = lazy(() =>
-  import("../components/core/NotFound").then(module => ({
+  import("./components/core/NotFound").then(module => ({
     default: module.NotFound
   }))
 )
 const PrivacyPolicy = lazy(() =>
-  import("./PrivacyPolicy").then(module => ({
+  import("./pages/PrivacyPolicy").then(module => ({
     default: module.PrivacyPolicy
   }))
 )
 
-export const Routes = () => {
+export const Router = () => {
   const uid = useAppSelector(state => state.user.uid)
   const userRole = useAppSelector(state => state.user.role)
 

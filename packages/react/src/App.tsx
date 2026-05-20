@@ -11,7 +11,7 @@ import { initUserData } from "@/redux/userSlice"
 
 import { useScreenSizeListener } from "@/hooks/useScreenSize"
 
-import { Routes } from "@/routes/Routes"
+import { Router } from "./Router"
 
 import { ModalProvider } from "@/contexts/Modal/Modal.provider"
 
@@ -50,7 +50,7 @@ export const App = () => {
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <BrowserRouter>
         <ModalProvider>
-          <Routes />
+          <Router />
         </ModalProvider>
       </BrowserRouter>
     </ErrorBoundary>
