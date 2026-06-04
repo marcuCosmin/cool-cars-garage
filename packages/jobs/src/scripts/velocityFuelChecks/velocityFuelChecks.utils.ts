@@ -7,16 +7,50 @@ type VelocityFuelDataResponse = {
   }[]
 }
 
-export const getVelocityFuelData = async (accessToken: string) => {
+// Thursday and Jan 4 are fixed reference points required by the ISO 8601 week standard
+export const getCurrentIsoWeek = () => {
+  const currentDate = new Date()
+  const currentDayOfWeek = currentDate.getDay()
+
+  const daysUntilThursday = 4 - (currentDayOfWeek || 7)
+  const thursday = new Date(currentDate)
+  thursday.setDate(currentDate.getDate() + daysUntilThursday)
+  thursday.setHours(0, 0, 0, 0)
+
+  const isoYear = thursday.getFullYear()
+
+  const jan4OfIsoYear = new Date(isoYear, 0, 4)
+  const jan4DayOfWeek = jan4OfIsoYear.getDay()
+  const week1Monday = new Date(jan4OfIsoYear)
+  week1Monday.setDate(jan4OfIsoYear.getDate() - (jan4DayOfWeek || 7) + 1)
+
+  const millisecondsSinceWeek1 = thursday.getTime() - week1Monday.getTime()
+  const millisecondsPerWeek = 7 * 24 * 60 * 60 * 1000
+  const weekNumber = Math.round(millisecondsSinceWeek1 / millisecondsPerWeek) + 1
+
+  return `${isoYear}${String(weekNumber).padStart(2, "0")}`
+}
+
+type GetVelocityFuelDataProps = {
+  accessToken: string
+  isoWeek: string
+}
+
+export const getVelocityFuelData = async ({
+  accessToken,
+  isoWeek
+}: GetVelocityFuelDataProps) => {
   try {
-    const response = await fetch(
-      "https://www.velocityfleet.com/vapi/v1/fuel/transactions",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      }
+    const url = new URL(
+      "https://www.velocityfleet.com/vapi/v1/fuel/transactions"
     )
+    url.searchParams.set("iso_week", isoWeek)
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
 
     if (!response.ok) {
       const text = await response.text()

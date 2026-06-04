@@ -52,6 +52,11 @@ const PrivacyPolicy = lazy(() =>
     default: module.PrivacyPolicy
   }))
 )
+const RoutesPage = lazy(() =>
+  import("./pages/Routes").then(module => ({
+    default: module.Routes
+  }))
+)
 
 export const Router = () => {
   const uid = useAppSelector(state => state.user.uid)
@@ -74,6 +79,7 @@ export const Router = () => {
     return (
       <>
         <Route index path="/" element={<Home />} />
+        <Route path="/routes" element={<RoutesPage />} />
         <Route path="/users" element={<Users />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/reports/:checkId" element={<ReportsCheck />} />
