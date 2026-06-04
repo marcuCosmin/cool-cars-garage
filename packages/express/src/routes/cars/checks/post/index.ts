@@ -61,7 +61,7 @@ export const handleCheckSubmission = async (
     return
   }
 
-  const { carId, interior, exterior, odoReading, faultsDetails, startTimestamp, endTimestamp } =
+  const { carId, interior, exterior, odoReading, startTimestamp, endTimestamp } =
     req.body as Required<ReqBody>
 
   const answersWithFaults = getAnswersWithFaults({ interior, exterior })
@@ -85,7 +85,6 @@ export const handleCheckSubmission = async (
   if (checkHasFaults) {
     checkData.faultsCount = answersWithFaults.length
     checkData.hasUnresolvedFaults = true
-    checkData.faultsDetails = faultsDetails
   }
 
   const checkRef = firestore.collection("checks")
@@ -99,7 +98,8 @@ export const handleCheckSubmission = async (
 
     answersWithFaults.forEach(answer => {
       const fault = {
-        description: answer.label,
+        question: answer.label,
+        details: answer.details,
         driverId: authorizedUser.uid,
         status: "pending",
         checkId: createdCheck.id,

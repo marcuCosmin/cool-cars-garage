@@ -64,7 +64,7 @@ const getAnswersSectionTableRows = ({
   faults
 }: GetAnswersSectionTableRowsProps): CellOptions[][] =>
   section.map(({ label, value }) => {
-    const fault = faults.find(({ description }) => description === label)
+    const fault = faults.find(({ question }) => question === label)
     const columns = [
       label,
       value ? "Passed" : "Failed",
@@ -96,8 +96,7 @@ export const buildIndividualPDFDoc = ({
     exterior,
     carId,
     creationTimestamp,
-    odoReading,
-    faultsDetails
+    odoReading
   } = check
 
   const pdfDoc = new PDFDocument({
@@ -147,50 +146,6 @@ export const buildIndividualPDFDoc = ({
       ...getAnswersSectionTableRows({ section: exterior, faults })
     ]
   })
-
-  if (faultsDetails) {
-    pdfDoc.moveDown(pdfGap * 2)
-
-    const headingHeight = pdfDoc.heightOfString("Faults Details", {
-      align: "center"
-    })
-    const contentHeight =
-      pdfDoc.y +
-      pdfDoc.heightOfString(faultsDetails, {
-        align: "center"
-      })
-
-    const isOverflowing =
-      contentHeight + headingHeight + pdfGap * 2 >
-      pdfDoc.page.height - pdfMargin
-
-    if (isOverflowing) {
-      pdfDoc.addPage()
-    }
-
-    const borderY = pdfDoc.y
-
-    pdfDoc.moveDown(pdfGap)
-
-    pdfDoc.fillColor(pdfPrimaryColor)
-    pdfDoc.text("Faults Details", { align: "center" })
-    pdfDoc.moveDown(pdfGap)
-
-    pdfDoc.fillColor("black")
-    pdfDoc.fontSize(10)
-
-    pdfDoc.text(faultsDetails, { align: "center" })
-
-    pdfDoc
-      .rect(
-        pdfDoc.x,
-        borderY,
-        pdfDoc.page.width - pdfMargin * 2,
-        pdfDoc.y - borderY + pdfDoc.currentLineHeight()
-      )
-      .lineWidth(0.5)
-      .stroke(pdfPrimaryColor)
-  }
 
   if (incidents.length) {
     pdfDoc.moveDown(pdfGap * 2)

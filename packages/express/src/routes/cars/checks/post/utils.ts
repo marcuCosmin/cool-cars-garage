@@ -47,19 +47,19 @@ const getOdoReadingError = (odoReading?: CheckDoc["odoReading"]) => {
   }
 }
 
-const getFaultsDetailsError = (faultsDetails?: string) => {
-  const trimmedFaultsDetails = faultsDetails?.trim()
+const getFaultDetailsError = (details?: string) => {
+  const trimmed = details?.trim()
 
-  if (!trimmedFaultsDetails) {
-    return "The faults details field is required when reporting faults"
+  if (!trimmed) {
+    return "Each fault must include a details field"
   }
 
-  if (trimmedFaultsDetails.length < 20) {
-    return "The faults details field must be at least 20 characters long"
+  if (trimmed.length < 10) {
+    return "Fault details must be at least 10 characters long"
   }
 
-  if (trimmedFaultsDetails.length > 1000) {
-    return "The faults details field must be at most 1000 characters long"
+  if (trimmed.length > 1000) {
+    return "Fault details must be at most 1000 characters long"
   }
 }
 
@@ -104,6 +104,16 @@ const getAnswersShallowValidationError = (answers?: CheckAnswer[]) => {
   if (!Array.isArray(answers)) {
     return "Invalid answers format"
   }
+
+  for (const answer of answers) {
+    if (answer.value === false) {
+      const detailsError = getFaultDetailsError(answer.details)
+
+      if (detailsError) {
+        return `"${answer.label}": ${detailsError}`
+      }
+    }
+  }
 }
 
 type GetReqBodyShallowValidationErrorProps = ReqBody & {
@@ -115,7 +125,6 @@ export const getReqBodyShallowValidationError = ({
   odoReading,
   interior,
   exterior,
-  faultsDetails,
   driverId,
   startTimestamp,
   endTimestamp
@@ -152,20 +161,6 @@ export const getReqBodyShallowValidationError = ({
     return `Exterior section: ${exteriorAnswersError}`
   }
 
-  const answersWithFaults = getAnswersWithFaults({
-    interior: interior!,
-    exterior: exterior!
-  })
-
-  const checkHasFaults = answersWithFaults.length > 0
-
-  if (checkHasFaults) {
-    const faultsDetailsError = getFaultsDetailsError(faultsDetails)
-
-    if (faultsDetailsError) {
-      return faultsDetailsError
-    }
-  }
 }
 
 const isAnswersSectionValid = (

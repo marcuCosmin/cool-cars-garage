@@ -71,6 +71,7 @@ export type DocWithID<T> = T & { id: string }
 export type CheckAnswer = {
   label: string
   value: boolean
+  details?: string
 }
 
 type CheckOdoReading = {
@@ -92,19 +93,22 @@ export type CheckDoc = {
   hasUnresolvedFaults?: boolean
   incidentsCount?: number
   hasUnresolvedIncidents?: boolean
-  faultsDetails?: string
 }
 
 type ReportsIssueStatus = "pending" | "resolved"
 
 export type FaultDoc = {
-  description: string
+  question: string
+  details: string
   driverId: string
   status: ReportsIssueStatus
   checkId: string
   creationTimestamp: number
   carId: string
   resolutionTimestamp?: number
+  resolutionUserId?: string
+  resolutionNotes?: string
+  resolutionFileUrl?: string
 }
 
 export type IncidentDoc = {
@@ -114,6 +118,9 @@ export type IncidentDoc = {
   status: ReportsIssueStatus
   checkId: string
   resolutionTimestamp?: number
+  resolutionUserId?: string
+  resolutionDetails?: string
+  resolutionFileUrl?: string
 }
 
 export type CarCheckpoints = {
