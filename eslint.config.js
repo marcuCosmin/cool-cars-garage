@@ -27,6 +27,7 @@ export default tseslint.config({
     "no-nested-ternary": "error",
     "no-empty-function": "error",
     "no-unused-vars": "off",
+    "no-undef": "off",
     "no-else-return": "error",
     "func-style": ["error", "expression"],
     "curly": ["error", "all"],
