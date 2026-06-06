@@ -1,100 +1,105 @@
-import { type Response } from "express"
 
-import { firestore } from "@/backend/firebase/config"
+import { firestore, storage } from "@/backend/firebase/config"
 import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
-
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
+import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
-import type { Request } from "@/models"
+import {
+  resolveDefectFields,
+  type ResolveDefectFields
+} from "@/globals/forms/forms.const"
+import type { FaultDoc } from "@/globals/firestore/firestore.model"
+import type { ResolveDefectResponse } from "@/globals/requests/requests.model"
 
-import type {
-  MarkDefectAsResolvedResponse,
-  MarkFaultsAsResolvedPayload
-} from "@/globals/requests/requests.model"
+import type { Request, Response } from "@/models"
 
 import { createReportsNotification } from "../utils"
 
-type ReqBody = Partial<MarkFaultsAsResolvedPayload>
+type FaultResolutionUpdate = Pick<
+  FaultDoc,
+  | "status"
+  | "resolutionTimestamp"
+  | "resolutionUserId"
+  | "resolutionNotes"
+  | "resolutionFileUrl"
+>
 
-export const handleFaultsPatch = async (
-  req: Request<undefined, undefined, ReqBody>,
-  res: Response<MarkDefectAsResolvedResponse | { error: string }>
+type ReqParams = {
+  faultId: string
+}
+
+export const handleFaultResolve = async (
+  req: Request<ReqParams, ResolveDefectResponse, Partial<ResolveDefectFields>>,
+  res: Response<ResolveDefectResponse>
 ) => {
-  const { faultsIds, checkId } = req.body
+  const { faultId } = req.params
 
-  if (
-    !faultsIds ||
-    !Array.isArray(faultsIds) ||
-    !faultsIds.length ||
-    typeof checkId !== "string"
-  ) {
-    res.status(400).json({
-      error: "Invalid request body"
-    })
-
-    return
-  }
-
-  const checkData = await getFirestoreDoc({
-    collection: "checks",
-    docId: checkId
+  const { errors, filteredData } = getFormValidationResult({
+    schema: resolveDefectFields,
+    data: req.body
   })
 
-  if (!checkData) {
-    res.status(404).json({
-      error: "Check not found"
-    })
+  if (errors) {
+    res.status(400).json({ error: "Invalid form data", details: errors })
     return
   }
 
-  const { carId, driverId } = checkData
+  const { resolutionUserId, resolutionNotes, resolutionFilePath } = filteredData
 
-  const pendingFaults = await getFirestoreDocs({
+  const fileExistsPromise = resolutionFilePath
+    ? storage.bucket().file(resolutionFilePath).exists()
+    : Promise.resolve([true])
+
+  const [fault, resolverUser, [fileExists]] = await Promise.all([
+    getFirestoreDoc({ collection: "faults", docId: faultId }),
+    getFirestoreDoc({ collection: "users", docId: resolutionUserId }),
+    fileExistsPromise
+  ])
+
+  if (!fault) {
+    res.status(404).json({ error: "Fault not found" })
+    return
+  }
+
+  if (!resolverUser) {
+    res.status(404).json({ error: "Resolver user not found" })
+    return
+  }
+
+  if (resolutionFilePath && !fileExists) {
+    res.status(404).json({ error: "Resolution file not found" })
+    return
+  }
+
+  if (fault.status === "resolved") {
+    res.status(400).json({ error: "Fault is already resolved" })
+    return
+  }
+
+  const resolutionTimestamp = getCurrentTimestamp()
+
+  const faultUpdate: FaultResolutionUpdate = {
+    status: "resolved",
+    resolutionTimestamp,
+    resolutionUserId,
+    resolutionNotes: resolutionNotes.trim()
+  }
+
+  if (resolutionFilePath) {
+    faultUpdate.resolutionFileUrl = resolutionFilePath
+  }
+
+  await firestore.collection("faults").doc(faultId).update(faultUpdate)
+
+  const { checkId, carId, driverId } = fault
+
+  const remainingFaults = await getFirestoreDocs({
     collection: "faults",
     queries: [
-      ["carId", "==", carId],
+      ["checkId", "==", checkId],
       ["status", "==", "pending"]
     ]
   })
-
-  if (!pendingFaults.length) {
-    res.status(400).json({
-      error: "No faults found for this check"
-    })
-    return
-  }
-
-  const pendingFaultsIds = pendingFaults.map(doc => doc.id)
-
-  const invalidFaultsIds = faultsIds.filter(
-    faultId => !pendingFaultsIds.includes(faultId)
-  )
-
-  if (invalidFaultsIds.length) {
-    res.status(400).json({
-      error: "Invalid faults IDs"
-    })
-
-    return
-  }
-
-  const batch = firestore.batch()
-  const resolutionTimestamp = getCurrentTimestamp()
-
-  faultsIds.forEach(faultId => {
-    const faultRef = firestore.collection("faults").doc(faultId)
-
-    batch.update(faultRef, {
-      status: "resolved",
-      resolutionTimestamp
-    })
-  })
-
-  await batch.commit()
-
-  const remainingFaults = pendingFaultsIds.filter(
-    faultId => !faultsIds.includes(faultId)
-  )
 
   if (!remainingFaults.length) {
     await firestore.collection("checks").doc(checkId).update({
@@ -106,15 +111,11 @@ export const handleFaultsPatch = async (
     carId,
     uid: driverId,
     type: "fault-resolved",
-    reference: { id: checkId, path: "check" },
-    bulkCount: faultsIds.length
+    reference: { id: checkId, path: "check" }
   })
 
-  const resolvedMultipleFaults = faultsIds.length > 1
-  const message = `${resolvedMultipleFaults ? "Faults" : "Fault"} marked as resolved`
-
   res.status(200).json({
-    message,
-    resolutionTimestamp
+    resolutionTimestamp,
+    message: "Fault marked as resolved"
   })
 }

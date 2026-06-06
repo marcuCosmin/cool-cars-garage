@@ -103,6 +103,27 @@ export const signUpFormFields: FormFieldsSchema<SignUpFormData> = {
   ...signInFormFields
 }
 
+export type ResolveDefectFields = {
+  resolutionUserId: string
+  resolutionNotes: string
+  resolutionFilePath?: string
+}
+
+export const resolveDefectFields: FormFieldsSchema<ResolveDefectFields> = {
+  resolutionUserId: {
+    type: "text",
+    validate: getRequiredError
+  },
+  resolutionNotes: {
+    type: "text",
+    validate: getRequiredError
+  },
+  resolutionFilePath: {
+    type: "text",
+    isOptional: () => true
+  }
+}
+
 export type ChecksBulkExportData = Omit<
   Extract<CarsCheckExportURLQuery, { type: "bulk" }>,
   "type"

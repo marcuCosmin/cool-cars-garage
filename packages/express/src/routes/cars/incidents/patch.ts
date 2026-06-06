@@ -1,54 +1,107 @@
-import { type Response } from "express"
 
-import { firestore } from "@/backend/firebase/config"
+import { firestore, storage } from "@/backend/firebase/config"
 import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
+import { getFormValidationResult } from "@/utils/get-form-validation-result"
+
+import {
+  resolveDefectFields,
+  type ResolveDefectFields
+} from "@/globals/forms/forms.const"
+import type { IncidentDoc } from "@/globals/firestore/firestore.model"
+import type { ResolveDefectResponse } from "@/globals/requests/requests.model"
+
+import type { Request, Response } from "@/models"
 
 import { createReportsNotification } from "../utils"
 
-import type { Request } from "@/models"
+type IncidentResolutionUpdate = Pick<
+  IncidentDoc,
+  | "status"
+  | "resolutionTimestamp"
+  | "resolutionUserId"
+  | "resolutionNotes"
+  | "resolutionFileUrl"
+>
 
-import type {
-  MarkIncidentAsResolvedPayload,
-  MarkDefectAsResolvedResponse
-} from "@/globals/requests/requests.model"
+type ReqParams = {
+  incidentId: string
+}
 
-export const handleIncidentPatch = async (
-  req: Request<undefined, undefined, MarkIncidentAsResolvedPayload>,
-  res: Response<MarkDefectAsResolvedResponse | { error: string }>
+export const handleIncidentResolve = async (
+  req: Request<ReqParams, ResolveDefectResponse, Partial<ResolveDefectFields>>,
+  res: Response<ResolveDefectResponse>
 ) => {
-  const { incidentId, checkId } = req.body
+  const { incidentId } = req.params
 
-  if (!incidentId || !checkId) {
-    res.status(400).json({
-      error: "Invalid request body"
-    })
+  const { errors, filteredData } = getFormValidationResult({
+    schema: resolveDefectFields,
+    data: req.body
+  })
 
+  if (errors) {
+    res.status(400).json({ error: "Invalid form data", details: errors })
     return
   }
 
-  const checkData = await getFirestoreDoc({
+  const { resolutionUserId, resolutionNotes, resolutionFilePath } = filteredData
+
+  const fileExistsPromise = resolutionFilePath
+    ? storage.bucket().file(resolutionFilePath).exists()
+    : Promise.resolve([true])
+
+  const [incident, resolutionUser, [fileExists]] = await Promise.all([
+    getFirestoreDoc({ collection: "incidents", docId: incidentId }),
+    getFirestoreDoc({ collection: "users", docId: resolutionUserId }),
+    fileExistsPromise
+  ])
+
+  if (!incident) {
+    res.status(404).json({ error: "Incident not found" })
+    return
+  }
+
+  if (!resolutionUser) {
+    res.status(404).json({ error: "Resolution user not found" })
+    return
+  }
+
+  if (resolutionFilePath && !fileExists) {
+    res.status(404).json({ error: "Resolution file not found" })
+    return
+  }
+
+  if (incident.status === "resolved") {
+    res.status(400).json({ error: "Incident is already resolved" })
+    return
+  }
+
+  const { checkId, driverId } = incident
+
+  const check = await getFirestoreDoc({
     collection: "checks",
     docId: checkId
   })
 
-  if (!checkData) {
-    res.status(400).json({
-      error: "Invalid check ID"
-    })
-
+  if (!check) {
+    res.status(404).json({ error: "Check not found" })
     return
   }
 
-  const { carId, driverId } = checkData
-
-  const incidentsRef = firestore.collection("incidents")
   const resolutionTimestamp = getCurrentTimestamp()
 
-  await incidentsRef.doc(incidentId).update({
+  const incidentUpdate: IncidentResolutionUpdate = {
     status: "resolved",
-    resolutionTimestamp
-  })
+    resolutionTimestamp,
+    resolutionUserId,
+    resolutionNotes: resolutionNotes.trim()
+  }
+
+  if (resolutionFilePath) {
+    incidentUpdate.resolutionFileUrl = resolutionFilePath
+  }
+
+  await firestore.collection("incidents").doc(incidentId).update(incidentUpdate)
 
   const remainingIncidents = await getFirestoreDocs({
     collection: "incidents",
@@ -65,7 +118,7 @@ export const handleIncidentPatch = async (
   }
 
   await createReportsNotification({
-    carId,
+    carId: check.carId,
     uid: driverId,
     type: "incident-resolved",
     reference: { id: incidentId, path: "incident" }

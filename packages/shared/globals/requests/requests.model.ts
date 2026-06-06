@@ -1,16 +1,17 @@
 import type { User } from "../firestore/firestore.model"
 
-export type MarkFaultsAsResolvedPayload = {
-  faultsIds: string[]
-  checkId: string
+export type FileEntityType = "faults" | "incidents"
+
+export type FileUploadQuery = {
+  uploadType: FileEntityType
+  resourceId: string
 }
 
-export type MarkIncidentAsResolvedPayload = {
-  incidentId: string
-  checkId: string
+export type FileUploadResponse = {
+  filePath: string
 }
 
-export type MarkDefectAsResolvedResponse = {
+export type ResolveDefectResponse = {
   resolutionTimestamp: number
   message: string
 }

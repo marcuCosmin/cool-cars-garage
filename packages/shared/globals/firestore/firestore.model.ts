@@ -119,7 +119,7 @@ export type IncidentDoc = {
   checkId: string
   resolutionTimestamp?: number
   resolutionUserId?: string
-  resolutionDetails?: string
+  resolutionNotes?: string
   resolutionFileUrl?: string
 }
 

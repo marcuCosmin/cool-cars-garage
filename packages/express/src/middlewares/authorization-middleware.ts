@@ -7,26 +7,74 @@ import type { Request } from "@/models"
 
 import type { UserDoc } from "@/globals/firestore/firestore.model"
 
-const publicPathsConfig = {
-  "/": ["GET"],
-  "/mail": ["POST"],
-  "/users/register": ["POST"],
-  "/wapp-webhook": ["GET", "POST"]
+type RoutePermission = {
+  path: string
+  methods: string[]
 }
 
-const roleBasedPathsConfig: Record<
-  "driver" | "manager",
-  Record<string, string[]>
-> = {
-  driver: {
-    "/users/generate-auth-token": ["GET"],
-    "/cars/incidents": ["POST"],
-    "/cars/checks": ["POST"]
-  },
-  manager: {
-    "/cars/checks/faults": ["PATCH"],
-    "/cars/checks/exports": ["GET"]
+const publicPaths: RoutePermission[] = [
+  { path: "/", methods: ["GET"] },
+  { path: "/mail", methods: ["POST"] },
+  { path: "/users/register", methods: ["POST"] },
+  { path: "/wapp-webhook", methods: ["GET", "POST"] }
+]
+
+const rolePermissions: Record<"driver" | "manager", RoutePermission[]> = {
+  driver: [
+    { path: "/users/generate-auth-token", methods: ["GET"] },
+    { path: "/cars/incidents", methods: ["POST"] },
+    { path: "/cars/checks", methods: ["POST"] }
+  ],
+  manager: [
+    { path: "/cars/checks/exports", methods: ["GET"] },
+    { path: "/files", methods: ["POST"] },
+    { path: "/cars/faults/:faultId", methods: ["PATCH"] },
+    { path: "/cars/incidents/:incidentId", methods: ["PATCH"] }
+  ]
+}
+
+const pathParamPattern = /:[^/]+/g
+const anyPathSegment = "[^/]+"
+
+type IsPathPermittedProps = {
+  permissions: RoutePermission[]
+  reqPath: string
+  reqMethod: string
+}
+const isPathPermitted = ({
+  permissions,
+  reqPath,
+  reqMethod
+}: IsPathPermittedProps) =>
+  permissions.some(({ path, methods }) => {
+    const isSamePath = new RegExp(
+      `^${path.replace(pathParamPattern, anyPathSegment)}$`
+    ).test(reqPath)
+    const methodAllowed = methods.includes(reqMethod)
+
+    return isSamePath && methodAllowed
+  })
+
+type IsRoleAuthorizedProps = Partial<Pick<UserDoc, "role">> & {
+  reqPath: string
+  reqMethod: string
+}
+const isRoleAuthorized = ({
+  role,
+  reqPath,
+  reqMethod
+}: IsRoleAuthorizedProps) => {
+  if (role === "admin") {
+    return true
   }
+
+  if (!role || !(role in rolePermissions)) {
+    return false
+  }
+
+  const permissions = rolePermissions[role]
+
+  return isPathPermitted({ permissions, reqPath, reqMethod })
 }
 
 export const authorizationMiddleware = async (
@@ -34,16 +82,19 @@ export const authorizationMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  const publicPathConfig =
-    publicPathsConfig[req.path as keyof typeof publicPathsConfig]
+  const isPublicPath = isPathPermitted({
+    permissions: publicPaths,
+    reqPath: req.path,
+    reqMethod: req.method
+  })
 
-  if (publicPathConfig?.includes(req.method) || req.method === "OPTIONS") {
+  if (isPublicPath || req.method === "OPTIONS") {
     next()
     return
   }
 
   const authorizationHeader = req.headers.authorization
-  const idToken = authorizationHeader?.split("Bearer ")[1]
+  const idToken = authorizationHeader?.split("Bearer ").pop()
 
   if (!idToken) {
     res.status(403).json({
@@ -72,13 +123,7 @@ export const authorizationMiddleware = async (
 
   const role = userDoc?.role
 
-  const pathConfig =
-    role !== "admin" && role ? roleBasedPathsConfig[role] : null
-  const pathConfigMethod = pathConfig?.[req.path]
-
-  const isAuthorized = pathConfigMethod?.includes(req.method)
-
-  if (role !== "admin" && !isAuthorized) {
+  if (!isRoleAuthorized({ role, reqPath: req.path, reqMethod: req.method })) {
     res.status(403).json({
       error: "Unauthorized"
     })
