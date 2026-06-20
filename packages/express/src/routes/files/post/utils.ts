@@ -1,7 +1,9 @@
 import multer from "multer"
 import { randomUUID } from "crypto"
+import { fileTypeFromBuffer } from "file-type"
 
 import type { FileEntityType } from "@/globals/requests/requests.model"
+import { fileUploadFieldName } from "@/globals/requests/requests.const"
 
 import type { FileUploadRequest, FileUploadResponse } from "./model"
 
@@ -25,38 +27,46 @@ const uploadTypeConfig: Record<FileEntityType, UploadTypeConfig> = {
   incidents: defectsUploadConfig
 }
 
+type GetBufferDetails = {
+  buffer: Buffer
+  uploadType: FileEntityType
+}
+export const getBufferDetails = async ({
+  buffer,
+  uploadType
+}: GetBufferDetails) => {
+  const { allowedMimeTypes } = uploadTypeConfig[uploadType]
+  const fileType = await fileTypeFromBuffer(buffer)
+
+  if (!fileType || !allowedMimeTypes.includes(fileType.mime)) {
+    return null
+  }
+
+  return {
+    fileMime: fileType.mime,
+    fileExtension: fileType.ext
+  }
+}
+
 type AppendFileToRequestProps = {
   uploadType: FileEntityType
   req: FileUploadRequest
   res: FileUploadResponse
 }
-
 export const appendFileToRequest = ({
   uploadType,
   req,
   res
 }: AppendFileToRequestProps) => {
-  const { allowedMimeTypes, maxFileSizeBytes } = uploadTypeConfig[uploadType]
+  const { maxFileSizeBytes } = uploadTypeConfig[uploadType]
 
   const multerInstance = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: maxFileSizeBytes },
-    fileFilter: (_req, file, callback) => {
-      if (!allowedMimeTypes.includes(file.mimetype)) {
-        callback(
-          new Error(
-            `Invalid file type. Allowed: ${allowedMimeTypes.join(", ")}`
-          )
-        )
-        return
-      }
-
-      callback(null, true)
-    }
+    limits: { fileSize: maxFileSizeBytes }
   })
 
   return new Promise<void>((resolve, reject) => {
-    const multerMiddleware = multerInstance.single("file")
+    const multerMiddleware = multerInstance.single(fileUploadFieldName)
 
     const multerErrorHandler = (err: unknown) => {
       if (err) {

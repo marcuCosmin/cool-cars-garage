@@ -1,6 +1,13 @@
 import { storage } from "@/backend/firebase/config"
+import { getFirestoreDoc } from "@/backend/firebase/utils"
 
-import { appendFileToRequest, generateFilePath } from "./utils"
+import { isValidFileEntityType } from "../utils"
+
+import {
+  appendFileToRequest,
+  getBufferDetails,
+  generateFilePath
+} from "./utils"
 
 import type { FileUploadRequest, FileUploadResponse } from "./model"
 
@@ -10,13 +17,23 @@ export const handleFileUpload = async (
 ) => {
   const { uploadType, resourceId } = req.query
 
-  if (!uploadType) {
-    res.status(400).json({ error: "uploadType is required" })
+  if (!isValidFileEntityType(uploadType)) {
+    res.status(400).json({ error: "Invalid uploadType" })
     return
   }
 
   if (!resourceId) {
     res.status(400).json({ error: "resourceId is required" })
+    return
+  }
+
+  const resource = await getFirestoreDoc({
+    collection: uploadType,
+    docId: resourceId
+  })
+
+  if (!resource) {
+    res.status(404).json({ error: "Resource not found" })
     return
   }
 
@@ -29,8 +46,25 @@ export const handleFileUpload = async (
     return
   }
 
-  const file = req.file!
-  const fileExtension = file.originalname.split(".").pop()!
+  const { file } = req
+
+  if (!file) {
+    res.status(400).json({ error: "No file provided" })
+    return
+  }
+
+  const bufferDetails = await getBufferDetails({
+    buffer: file.buffer,
+    uploadType
+  })
+
+  if (!bufferDetails) {
+    res.status(400).json({ error: "Unsupported or invalid file content" })
+    return
+  }
+
+  const { fileExtension, fileMime } = bufferDetails
+
   const filePath = generateFilePath({
     uploadType,
     resourceId,
@@ -40,7 +74,7 @@ export const handleFileUpload = async (
   await storage
     .bucket()
     .file(filePath)
-    .save(file.buffer, { contentType: file.mimetype })
+    .save(file.buffer, { contentType: fileMime })
 
   res.status(200).json({ filePath })
 }

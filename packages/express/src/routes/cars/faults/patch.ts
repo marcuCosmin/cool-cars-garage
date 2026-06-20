@@ -9,7 +9,10 @@ import {
   type ResolveDefectFields
 } from "@/globals/forms/forms.const"
 import type { FaultDoc } from "@/globals/firestore/firestore.model"
-import type { ResolveDefectResponse } from "@/globals/requests/requests.model"
+import type {
+  ResolveDefectResponse,
+  ResolveFaultParams
+} from "@/globals/requests/requests.model"
 
 import type { Request, Response } from "@/models"
 
@@ -24,12 +27,12 @@ type FaultResolutionUpdate = Pick<
   | "resolutionFileUrl"
 >
 
-type ReqParams = {
-  faultId: string
-}
-
 export const handleFaultResolve = async (
-  req: Request<ReqParams, ResolveDefectResponse, Partial<ResolveDefectFields>>,
+  req: Request<
+    ResolveFaultParams,
+    ResolveDefectResponse,
+    Partial<ResolveDefectFields>
+  >,
   res: Response<ResolveDefectResponse>
 ) => {
   const { faultId } = req.params

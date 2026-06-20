@@ -9,7 +9,10 @@ import {
   type ResolveDefectFields
 } from "@/globals/forms/forms.const"
 import type { IncidentDoc } from "@/globals/firestore/firestore.model"
-import type { ResolveDefectResponse } from "@/globals/requests/requests.model"
+import type {
+  ResolveDefectResponse,
+  ResolveIncidentParams
+} from "@/globals/requests/requests.model"
 
 import type { Request, Response } from "@/models"
 
@@ -24,12 +27,12 @@ type IncidentResolutionUpdate = Pick<
   | "resolutionFileUrl"
 >
 
-type ReqParams = {
-  incidentId: string
-}
-
 export const handleIncidentResolve = async (
-  req: Request<ReqParams, ResolveDefectResponse, Partial<ResolveDefectFields>>,
+  req: Request<
+    ResolveIncidentParams,
+    ResolveDefectResponse,
+    Partial<ResolveDefectFields>
+  >,
   res: Response<ResolveDefectResponse>
 ) => {
   const { incidentId } = req.params

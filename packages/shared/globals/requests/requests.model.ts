@@ -1,6 +1,13 @@
-import type { User } from "../firestore/firestore.model"
+import type {
+  FirestoreCollectionsMap,
+  User
+} from "../firestore/firestore.model"
 
-export type FileEntityType = "faults" | "incidents"
+export type FileEntityType = Extract<
+  keyof FirestoreCollectionsMap,
+  "faults" | "incidents"
+>
+
 
 export type FileUploadQuery = {
   uploadType: FileEntityType
@@ -9,6 +16,18 @@ export type FileUploadQuery = {
 
 export type FileUploadResponse = {
   filePath: string
+}
+
+export type FileDownloadQuery = {
+  filePath: string
+}
+
+export type ResolveFaultParams = {
+  faultId: string
+}
+
+export type ResolveIncidentParams = {
+  incidentId: string
 }
 
 export type ResolveDefectResponse = {
