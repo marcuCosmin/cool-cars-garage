@@ -1,23 +1,10 @@
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode
-} from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { useLocation } from "react-router"
 
-import { Loader } from "@/components/basic/Loader"
+import { Modal } from "@/components/basic/Modal/Modal"
 import type { ModalProps } from "@/components/basic/Modal/Modal.model"
 
 import { ModalContext } from "./Modal.context"
-
-const Modal = lazy(() =>
-  import("@/components/basic/Modal/Modal").then(module => ({
-    default: module.Modal
-  }))
-)
 
 type ModalProviderProps = {
   children: ReactNode
@@ -37,11 +24,12 @@ export const ModalProvider = ({ children }: ModalProviderProps) => {
   return (
     <ModalContext value={value}>
       {children}
-      {modalProps && (
-        <Suspense fallback={<Loader enableOverlay />}>
-          <Modal {...modalProps} />
-        </Suspense>
-      )}
+      {/* 
+        Not lazy loaded as I expect in 30% of the time to be used by the user when accessing the app
+        Also the react-modal library is pretty light and the double suspense looks wierd for the users
+        Also the real lazy loading is done in the Modal.utils.tsx
+      */}
+      {modalProps && <Modal {...modalProps} />}
     </ModalContext>
   )
 }

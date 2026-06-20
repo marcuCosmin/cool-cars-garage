@@ -1,5 +1,6 @@
 import type { ConfirmationModalProps } from "@/components/core/ConfirmationModal"
 import type { UserFormProps } from "@/components/core/UserForm/UserForm"
+import type { ResolveDefectModalProps } from "@/components/core/ResolveDefectModal"
 
 export type ModalProps =
   | {
@@ -17,4 +18,8 @@ export type ModalProps =
   | {
       type: "checks-bulk-export"
       props?: undefined
+    }
+  | {
+      type: "resolve-defect"
+      props: ResolveDefectModalProps
     }

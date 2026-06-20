@@ -3,6 +3,7 @@ import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
 import type {
   ExtendedFormDateComponentProps,
   ExtendedFormFieldsSchema,
+  ExtendedFormFileProps,
   ExtendedFormInputProps,
   ExtendedFormSelectProps,
   ExtendedFormToggleProps
@@ -12,7 +13,10 @@ type FormInputAdditionalProps<T extends FormData> = Omit<
   ExtendedFormInputProps<T>,
   "type"
 >
-
+type FormTextareaAdditionalProps<T extends FormData> = Extract<
+  ExtendedFormInputProps<T>,
+  { type: "textarea" }
+>
 type FormToggleAdditionalProps<T extends FormData> = Omit<
   ExtendedFormToggleProps<T>,
   "type"
@@ -27,13 +31,16 @@ type FormSelectAdditionalProps<T extends FormData> = Omit<
 > & {
   options: string[]
 }
+type FormFileAdditionalProps<T extends FormData> = ExtendedFormFileProps<T>
 
 export type AdditionalFieldsProps<T extends FormData> = {
   [key in keyof T]:
     | FormInputAdditionalProps<T>
+    | FormTextareaAdditionalProps<T>
     | FormSelectAdditionalProps<T>
     | FormToggleAdditionalProps<T>
     | FormDateAdditionalProps<T>
+    | FormFileAdditionalProps<T>
 }
 
 type ExtendFormFieldsProps<T extends FormData> = {
@@ -79,6 +86,7 @@ export const extendFormFields = <T extends FormData>({
       | ExtendedFormInputProps<T>
       | ExtendedFormToggleProps<T>
       | ExtendedFormDateComponentProps<T>
+      | ExtendedFormFileProps<T>
 
     return acc
   }, {} as ExtendedFormFieldsSchema<T>)

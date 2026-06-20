@@ -7,6 +7,8 @@ import { DatePicker } from "@/components/basic/DatePicker"
 
 import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
 
+import { FormFileField, type FormFileFieldProps } from "./FormFileField"
+
 import type { FieldStateProps, FormFieldComponentProps } from "./Form.models"
 
 type FormFieldProps<T extends FormData> = Omit<
@@ -17,6 +19,7 @@ type FormFieldProps<T extends FormData> = Omit<
   onValueChange: (name: string, value?: FormFieldValue) => void
   onTouchedChange: (name: string) => void
   onErrorChange: (name: string, error?: string) => void
+  onPendingPromiseChange: (name: string, hasPendingPromise: boolean) => void
   optional?: boolean
 }
 
@@ -28,6 +31,7 @@ export const FormField = <T extends FormData>({
   onValueChange,
   onErrorChange,
   onTouchedChange,
+  onPendingPromiseChange,
   validate,
   optional,
   label,
@@ -61,12 +65,16 @@ export const FormField = <T extends FormData>({
     handleValidation(value)
   }
 
+  const onPendingChange = (hasPendingPromise: boolean) =>
+    onPendingPromiseChange(name, hasPendingPromise)
+
   const passedProps = {
     ...props,
-    label,
+    label: optional && label ? `${label} (Optional)` : label,
     value,
     onChange,
-    onBlur
+    onBlur,
+    onPendingChange
   }
 
   useEffect(() => {
@@ -92,6 +100,10 @@ export const FormField = <T extends FormData>({
 
   if (type === "toggle") {
     return <Toggle {...(passedProps as ToggleProps)} />
+  }
+
+  if (type === "file") {
+    return <FormFileField {...(passedProps as FormFileFieldProps)} />
   }
 
   return <Input {...(passedProps as InputProps)} type={type} />

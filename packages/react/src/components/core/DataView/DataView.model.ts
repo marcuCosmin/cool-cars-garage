@@ -40,12 +40,19 @@ type ItemLinkMetadata = {
   href: string
 }
 
+type ItemFileMetadata = {
+  type: "file"
+  label: string
+  value?: string
+}
+
 export type PrimitiveMetadata =
   | ItemTextMetadata
   | ItemBooleanMetadata
   | ItemDateMetadata
   | ItemDurationMetadata
   | ItemLinkMetadata
+  | ItemFileMetadata
 
 type ItemListBase = {
   type: "list"

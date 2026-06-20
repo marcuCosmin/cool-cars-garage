@@ -11,29 +11,40 @@ import type { FormFieldComponentProps } from "@/components/basic/Form/Form.model
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
-export type InputProps = Partial<FormFieldComponentProps<string>> &
+export type InputBaseProps = Partial<FormFieldComponentProps<string>> &
   Pick<InputHTMLAttributes<HTMLInputElement>, "className" | "disabled"> & {
-    type?: InputHTMLAttributes<HTMLInputElement>["type"] | "textarea"
     onClick?: MouseEventHandler<HTMLDivElement | HTMLInputElement>
     startAdornment?: ReactNode
     endAdornment?: ReactNode
     containerClassName?: string
   }
 
-export const Input = ({
-  label,
-  error,
-  className,
-  startAdornment,
-  endAdornment,
-  containerClassName: additionalContainerClassName,
-  value,
-  onClick,
-  onChange,
-  type,
-  onBlur,
-  disabled
-}: InputProps) => {
+export type InputProps =
+  | (InputBaseProps & {
+      type?: InputHTMLAttributes<HTMLInputElement>["type"]
+    })
+  | (InputBaseProps & {
+      type: "textarea"
+      rows?: number
+    })
+
+export const Input = (props: InputProps) => {
+  const {
+    label,
+    error,
+    className,
+    startAdornment,
+    containerClassName: additionalContainerClassName,
+    value,
+    onClick,
+    onChange,
+    type,
+    onBlur,
+    disabled
+  } = props
+
+  let { endAdornment } = props
+
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
   const onPasswordAdornmentClick = () =>
@@ -82,6 +93,8 @@ export const Input = ({
 
   const renderedInputOnClick = label && onClick ? onClick : undefined
 
+  const rows = ("rows" in props ? props.rows : undefined) ?? 3
+
   return (
     <label
       onClick={e => e.preventDefault()}
@@ -106,7 +119,7 @@ export const Input = ({
         {type === "textarea" ? (
           <textarea
             className={inputClassName}
-            rows={3}
+            rows={rows}
             value={value}
             onBlur={onBlur}
             onChange={handleChange}

@@ -14,6 +14,7 @@ type Value = ValuePiece | [ValuePiece, ValuePiece]
 
 export type DatePickerProps = FormFieldComponentProps<number | undefined> & {
   includeEndOfDay?: boolean
+  containerClassName?: string
 }
 
 export const DatePicker = ({
@@ -22,7 +23,8 @@ export const DatePicker = ({
   onChange,
   error,
   onBlur,
-  includeEndOfDay = false
+  includeEndOfDay = false,
+  containerClassName
 }: DatePickerProps) => {
   const calendarRef = useRef<HTMLDivElement>(null)
 
@@ -98,12 +100,16 @@ export const DatePicker = ({
 
   if (label) {
     return (
-      <label>
+      <label className={containerClassName}>
         <div>{label}</div>
         {renderedContent}
       </label>
     )
   }
 
-  return <div className="w-full max-w-sm">{renderedContent}</div>
+  return (
+    <div className={mergeClassNames("w-full max-w-sm", containerClassName)}>
+      {renderedContent}
+    </div>
+  )
 }

@@ -1,14 +1,14 @@
 import { useReducer, type ReactNode, type SubmitEvent } from "react"
 
+import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
+
 import { useAppMutation } from "@/hooks/useAppMutation"
 
 import { Loader } from "@/components/basic/Loader"
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
-import type { FormData } from "@/globals/forms/forms.models"
-
-import type { ExtendedFormFieldsSchema, FieldValue } from "@/models"
+import type { ExtendedFormFieldsSchema } from "@/models"
 
 import { FormField } from "./FormField"
 
@@ -82,11 +82,25 @@ export const Form = <T extends FormData>({
   const onFieldErrorChange = (name: string, error?: string) =>
     dispatchFieldsAction({ type: "SET_FIELD_ERROR", name, error })
 
-  const onFieldValueChange = (name: string, value?: FieldValue) =>
+  const onFieldValueChange = (name: string, value?: FormFieldValue) =>
     dispatchFieldsAction({ type: "SET_FIELD_VALUE", name, value })
 
   const onFieldTouchedChange = (name: string) =>
     dispatchFieldsAction({ type: "SET_FIELD_TOUCHED", name })
+
+  const onFieldPendingPromiseChange = (
+    name: string,
+    hasPendingPromise: boolean
+  ) =>
+    dispatchFieldsAction({
+      type: "SET_FIELD_PENDING_PROMISE",
+      name,
+      hasPendingPromise
+    })
+
+  const hasPendingPromise = Object.values(fieldsState).some(
+    field => field.hasPendingPromise
+  )
 
   return (
     <form className={formClassName} onSubmit={onSubmit}>
@@ -115,6 +129,7 @@ export const Form = <T extends FormData>({
               onErrorChange={onFieldErrorChange}
               onTouchedChange={onFieldTouchedChange}
               onValueChange={onFieldValueChange}
+              onPendingPromiseChange={onFieldPendingPromiseChange}
             />
           )
         })}
@@ -125,7 +140,9 @@ export const Form = <T extends FormData>({
 
       {formError && <span className="form-error">{formError}</span>}
 
-      <button type="submit">{submitLabel}</button>
+      <button type="submit" disabled={hasPendingPromise}>
+        {submitLabel}
+      </button>
     </form>
   )
 }

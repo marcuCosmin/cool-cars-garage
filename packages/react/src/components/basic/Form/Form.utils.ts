@@ -1,6 +1,6 @@
-import type { FormData } from "@/globals/forms/forms.models"
+import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
 
-import type { ExtendedFormFieldsSchema, FieldValue } from "@/models"
+import type { ExtendedFormFieldsSchema } from "@/models"
 
 import type { FieldsState } from "./Form.models"
 
@@ -76,16 +76,18 @@ export const getFieldsInitialState = <T extends FormData>(
       ...remainingProps,
       value,
       error: "",
-      touched: false
+      touched: false,
+      hasPendingPromise: false
     }
 
     return acc
   }, {} as FieldsState<T>)
 
 type FieldsReducerAction<T extends FormData> =
-  | { type: "SET_FIELD_VALUE"; name: string; value?: FieldValue }
+  | { type: "SET_FIELD_VALUE"; name: string; value?: FormFieldValue }
   | { type: "SET_FIELD_ERROR"; name: string; error?: string }
   | { type: "SET_FIELD_TOUCHED"; name: string }
+  | { type: "SET_FIELD_PENDING_PROMISE"; name: string; hasPendingPromise: boolean }
   | { type: "SET_FIELDS"; fields: FieldsState<T> }
 
 export const fieldsReducer = <T extends FormData>(
@@ -115,6 +117,14 @@ export const fieldsReducer = <T extends FormData>(
         [action.name]: {
           ...state[action.name],
           touched: true
+        }
+      }
+    case "SET_FIELD_PENDING_PROMISE":
+      return {
+        ...state,
+        [action.name]: {
+          ...state[action.name],
+          hasPendingPromise: action.hasPendingPromise
         }
       }
     case "SET_FIELDS":

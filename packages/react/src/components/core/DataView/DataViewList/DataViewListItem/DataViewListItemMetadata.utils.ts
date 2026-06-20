@@ -23,6 +23,8 @@ export const getParsedItemMetadataValue = ({
       return formatDuration(value)
     case "link":
       return value
+    case "file":
+      return value.split("/").pop() as string
     default:
       return null
   }

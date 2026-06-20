@@ -91,6 +91,7 @@ export const DataViewFilters = <
 
               return (
                 <DatePicker
+                  containerClassName="max-w-sm"
                   key={index}
                   label={label}
                   value={value}

@@ -19,6 +19,12 @@ const ChecksBulkExportModal = lazy(() =>
   }))
 )
 
+const ResolveDefectModal = lazy(() =>
+  import("@/components/core/ResolveDefectModal").then(module => ({
+    default: module.ResolveDefectModal
+  }))
+)
+
 export const getModalContent = ({ type, props }: ModalProps) => {
   switch (type) {
     case "confirmation":
@@ -27,5 +33,7 @@ export const getModalContent = ({ type, props }: ModalProps) => {
       return <UserModal {...props} />
     case "checks-bulk-export":
       return <ChecksBulkExportModal />
+    case "resolve-defect":
+      return <ResolveDefectModal {...props} />
   }
 }

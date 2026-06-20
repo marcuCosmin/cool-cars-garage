@@ -5,7 +5,8 @@ import {
   XCircle,
   ArrowDownCircle,
   CalendarWeek,
-  Stopwatch
+  Stopwatch,
+  FileEarmarkRichtext
 } from "react-bootstrap-icons"
 
 import { Collapsible } from "@/components/basic/Collapsible"
@@ -13,9 +14,12 @@ import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import type { RawDataListItem } from "@/globals/dataLists/dataLists.model"
 
-import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
-
 import type { DataListItem, ItemMetadata } from "../../DataView.model"
+
+import { DataViewFileMetadataItem } from "./DataViewFileMetadataItem"
+import { DataViewMetadataItem } from "./DataViewMetadataItem"
+
+import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
 
 const metadataIconsMap = {
   text: InfoCircle,
@@ -23,7 +27,8 @@ const metadataIconsMap = {
   date: CalendarWeek,
   duration: Stopwatch,
   link: BoxArrowUp,
-  list: ArrowDownCircle
+  list: ArrowDownCircle,
+  file: FileEarmarkRichtext
 } as const
 
 type DataViewListItemMetadataProps = {
@@ -126,17 +131,24 @@ export const DataViewListItemMetadata = ({
             ? metadataIconsMap[type](!!value)
             : metadataIconsMap[type]
 
+        if (type === "file") {
+          return (
+            <DataViewFileMetadataItem
+              label={label}
+              parsedValue={parsedValue}
+              Icon={Icon}
+              value={value as string}
+            />
+          )
+        }
+
         return (
-          <p
-            className="flex items-center text-primary gap-2 font-bold"
+          <DataViewMetadataItem
             key={index}
-          >
-            <Icon height={20} width={20} />
-            {label}:{" "}
-            <span className="text-black dark:text-white font-normal">
-              {parsedValue}
-            </span>
-          </p>
+            Icon={Icon}
+            label={label}
+            parsedValue={parsedValue}
+          />
         )
       })}
     </div>

@@ -8,6 +8,7 @@ export type FieldStateProps<T extends FormData> = Omit<
   error?: string
   value?: FormFieldValue
   touched: boolean
+  hasPendingPromise?: boolean
 }
 
 export type FieldsState<T extends FormData> = {
@@ -24,4 +25,5 @@ export type FormFieldComponentProps<T> = {
   onChange: (value?: T) => void
   error?: string
   onBlur?: () => void
+  onPendingChange?: (hasPendingPromise: boolean) => void
 }

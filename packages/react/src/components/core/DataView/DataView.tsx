@@ -77,6 +77,7 @@ export const DataView = <
 
         {showSearch && (
           <Input
+            containerClassName="max-w-sm"
             label="Search"
             type="text"
             value={searchQuery}

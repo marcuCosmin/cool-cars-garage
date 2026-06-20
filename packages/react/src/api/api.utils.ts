@@ -1,25 +1,25 @@
+import { fileUploadFieldName } from "@/globals/requests/requests.const"
+
 import { executeApiRequest } from "./api.config"
 
 import type {
   UserEditData,
   UserCreateData,
-  SignUpData
+  SignUpData,
+  ResolveDefectFields
 } from "@/globals/forms/forms.const"
 import type {
-  MarkFaultsAsResolvedPayload,
-  MarkIncidentAsResolvedPayload,
-  MarkDefectAsResolvedResponse,
   CarsCheckExportURLQuery,
-  CreateUserResponse,
-  RegisterUserResponse,
   DeleteUserQueryParams,
-  GetUsersResponse,
   UserActiveStateUpdatePayload,
-  ReiniviteUserPayload
+  ReiniviteUserPayload,
+  FileUploadQuery,
+  ResolveFaultParams,
+  ResolveIncidentParams
 } from "@/globals/requests/requests.model"
 
 export const getAllUsers = async () => {
-  const response = await executeApiRequest<GetUsersResponse>({
+  const response = await executeApiRequest({
     path: "/users",
     method: "GET"
   })
@@ -27,24 +27,21 @@ export const getAllUsers = async () => {
   return response.users
 }
 
-type GetAuthTokenResponse = {
-  authToken: string
-}
 export const getAuthToken = () =>
-  executeApiRequest<GetAuthTokenResponse>({
+  executeApiRequest({
     path: "/users/generate-auth-token",
     method: "GET"
   })
 
 export const registerUser = (payload: SignUpData) =>
-  executeApiRequest<RegisterUserResponse>({
+  executeApiRequest({
     path: "/users/register",
     method: "POST",
     payload
   })
 
 export const createUser = (payload: UserCreateData) =>
-  executeApiRequest<CreateUserResponse>({
+  executeApiRequest({
     path: "/users",
     method: "POST",
     payload
@@ -57,26 +54,47 @@ export const deleteUser = ({ uid }: DeleteUserQueryParams) =>
   })
 
 export const updateUser = (payload: UserEditData) =>
-  executeApiRequest<CreateUserResponse>({
+  executeApiRequest({
     path: "/users",
     method: "PATCH",
     payload
   })
 
-export const markFaultsAsResolved = (payload: MarkFaultsAsResolvedPayload) =>
-  executeApiRequest<MarkDefectAsResolvedResponse>({
-    path: "/cars/checks/faults",
+type ResolveFaultProps = ResolveFaultParams & ResolveDefectFields
+export const resolveFault = ({ faultId, ...payload }: ResolveFaultProps) =>
+  executeApiRequest({
+    path: `/cars/faults/${faultId}`,
     method: "PATCH",
     payload
   })
 
-export const markIncidentAsResolved = (
-  payload: MarkIncidentAsResolvedPayload
-) =>
-  executeApiRequest<MarkDefectAsResolvedResponse>({
-    path: "/cars/checks/incidents",
+type ResolveIncidentProps = ResolveIncidentParams & ResolveDefectFields
+export const resolveIncident = ({
+  incidentId,
+  ...payload
+}: ResolveIncidentProps) =>
+  executeApiRequest({
+    path: `/cars/incidents/${incidentId}`,
     method: "PATCH",
     payload
+  })
+
+type UploadFileProps = FileUploadQuery & {
+  file: File
+}
+export const uploadFile = ({ file, uploadType, resourceId }: UploadFileProps) =>
+  executeApiRequest({
+    path: `/files?uploadType=${uploadType}&resourceId=${resourceId}`,
+    method: "POST",
+    payload: { [fileUploadFieldName]: file },
+    isFormData: true
+  })
+
+export const getFile = (filePath: string) =>
+  executeApiRequest({
+    path: `/files?filePath=${encodeURIComponent(filePath)}`,
+    method: "GET",
+    responseType: "blob"
   })
 
 const getExportChecksQueryParams = (payload: CarsCheckExportURLQuery) => {
@@ -106,9 +124,10 @@ const getExportChecksQueryParams = (payload: CarsCheckExportURLQuery) => {
 export const exportChecks = async (payload: CarsCheckExportURLQuery) => {
   const queryParams = getExportChecksQueryParams(payload)
 
-  const response = await executeApiRequest<Blob>({
+  const response = await executeApiRequest({
     path: `/cars/checks/exports?${queryParams}`,
-    method: "GET"
+    method: "GET",
+    responseType: "blob"
   })
 
   return response

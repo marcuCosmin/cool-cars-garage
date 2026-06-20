@@ -4,11 +4,12 @@ import { ChevronDown } from "react-bootstrap-icons"
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
 type CollapsibleProps = {
-  title: ReactNode
+  title: ReactNode | ((isOpen: boolean) => ReactNode)
   children: ReactNode
   containerClassName?: string
   buttonClassName?: string
   contentClassName?: string
+  defaultOpen?: boolean
 }
 
 export const Collapsible = ({
@@ -16,9 +17,10 @@ export const Collapsible = ({
   children,
   containerClassName,
   buttonClassName,
-  contentClassName
+  contentClassName,
+  defaultOpen = false
 }: CollapsibleProps) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(defaultOpen)
 
   const onButtonClick = () => setIsOpen(prevState => !prevState)
 
@@ -26,15 +28,15 @@ export const Collapsible = ({
     <div className={mergeClassNames("w-full", containerClassName)}>
       <button
         className={mergeClassNames(
-          "flex justify-between items-center",
+          "flex justify-between items-center gap-2",
           buttonClassName
         )}
         type="button"
         onClick={onButtonClick}
       >
-        {title}
+        {typeof title === "function" ? title(isOpen) : title}
         <ChevronDown
-          className={`transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"}`}
+          className={`fill-black dark:fill-white transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-0"}`}
         />
       </button>
       <div
