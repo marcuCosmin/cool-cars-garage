@@ -3,7 +3,7 @@ import { mergeClassNames } from "@/utils/mergeClassNames"
 type LoaderProps = {
   enableOverlay?: boolean
   text?: string
-  size?: "sm" | "md" | "lg"
+  size?: "xs" | "sm" | "md" | "lg"
   className?: string
 }
 

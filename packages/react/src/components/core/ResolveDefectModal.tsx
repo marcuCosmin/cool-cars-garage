@@ -39,7 +39,6 @@ export const ResolveDefectModal = ({
 
   const additionalFieldsProps: AdditionalFieldsProps<ResolveDefectFields> = {
     resolutionFilePath: {
-      type: "file",
       label: "Attachment",
       uploadType,
       resourceId: defectId,
@@ -47,7 +46,6 @@ export const ResolveDefectModal = ({
     },
     resolutionUserId: { shouldHide: () => true },
     resolutionNotes: {
-      type: "textarea",
       label: "Resolution notes",
       rows: 6
     }

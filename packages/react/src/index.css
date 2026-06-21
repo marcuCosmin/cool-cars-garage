@@ -86,6 +86,10 @@
         @apply border-primary border-t-transparent rounded-full animate-spin dark:border-t-transparent;
     }
 
+    .loader-xs {
+        @apply w-5 h-5 border-2;
+    }
+
     .loader-sm {
         @apply w-7 h-7 border-4
     }

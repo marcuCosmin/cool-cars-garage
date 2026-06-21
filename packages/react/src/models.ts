@@ -1,6 +1,6 @@
 import type { DatePickerProps } from "@/components/basic/DatePicker"
 import type { FileInputProps } from "@/components/basic/FileInput"
-import type { InputBaseProps } from "@/components/basic/Input"
+import type { InputProps } from "@/components/basic/Input"
 import type { SelectProps } from "@/components/basic/Select"
 import type { ToggleProps } from "@/components/basic/Toggle"
 
@@ -16,20 +16,20 @@ import type { FileEntityType } from "@/globals/requests/requests.model"
 
 type FormFieldOwnProps<T> = Omit<T, "value" | "onChange" | "error" | "onBlur">
 
-type ExtendedFormInputCommonProps<T extends FormData> =
-  FormFieldOwnProps<InputBaseProps> &
-    Omit<FormInputProps<T>, "type"> & {
-      defaultValue?: string
-    }
+type ExtendedInputVariant<
+  InputVariant,
+  FormFields extends FormData
+> = InputVariant extends unknown
+  ? FormFieldOwnProps<InputVariant> &
+      FormInputProps<FormFields> & {
+        defaultValue?: string
+      }
+  : never
 
-export type ExtendedFormInputProps<T extends FormData> =
-  | (ExtendedFormInputCommonProps<T> & {
-      type: "text" | "number" | "password"
-    })
-  | (ExtendedFormInputCommonProps<T> & {
-      type: "textarea"
-      rows?: number
-    })
+export type ExtendedFormInputProps<T extends FormData> = ExtendedInputVariant<
+  InputProps,
+  T
+>
 export type ExtendedFormSelectProps<T extends FormData> =
   FormFieldOwnProps<SelectProps> &
     Omit<FormSelectProps<T>, "options"> & {

@@ -1,4 +1,5 @@
 import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
+import type { DistributiveOmit } from "@/globals/model"
 
 import type {
   ExtendedFormDateComponentProps,
@@ -9,13 +10,9 @@ import type {
   ExtendedFormToggleProps
 } from "@/models"
 
-type FormInputAdditionalProps<T extends FormData> = Omit<
+type FormInputAdditionalProps<T extends FormData> = DistributiveOmit<
   ExtendedFormInputProps<T>,
   "type"
->
-type FormTextareaAdditionalProps<T extends FormData> = Extract<
-  ExtendedFormInputProps<T>,
-  { type: "textarea" }
 >
 type FormToggleAdditionalProps<T extends FormData> = Omit<
   ExtendedFormToggleProps<T>,
@@ -31,12 +28,14 @@ type FormSelectAdditionalProps<T extends FormData> = Omit<
 > & {
   options: string[]
 }
-type FormFileAdditionalProps<T extends FormData> = ExtendedFormFileProps<T>
+type FormFileAdditionalProps<T extends FormData> = Omit<
+  ExtendedFormFileProps<T>,
+  "type"
+>
 
 export type AdditionalFieldsProps<T extends FormData> = {
   [key in keyof T]:
     | FormInputAdditionalProps<T>
-    | FormTextareaAdditionalProps<T>
     | FormSelectAdditionalProps<T>
     | FormToggleAdditionalProps<T>
     | FormDateAdditionalProps<T>

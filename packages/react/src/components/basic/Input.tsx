@@ -11,7 +11,7 @@ import type { FormFieldComponentProps } from "@/components/basic/Form/Form.model
 
 import { mergeClassNames } from "@/utils/mergeClassNames"
 
-export type InputBaseProps = Partial<FormFieldComponentProps<string>> &
+type InputBaseProps = Partial<FormFieldComponentProps<string>> &
   Pick<InputHTMLAttributes<HTMLInputElement>, "className" | "disabled"> & {
     onClick?: MouseEventHandler<HTMLDivElement | HTMLInputElement>
     startAdornment?: ReactNode

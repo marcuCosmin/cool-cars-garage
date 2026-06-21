@@ -111,7 +111,7 @@ export type ResolveDefectFields = {
 
 export const resolveDefectFields: FormFieldsSchema<ResolveDefectFields> = {
   resolutionFilePath: {
-    type: "text",
+    type: "file",
     isOptional: () => true
   },
   resolutionUserId: {
@@ -119,7 +119,7 @@ export const resolveDefectFields: FormFieldsSchema<ResolveDefectFields> = {
     validate: getRequiredError
   },
   resolutionNotes: {
-    type: "text",
+    type: "textarea",
     validate: getRequiredError
   }
 }

@@ -7,6 +7,8 @@ type GetFormDataProps<T extends FormData> = {
 
 const formDataTypes = {
   text: "string",
+  textarea: "string",
+  file: "string",
   password: "string",
   number: "string",
   date: "number",

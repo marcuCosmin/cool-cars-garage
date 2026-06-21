@@ -33,7 +33,7 @@ export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
 }: DataViewMetadataItemProps<T>) => {
   const getValue = () => {
     if (isLoading) {
-      return <Loader size="sm" />
+      return <Loader size="xs" />
     }
 
     if (error) {
@@ -43,8 +43,10 @@ export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
     return parsedValue
   }
 
+  const hasValidValue = !isLoading && !error
+
   return createElement(
-    containerTag,
+    hasValidValue ? containerTag : "span",
     {
       ...containerProps,
       className: mergeClassNames(
@@ -57,12 +59,12 @@ export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
       height={iconsSize}
       width={iconsSize}
     />,
-    <span>
+    <span className={mergeClassNames(isLoading && "flex items-center gap-2")}>
       <span className="text-primary font-bold">{label}:</span>{" "}
       <span
         className={mergeClassNames(
           "text-black dark:text-white font-normal",
-          error && "text-error"
+          error && "font-semibold text-error dark:text-error"
         )}
       >
         {getValue()}
