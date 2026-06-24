@@ -25,10 +25,12 @@ export const getFormValidationResult = <T extends FormData>({
   const errors: Errors<T> = {} as Errors<T>
   const filteredData: T = {} as T
 
-  Object.entries(schema).forEach(([key, fieldSchema]) => {
-    const castedKey = key as keyof T
+  const schemaKeys = Object.keys(schema) as (keyof T)[]
+
+  schemaKeys.forEach(key => {
+    const fieldSchema = schema[key]
     const { type, validate, shouldHide, isOptional } = fieldSchema
-    const value = data[castedKey]
+    const value = data[key]
 
     const isHidden = shouldHide?.(data)
 
@@ -43,7 +45,7 @@ export const getFormValidationResult = <T extends FormData>({
     const dataType = formDataTypes[type]
 
     if (typeof value !== dataType) {
-      errors[castedKey] = `Invalid data for field: ${String(castedKey)}`
+      errors[key] = `Invalid data for field: ${String(key)}`
       return
     }
 
@@ -51,21 +53,20 @@ export const getFormValidationResult = <T extends FormData>({
       const error = validate(value)
 
       if (error) {
-        errors[castedKey] = error
+        errors[key] = error
         return
       }
     }
 
-    if (type === "select") {
+    if (fieldSchema.type === "select") {
       const { options } = fieldSchema
 
-      if (!options.includes(value as string)) {
-        errors[castedKey] =
-          `Invalid option selected for field: ${String(castedKey)}`
+      if (!options.some(option => option === value)) {
+        errors[key] = `Invalid option selected for field: ${String(key)}`
       }
     }
 
-    filteredData[castedKey] = value as T[keyof T]
+    filteredData[key] = value as T[keyof T]
   })
 
   if (Object.keys(errors).length) {

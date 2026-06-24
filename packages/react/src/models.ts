@@ -32,7 +32,7 @@ export type ExtendedFormInputProps<T extends FormData> = ExtendedInputVariant<
 >
 export type ExtendedFormSelectProps<T extends FormData> =
   FormFieldOwnProps<SelectProps> &
-    Omit<FormSelectProps<T>, "options"> & {
+    Omit<FormSelectProps<T, keyof T>, "options"> & {
       defaultValue?: string
     }
 export type ExtendedFormToggleProps<T extends FormData> =

@@ -49,7 +49,14 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     },
     role: {
       label: "Role",
-      options: ["Manager", "Driver"],
+      options: {
+        driver: {
+          label: "Driver"
+        },
+        manager: {
+          label: "Manager"
+        }
+      },
       defaultValue: user?.role?.toLowerCase()
     },
     dbsUpdate: {
@@ -70,7 +77,13 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     },
     badgeAuthority: {
       label: "Badge Authority",
-      options: ["PSV", "Cornwall", "Wolverhampton", "Portsmouth", "Other"],
+      options: {
+        PSV: { label: "PSV" },
+        Cornwall: { label: "Cornwall" },
+        Wolverhampton: { label: "Wolverhampton" },
+        Portsmouth: { label: "Portsmouth" },
+        Other: { label: "Other" }
+      },
       defaultValue: user?.badgeAuthority
     },
     isPSVDriver: {

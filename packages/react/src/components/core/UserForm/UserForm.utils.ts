@@ -1,6 +1,5 @@
 import { type UserEditData } from "@/globals/forms/forms.const"
 import type { RawUserListItem } from "@/globals/dataLists/dataLists.model"
-import type { User } from "@/globals/firestore/firestore.model"
 
 export const getUserDataFromRawUserListItem = (item?: RawUserListItem) => {
   if (!item) {
@@ -15,7 +14,7 @@ export const getUserDataFromRawUserListItem = (item?: RawUserListItem) => {
     email: metadata.email,
     firstName,
     lastName,
-    role: subtitle.toLowerCase() as User["role"],
+    role: subtitle.toLowerCase() as UserEditData["role"],
     dbsUpdate: metadata.dbsUpdate!,
     isTaxiDriver: metadata.isTaxiDriver!,
     badgeNumber: metadata.badgeNumber!,

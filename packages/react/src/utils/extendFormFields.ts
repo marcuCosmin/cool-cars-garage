@@ -22,11 +22,11 @@ type FormDateAdditionalProps<T extends FormData> = Omit<
   ExtendedFormDateComponentProps<T>,
   "type"
 >
-type FormSelectAdditionalProps<T extends FormData> = Omit<
+type FormSelectAdditionalProps<T extends FormData, K extends keyof T> = Omit<
   ExtendedFormSelectProps<T>,
   "options" | "type"
 > & {
-  options: string[]
+  options: Record<T[K] & string, { label: string }>
 }
 type FormFileAdditionalProps<T extends FormData> = Omit<
   ExtendedFormFileProps<T>,
@@ -36,7 +36,7 @@ type FormFileAdditionalProps<T extends FormData> = Omit<
 export type AdditionalFieldsProps<T extends FormData> = {
   [key in keyof T]:
     | FormInputAdditionalProps<T>
-    | FormSelectAdditionalProps<T>
+    | FormSelectAdditionalProps<T, key>
     | FormToggleAdditionalProps<T>
     | FormDateAdditionalProps<T>
     | FormFileAdditionalProps<T>
@@ -57,11 +57,13 @@ export const extendFormFields = <T extends FormData>({
 
     if (field.type === "select") {
       const { options, ...otherFieldProps } = field
+      const castExtendedField = extendedField as FormSelectAdditionalProps<
+        T,
+        keyof T
+      >
 
-      const extendedSelectOptions = options.map((value, index) => {
-        const label = (extendedField as FormSelectAdditionalProps<T>).options[
-          index
-        ]
+      const extendedSelectOptions = options.map(value => {
+        const { label } = castExtendedField.options[value]
 
         return {
           value,

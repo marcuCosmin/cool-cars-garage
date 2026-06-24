@@ -15,8 +15,9 @@ import type {
 } from "../firestore/firestore.model"
 import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
-export type UserCreateData = Pick<User, "role" | "email"> &
-  Partial<Pick<User, "firstName" | "lastName">> &
+export type UserCreateData = Pick<User, "email"> & {
+  role: Exclude<User["role"], "admin">
+} & Partial<Pick<User, "firstName" | "lastName">> &
   Partial<Omit<DriverData, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>>
 
 export const userCreateFields: FormFieldsSchema<UserCreateData> = {

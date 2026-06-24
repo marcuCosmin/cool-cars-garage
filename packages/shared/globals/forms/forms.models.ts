@@ -17,9 +17,12 @@ export type FormToggleProps<T extends FormData> = FormFieldsCommonProps<T> & {
   type: "toggle"
 }
 
-export type FormSelectProps<T extends FormData> = FormFieldsCommonProps<T> & {
+export type FormSelectProps<
+  T extends FormData,
+  K extends keyof T
+> = FormFieldsCommonProps<T> & {
   type: "select"
-  options: string[]
+  options: (T[K] & string)[]
 }
 
 export type FormInputProps<T extends FormData> = FormFieldsCommonProps<T> & {
@@ -34,7 +37,7 @@ export type FormFieldsSchema<T extends FormData> = {
   [key in keyof Required<T>]:
     | FormDateProps<T>
     | FormToggleProps<T>
-    | FormSelectProps<T>
+    | FormSelectProps<T, key>
     | FormInputProps<T>
     | FormFileProps<T>
 }
