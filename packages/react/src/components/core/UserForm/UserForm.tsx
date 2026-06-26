@@ -29,7 +29,10 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
   const title = isEdit ? "Edit user" : "Create user"
   const submitLabel = isEdit ? "Save" : "Create"
 
-  const additionalFieldsProps: AdditionalFieldsProps<UserCreateData> = {
+  const additionalFieldsProps: AdditionalFieldsProps<
+    UserCreateData,
+    typeof userCreateFields
+  > = {
     drivingLicenceNumber: {
       label: "Driving Licence Number",
       defaultValue: user?.drivingLicenceNumber,
@@ -55,6 +58,9 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
         },
         manager: {
           label: "Manager"
+        },
+        mechanic: {
+          label: "Mechanic"
         }
       },
       defaultValue: user?.role?.toLowerCase()

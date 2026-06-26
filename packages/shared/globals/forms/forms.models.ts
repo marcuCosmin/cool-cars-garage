@@ -1,3 +1,5 @@
+import type { SearchPayloads } from "../requests/requests.model"
+
 export type FormFieldValue = string | number | boolean
 export type FormFieldValidator = (value?: FormFieldValue) => string
 
@@ -22,7 +24,7 @@ export type FormSelectProps<
   K extends keyof T
 > = FormFieldsCommonProps<T> & {
   type: "select"
-  options: (T[K] & string)[]
+  options: (T[K] & string)[] | SearchPayloads
 }
 
 export type FormInputProps<T extends FormData> = FormFieldsCommonProps<T> & {

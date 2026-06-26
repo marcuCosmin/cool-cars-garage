@@ -2,12 +2,12 @@ import { useEffect } from "react"
 
 import { Input, type InputProps } from "@/components/basic/Input"
 import { Toggle, type ToggleProps } from "@/components/basic/Toggle"
-import { Select, type SelectProps } from "@/components/basic/Select"
 import { DatePicker } from "@/components/basic/DatePicker"
 
 import type { FormData, FormFieldValue } from "@/globals/forms/forms.models"
 
 import { FormFileField, type FormFileFieldProps } from "./FormFileField"
+import { FormSelectField, type FormSelectFieldProps } from "./FormSelectField"
 
 import type { FieldStateProps, FormFieldComponentProps } from "./Form.models"
 
@@ -95,7 +95,7 @@ export const FormField = <T extends FormData>({
   }
 
   if (type === "select") {
-    return <Select {...(passedProps as SelectProps)} />
+    return <FormSelectField {...(passedProps as FormSelectFieldProps)} />
   }
 
   if (type === "toggle") {

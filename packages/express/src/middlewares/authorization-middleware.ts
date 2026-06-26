@@ -64,6 +64,10 @@ const isRoleAuthorized = ({
   reqPath,
   reqMethod
 }: IsRoleAuthorizedProps) => {
+  if (role === "mechanic") {
+    return false
+  }
+
   if (role === "admin") {
     return true
   }

@@ -1,5 +1,3 @@
-import { type Request } from "express"
-
 import { firestore } from "@/backend/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
@@ -10,12 +8,12 @@ import {
 } from "@/globals/forms/forms.const"
 import type { CreateUserResponse } from "@/globals/requests/requests.model"
 
-import type { Response } from "@/models"
+import type { Request, Response } from "@/models"
 
 import { getUserDocData, inviteUser, isEmailUsed } from "./utils"
 
 export const handleUserPostRequest = async (
-  req: Request<undefined, CreateUserResponse, UserCreateData>,
+  req: Request<undefined, CreateUserResponse, Partial<UserCreateData>>,
   res: Response<CreateUserResponse>
 ) => {
   const { errors, filteredData: userPayloadData } = getFormValidationResult({

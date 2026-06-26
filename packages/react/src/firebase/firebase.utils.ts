@@ -15,7 +15,6 @@ import {
   type CollectionReference,
   type DocumentReference,
   type DocumentData,
-  type WhereFilterOp,
   type UpdateData
 } from "firebase/firestore"
 import {
@@ -32,11 +31,17 @@ import type {
 
 import type { SignInFormData } from "@/globals/forms/forms.const"
 import type {
+  CollectionsWithCreationTimestamp,
   DocWithID,
   FirestoreCollectionsMap,
   FirestoreCollectionsNames,
   FullCheck
 } from "@/globals/firestore/firestore.model"
+import type {
+  SearchPayloads,
+  SearchFilter,
+  SearchPayload
+} from "@/globals/requests/requests.model"
 
 export const signInUser = ({ email, password }: SignInFormData) =>
   signInWithEmailAndPassword(firebaseAuth, email, password)
@@ -72,27 +77,28 @@ export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
   }
 }
 
-type FirestoreFilter = [string, WhereFilterOp, unknown]
+type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> =
+  SearchPayload<T> & {
+    lastRefValue?: any
+  }
 
-type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> = {
-  collectionId: T
-  filters?: FirestoreFilter[]
-  cap?: number
-  order?: { field: string; direction: "asc" | "desc" }
-  lastRefValue?: any
-}
-
-export const getFirestoreDocs = async <T extends FirestoreCollectionsNames>({
+export function getFirestoreDocs<T extends FirestoreCollectionsNames>(
+  props: GetFirestoreDocsProps<T>
+): Promise<DocWithID<FirestoreCollectionsMap[T]>[]>
+export function getFirestoreDocs(
+  props: SearchPayloads & { lastRefValue?: any }
+): Promise<DocWithID<FirestoreCollectionsMap[FirestoreCollectionsNames]>[]>
+export async function getFirestoreDocs<T extends FirestoreCollectionsNames>({
   collectionId,
   filters,
   cap,
   order,
   lastRefValue
-}: GetFirestoreDocsProps<T>) => {
+}: GetFirestoreDocsProps<T>) {
   let path: CollectionReference<DocumentData> | Query<DocumentData> =
     collection(firestore, collectionId)
 
-  const queryFiltersConstraints: QueryConstraint[] = (filters || []).map(
+  const queryFiltersConstraints = (filters || []).map(
     ([field, operator, value]) => where(field, operator, value)
   )
 
@@ -139,52 +145,56 @@ export const deleteFirestoreDoc = async ({
   await deleteDoc(path)
 }
 
-const getFirestoreFiltersFromQueryKey = <Document extends DocumentData>(
+const getFirestoreFiltersFromQueryKey = <
+  Document extends FirestoreCollectionsMap[FirestoreCollectionsNames]
+>(
   queryKey: QueryContext<Document, true>["queryKey"]
-) => {
+): SearchFilter<Document>[] => {
   const filters = queryKey[2] as FiltersState<Document, true>
 
-  const filtersQueryConstraints: (FirestoreFilter | null)[] = filters.map(
-    filter => {
-      const { type } = filter
+  const filtersQueryConstraints = filters.map(filter => {
+    const { type } = filter
 
-      if (type === "select") {
-        const { field, value } = filter
+    if (type === "select") {
+      const { field, value } = filter
 
-        if (value.length === 0) {
-          return null
-        }
-
-        return [field as string, "in", value]
+      if (value.length === 0) {
+        return null
       }
 
-      if (type === "toggle") {
-        const { filterOptions, value } = filter
-
-        if (!value) {
-          return null
-        }
-
-        const { field, operator, value: filterValue } = filterOptions
-
-        return [field as string, operator, filterValue]
-      }
-
-      if (type === "date") {
-        const { field, value } = filter
-
-        if (!value) {
-          return null
-        }
-
-        return [field as string, filter.operator, value]
-      }
-
-      return null
+      return [field, "in", value]
     }
-  )
 
-  return filtersQueryConstraints.filter(Boolean) as FirestoreFilter[]
+    if (type === "toggle") {
+      const { filterOptions, value } = filter
+
+      if (!value) {
+        return null
+      }
+
+      const { field, operator, value: filterValue } = filterOptions
+
+      return [field, operator, filterValue]
+    }
+
+    if (type === "date") {
+      const { field, value } = filter
+
+      if (!value) {
+        return null
+      }
+
+      return [field, filter.operator, value]
+    }
+
+    return null
+  })
+
+  // `field`/`value` are erased to runtime strings here, so the tuples can't be
+  // matched against a specific `SearchFilter` member — cast once at the boundary.
+  return filtersQueryConstraints.filter(
+    (filter): filter is NonNullable<typeof filter> => filter !== null
+  ) as SearchFilter<Document>[]
 }
 
 type UpdateFirestoreDocProps<T extends DocumentData> = {
@@ -206,13 +216,15 @@ export const updateFirestoreDoc = async <T extends DocumentData>({
   await updateDoc(docRef, data)
 }
 
-type GetFirestoreCollectionChunksProps<T extends FirestoreCollectionsNames> = {
+type GetFirestoreCollectionChunksProps<
+  T extends CollectionsWithCreationTimestamp
+> = {
   collectionId: T
   queryContext: QueryContext<FirestoreCollectionsMap[T], true>
 }
 
 export const getFirestoreCollectionChunks = async <
-  T extends FirestoreCollectionsNames
+  T extends CollectionsWithCreationTimestamp
 >({
   collectionId,
   queryContext

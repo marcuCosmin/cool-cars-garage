@@ -9,10 +9,7 @@ import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
 import type { Request, Response } from "@/models"
 
-import {
-  userCreateFields,
-  type UserEditData
-} from "@/globals/forms/forms.const"
+import { userEditFields, type UserEditData } from "@/globals/forms/forms.const"
 import type {
   DocWithID,
   InvitationDoc,
@@ -47,13 +44,12 @@ const updateUserEmail = async ({
 }
 
 export const handleUserPatchRequest = async (
-  req: Request<undefined, CreateUserResponse, UserEditData>,
+  req: Request<undefined, CreateUserResponse, Partial<UserEditData>>,
   res: Response<CreateUserResponse>
 ) => {
-  const { uid, ...data } = req.body
   const { errors, filteredData: validatedPayload } = getFormValidationResult({
-    schema: userCreateFields,
-    data
+    schema: userEditFields,
+    data: req.body
   })
 
   if (errors) {
@@ -65,6 +61,8 @@ export const handleUserPatchRequest = async (
     return
   }
 
+  const { uid, email, ...userPayloadData } = validatedPayload
+
   const userDoc = await getFirestoreDoc({
     collection: "users",
     docId: uid,
@@ -75,8 +73,6 @@ export const handleUserPatchRequest = async (
     res.status(400).json({ error: "Invalid uid" })
     return
   }
-
-  const { email, ...userPayloadData } = validatedPayload
 
   let invitation: DocWithID<InvitationDoc> | undefined
 

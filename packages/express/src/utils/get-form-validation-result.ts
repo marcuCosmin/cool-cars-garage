@@ -61,8 +61,10 @@ export const getFormValidationResult = <T extends FormData>({
     if (fieldSchema.type === "select") {
       const { options } = fieldSchema
 
-      if (!options.some(option => option === value)) {
+      if (Array.isArray(options) && !options.some(option => option === value)) {
         errors[key] = `Invalid option selected for field: ${String(key)}`
+      } else {
+        // TODO: handle request
       }
     }
 

@@ -9,7 +9,6 @@ import {
   type ResolveDefectFields
 } from "@/globals/forms/forms.const"
 
-import { useAppSelector } from "@/redux/redux.config"
 import { useModalContext } from "@/contexts/Modal/Modal.context"
 
 import { Form } from "@/components/basic/Form/Form"
@@ -32,19 +31,26 @@ export const ResolveDefectModal = ({
 }: ResolveDefectModalProps) => {
   const { setModalProps } = useModalContext()
   const queryClient = useQueryClient()
-  const uid = useAppSelector(({ user }) => user.uid)
 
   const uploadType: FileEntityType =
     defectType === "fault" ? "faults" : "incidents"
 
-  const additionalFieldsProps: AdditionalFieldsProps<ResolveDefectFields> = {
+  const additionalFieldsProps: AdditionalFieldsProps<
+    ResolveDefectFields,
+    typeof resolveDefectFields
+  > = {
     resolutionFilePath: {
       label: "Attachment",
       uploadType,
       resourceId: defectId,
       accept: "image/jpeg,image/png,image/webp,application/pdf"
     },
-    resolutionUserId: { shouldHide: () => true },
+    resolutionUserId: {
+      options: {
+        getLabel: ({ firstName, lastName }) => `${firstName} ${lastName}`,
+        getValue: ({ id }) => id
+      }
+    },
     resolutionNotes: {
       label: "Resolution notes",
       rows: 6
@@ -57,12 +63,10 @@ export const ResolveDefectModal = ({
   })
 
   const action = async (formData: ResolveDefectFields) => {
-    const payload = { ...formData, resolutionUserId: uid }
-
     const result =
       defectType === "fault"
-        ? await resolveFault({ faultId: defectId, ...payload })
-        : await resolveIncident({ incidentId: defectId, ...payload })
+        ? await resolveFault({ faultId: defectId, ...formData })
+        : await resolveIncident({ incidentId: defectId, ...formData })
 
     const cacheKey = defectType === "fault" ? "faults" : "incidents"
     queryClient.setQueryData(["/reports", checkId], (data: FullCheck) => ({

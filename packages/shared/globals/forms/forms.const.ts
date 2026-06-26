@@ -20,7 +20,7 @@ export type UserCreateData = Pick<User, "email"> & {
 } & Partial<Pick<User, "firstName" | "lastName">> &
   Partial<Omit<DriverData, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>>
 
-export const userCreateFields: FormFieldsSchema<UserCreateData> = {
+export const userCreateFields = {
   drivingLicenceNumber: {
     type: "text",
     validate: getDrivingLicenceNumberError,
@@ -42,7 +42,7 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
   },
   role: {
     type: "select",
-    options: ["manager", "driver"],
+    options: ["manager", "driver", "mechanic"],
     validate: getRequiredError
   },
   dbsUpdate: {
@@ -73,11 +73,19 @@ export const userCreateFields: FormFieldsSchema<UserCreateData> = {
     type: "toggle",
     shouldHide: ({ role }) => role !== "driver"
   }
-}
+} satisfies FormFieldsSchema<UserCreateData>
 
 export type UserEditData = UserCreateData & {
   uid: User["uid"]
 }
+
+export const userEditFields = {
+  ...userCreateFields,
+  uid: {
+    type: "text",
+    validate: getRequiredError
+  }
+} satisfies FormFieldsSchema<UserEditData>
 
 export type SignInFormData = Pick<User, "email"> & {
   password: string
@@ -110,20 +118,24 @@ export type ResolveDefectFields = {
   resolutionFilePath?: string
 }
 
-export const resolveDefectFields: FormFieldsSchema<ResolveDefectFields> = {
+export const resolveDefectFields = {
   resolutionFilePath: {
     type: "file",
     isOptional: () => true
   },
   resolutionUserId: {
-    type: "text",
+    type: "select",
+    options: {
+      collectionId: "users",
+      filters: [["role", "==", "mechanic"]]
+    },
     validate: getRequiredError
   },
   resolutionNotes: {
     type: "textarea",
     validate: getRequiredError
   }
-}
+} satisfies FormFieldsSchema<ResolveDefectFields>
 
 export type ChecksBulkExportData = Omit<
   Extract<CarsCheckExportURLQuery, { type: "bulk" }>,

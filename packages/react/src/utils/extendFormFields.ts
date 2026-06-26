@@ -1,5 +1,15 @@
-import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
+import type {
+  DocWithID,
+  FirestoreCollectionsMap,
+  FirestoreCollectionsNames
+} from "@/globals/firestore/firestore.model"
+import type {
+  FormData,
+  FormFieldsSchema,
+  FormSelectProps
+} from "@/globals/forms/forms.models"
 import type { DistributiveOmit } from "@/globals/model"
+import type { SearchPayloads } from "@/globals/requests/requests.model"
 
 import type {
   ExtendedFormDateComponentProps,
@@ -22,21 +32,63 @@ type FormDateAdditionalProps<T extends FormData> = Omit<
   ExtendedFormDateComponentProps<T>,
   "type"
 >
-type FormSelectAdditionalProps<T extends FormData, K extends keyof T> = Omit<
-  ExtendedFormSelectProps<T>,
-  "options" | "type"
-> & {
-  options: Record<T[K] & string, { label: string }>
+
+type FormSelectDynamicOptionsAdditionalProps<
+  Collection extends FirestoreCollectionsNames
+> = {
+  getValue: (doc: DocWithID<FirestoreCollectionsMap[Collection]>) => string
+  getLabel: (doc: DocWithID<FirestoreCollectionsMap[Collection]>) => string
+}
+type FormSelectStaticOptionsAdditionalProps<
+  Data extends FormData,
+  Key extends keyof Data
+> = Record<Data[Key] & string, { label: string }>
+export type FormSelectDynamicOptions<
+  Collection extends FirestoreCollectionsNames,
+  Extended extends boolean
+> = Extended extends true
+  ? FormSelectDynamicOptionsAdditionalProps<Collection> & SearchPayloads
+  : FormSelectDynamicOptionsAdditionalProps<Collection>
+type FormSelectStaticOptions<
+  Data extends FormData,
+  Key extends keyof Data,
+  Extended extends boolean
+> = Extended extends true
+  ? { label: string; value: Data[Key] }
+  : FormSelectStaticOptionsAdditionalProps<Data, Key>
+type FormSelectOptions<
+  Data extends FormData,
+  Key extends keyof Data,
+  Schema extends FormFieldsSchema<Data>,
+  Extended extends boolean
+> =
+  Schema[Key] extends FormSelectProps<Data, Key>
+    ? Schema[Key]["options"] extends {
+        collectionId: infer Collection extends FirestoreCollectionsNames
+      }
+      ? FormSelectDynamicOptions<Collection, Extended>
+      : FormSelectStaticOptions<Data, Key, false>
+    : never
+
+type FormSelectAdditionalProps<
+  Data extends FormData,
+  Key extends keyof Data,
+  Schema extends FormFieldsSchema<Data>
+> = Omit<ExtendedFormSelectProps<Data>, "options" | "type"> & {
+  options: FormSelectOptions<Data, Key, Schema, false>
 }
 type FormFileAdditionalProps<T extends FormData> = Omit<
   ExtendedFormFileProps<T>,
   "type"
 >
 
-export type AdditionalFieldsProps<T extends FormData> = {
+export type AdditionalFieldsProps<
+  T extends FormData,
+  Schema extends FormFieldsSchema<T>
+> = {
   [key in keyof T]:
     | FormInputAdditionalProps<T>
-    | FormSelectAdditionalProps<T, key>
+    | FormSelectAdditionalProps<T, key, Schema>
     | FormToggleAdditionalProps<T>
     | FormDateAdditionalProps<T>
     | FormFileAdditionalProps<T>
@@ -44,7 +96,7 @@ export type AdditionalFieldsProps<T extends FormData> = {
 
 type ExtendFormFieldsProps<T extends FormData> = {
   fieldsSchema: FormFieldsSchema<T>
-  additionalFieldsProps: AdditionalFieldsProps<T>
+  additionalFieldsProps: AdditionalFieldsProps<T, FormFieldsSchema<T>>
 }
 
 export const extendFormFields = <T extends FormData>({
@@ -59,17 +111,25 @@ export const extendFormFields = <T extends FormData>({
       const { options, ...otherFieldProps } = field
       const castExtendedField = extendedField as FormSelectAdditionalProps<
         T,
-        keyof T
+        keyof T,
+        FormFieldsSchema<T>
       >
 
-      const extendedSelectOptions = options.map(value => {
-        const { label } = castExtendedField.options[value]
+      const extendedSelectOptions = Array.isArray(options)
+        ? options.map(value => {
+            const { label } = (
+              castExtendedField.options as FormSelectStaticOptionsAdditionalProps<
+                T,
+                keyof T
+              >
+            )[value]
 
-        return {
-          value,
-          label
-        }
-      })
+            return {
+              value,
+              label
+            }
+          })
+        : { ...options, ...castExtendedField.options }
 
       acc[key as keyof T] = {
         ...otherFieldProps,

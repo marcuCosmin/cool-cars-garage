@@ -46,6 +46,10 @@ type DriverProps = DriverData & {
   role: "driver"
 }
 
+type MechanicProps = {
+  role: "mechanic"
+}
+
 type UserBaseProps = {
   firstName: string
   lastName: string
@@ -53,7 +57,8 @@ type UserBaseProps = {
   invitationPending?: true
 }
 
-export type UserDoc = UserBaseProps & (DriverProps | ManagerProps | AdminProps)
+export type UserDoc = UserBaseProps &
+  (DriverProps | ManagerProps | AdminProps | MechanicProps)
 
 export type User = UserDoc & {
   uid: string
@@ -232,3 +237,11 @@ export type FirestoreCollectionsMap = {
 }
 
 export type FirestoreCollectionsNames = keyof FirestoreCollectionsMap
+
+export type CollectionsWithCreationTimestamp = {
+  [Collection in FirestoreCollectionsNames]: FirestoreCollectionsMap[Collection] extends {
+    creationTimestamp: number
+  }
+    ? Collection
+    : never
+}[FirestoreCollectionsNames]

@@ -1,9 +1,3 @@
-import type { DatePickerProps } from "@/components/basic/DatePicker"
-import type { FileInputProps } from "@/components/basic/FileInput"
-import type { InputProps } from "@/components/basic/Input"
-import type { SelectProps } from "@/components/basic/Select"
-import type { ToggleProps } from "@/components/basic/Toggle"
-
 import type {
   FormDateProps,
   FormData,
@@ -13,8 +7,22 @@ import type {
   FormToggleProps
 } from "@/globals/forms/forms.models"
 import type { FileEntityType } from "@/globals/requests/requests.model"
+import type { FirestoreCollectionsNames } from "@/globals/firestore/firestore.model"
 
-type FormFieldOwnProps<T> = Omit<T, "value" | "onChange" | "error" | "onBlur">
+import type { DatePickerProps } from "@/components/basic/DatePicker"
+import type { FileInputProps } from "@/components/basic/FileInput"
+import type { InputProps } from "@/components/basic/Input"
+import type { SelectProps } from "@/components/basic/Select"
+import type { ToggleProps } from "@/components/basic/Toggle"
+
+import type { FormFieldComponentProps } from "./components/basic/Form/Form.models"
+
+import type { FormSelectDynamicOptions } from "./utils/extendFormFields"
+
+type FormFieldOwnProps<T> = Omit<
+  T,
+  keyof Omit<FormFieldComponentProps<T>, "label">
+>
 
 type ExtendedInputVariant<
   InputVariant,
@@ -30,11 +38,15 @@ export type ExtendedFormInputProps<T extends FormData> = ExtendedInputVariant<
   InputProps,
   T
 >
-export type ExtendedFormSelectProps<T extends FormData> =
-  FormFieldOwnProps<SelectProps> &
-    Omit<FormSelectProps<T, keyof T>, "options"> & {
-      defaultValue?: string
-    }
+export type ExtendedFormSelectProps<T extends FormData> = FormFieldOwnProps<
+  Omit<SelectProps, "isLoading" | "options">
+> &
+  Omit<FormSelectProps<T, keyof T>, "options"> & {
+    defaultValue?: string
+    options:
+      | SelectProps["options"]
+      | FormSelectDynamicOptions<FirestoreCollectionsNames, true>
+  }
 export type ExtendedFormToggleProps<T extends FormData> =
   FormFieldOwnProps<ToggleProps> &
     FormToggleProps<T> & { defaultValue?: boolean }
