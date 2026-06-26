@@ -59,6 +59,7 @@ export const DataViewFilters = <
 
               return (
                 <Select
+                  containerClassName="max-w-sm"
                   key={index}
                   label={label}
                   isMulti

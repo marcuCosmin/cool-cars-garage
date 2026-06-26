@@ -2,6 +2,7 @@ import ReactSelect, { type MultiValue, type SingleValue } from "react-select"
 
 import { Loader } from "@/components/basic/Loader"
 import type { FormFieldComponentProps } from "@/components/basic/Form/Form.models"
+import { mergeClassNames } from "@/utils/mergeClassNames"
 
 const LoadingIndicator = () => <Loader size="sm" />
 
@@ -11,6 +12,7 @@ type Option = {
 }
 
 export type SelectProps = FormFieldComponentProps<string | string[]> & {
+  containerClassName?: string
   disabled?: boolean
   options: Option[]
   isMulti?: boolean
@@ -26,7 +28,8 @@ export const Select = ({
   isMulti,
   error,
   disabled,
-  isLoading
+  isLoading,
+  containerClassName
 }: SelectProps) => {
   const isDisabled = disabled || isLoading
   const isSearchable = options.length > 10
@@ -47,7 +50,7 @@ export const Select = ({
   }
 
   return (
-    <div className="w-full max-w-sm">
+    <div className={mergeClassNames("w-full", containerClassName)}>
       {label && <div className="mb-2">{label}</div>}
       <ReactSelect
         isLoading={isLoading}
