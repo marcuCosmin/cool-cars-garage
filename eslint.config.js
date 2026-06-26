@@ -36,6 +36,7 @@ export default tseslint.config({
     "import/no-default-export": "error",
     "import/default": "off",
     "no-case-declarations": "off",
+    "no-redeclare": "off",
     "@typescript-eslint/consistent-type-imports": [
       "error",
       {
