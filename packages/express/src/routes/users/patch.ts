@@ -12,6 +12,7 @@ import type { Request, Response } from "@/models"
 import { userEditFields, type UserEditData } from "@/globals/forms/forms.const"
 import type {
   DocWithID,
+  AuthUser,
   InvitationDoc,
   User,
   UserDoc
@@ -20,7 +21,7 @@ import type { CreateUserResponse } from "@/globals/requests/requests.model"
 
 import { getUserDocData, inviteUser, isEmailUsed } from "./utils"
 
-type UpdateUserEmailProps = Pick<User, "uid" | "email"> & {
+type UpdateUserEmailProps = Pick<AuthUser, "uid" | "email"> & {
   invitation?: DocWithID<InvitationDoc>
 }
 
@@ -47,10 +48,11 @@ export const handleUserPatchRequest = async (
   req: Request<undefined, CreateUserResponse, Partial<UserEditData>>,
   res: Response<CreateUserResponse>
 ) => {
-  const { errors, filteredData: validatedPayload } = getFormValidationResult({
-    schema: userEditFields,
-    data: req.body
-  })
+  const { errors, filteredData: validatedPayload } =
+    await getFormValidationResult({
+      schema: userEditFields,
+      data: req.body
+    })
 
   if (errors) {
     res.status(400).json({
@@ -94,7 +96,7 @@ export const handleUserPatchRequest = async (
 
   const existingEmail = authUser?.email || invitation?.email
 
-  if (email !== existingEmail) {
+  if (email && email !== existingEmail) {
     const emailIsUsed = await isEmailUsed(email)
 
     if (emailIsUsed) {
@@ -113,9 +115,13 @@ export const handleUserPatchRequest = async (
 
     await firestore.collection("users").doc(uid).set(userDocData)
 
-    res
-      .status(200)
-      .json({ user: { ...userDocData, email, uid, isActive: true } })
+    const responseUser = { ...userDocData, uid, isActive: true } as User
+
+    if (responseUser.role !== "mechanic") {
+      responseUser.email = email as string
+    }
+
+    res.status(200).json({ user: responseUser })
 
     return
   }
@@ -129,7 +135,11 @@ export const handleUserPatchRequest = async (
     ...userPayloadData
   } as DocWithID<UserDoc>
 
-  res.status(200).json({
-    user: { ...userDocData, email, uid, isActive: true } as User
-  })
+  const responseUser = { ...userDocData, uid, isActive: true } as User
+
+  if (responseUser.role !== "mechanic") {
+    responseUser.email = email as string
+  }
+
+  res.status(200).json({ user: responseUser })
 }

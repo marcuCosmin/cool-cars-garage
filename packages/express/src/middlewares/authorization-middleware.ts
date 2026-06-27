@@ -122,8 +122,17 @@ export const authorizationMiddleware = async (
 
   const userDoc = await getFirestoreDoc({
     collection: "users",
-    docId: uid
+    docId: uid,
+    includeId: false
   })
+
+  if (!userDoc) {
+    res.status(403).json({
+      error: "There is no user document matching this user"
+    })
+
+    return
+  }
 
   const role = userDoc?.role
 
@@ -139,7 +148,7 @@ export const authorizationMiddleware = async (
     uid,
     email: user?.email as string,
     isActive: !user?.disabled,
-    ...(userDoc as UserDoc)
+    ...(userDoc as Exclude<UserDoc, { role: "mechanic" }>)
   }
   next()
 }

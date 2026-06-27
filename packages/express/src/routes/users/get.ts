@@ -4,7 +4,12 @@ import { getFirestoreDocs } from "@/backend/firebase/utils"
 import type { Request, Response } from "@/models"
 
 import type { GetUsersResponse } from "@/globals/requests/requests.model"
-import type { InvitationDoc, User } from "@/globals/firestore/firestore.model"
+import type {
+  AuthUser,
+  InvitationDoc,
+  MechanicUser,
+  User
+} from "@/globals/firestore/firestore.model"
 
 export const handleGetRequest = async (
   req: Request,
@@ -57,11 +62,16 @@ export const handleGetRequest = async (
   const users: User[] = usersDocs.map(({ id, ...userDoc }) => {
     const authData = filteredAuthUsers.find(({ uid }) => uid === id)
     const invitationData = invitations.find(({ uid }) => uid === id)
+    const isActive = authData ? !authData.disabled : !!invitationData?.isActive
 
-    const user: User = {
+    if (userDoc.role === "mechanic") {
+      return { ...userDoc, uid: id, isActive } as MechanicUser
+    }
+
+    const user: AuthUser = {
       ...userDoc,
       uid: id,
-      isActive: authData ? !authData.disabled : !!invitationData?.isActive,
+      isActive,
       email: authData?.email || invitationData?.email || ""
     }
 

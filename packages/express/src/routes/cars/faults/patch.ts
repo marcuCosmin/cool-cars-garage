@@ -37,7 +37,7 @@ export const handleFaultResolve = async (
 ) => {
   const { faultId } = req.params
 
-  const { errors, filteredData } = getFormValidationResult({
+  const { errors, filteredData } = await getFormValidationResult({
     schema: resolveDefectFields,
     data: req.body
   })
@@ -53,19 +53,13 @@ export const handleFaultResolve = async (
     ? storage.bucket().file(resolutionFilePath).exists()
     : Promise.resolve([true])
 
-  const [fault, resolverUser, [fileExists]] = await Promise.all([
+  const [fault, [fileExists]] = await Promise.all([
     getFirestoreDoc({ collection: "faults", docId: faultId }),
-    getFirestoreDoc({ collection: "users", docId: resolutionUserId }),
     fileExistsPromise
   ])
 
   if (!fault) {
     res.status(404).json({ error: "Fault not found" })
-    return
-  }
-
-  if (!resolverUser) {
-    res.status(404).json({ error: "Resolver user not found" })
     return
   }
 

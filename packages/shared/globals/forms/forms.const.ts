@@ -11,13 +11,14 @@ import type { FormFieldsSchema } from "./forms.models"
 import type {
   DriverDVLAData,
   DriverData,
+  AuthUser,
   User
 } from "../firestore/firestore.model"
 import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
-export type UserCreateData = Pick<User, "email"> & {
+export type UserCreateData = {
   role: Exclude<User["role"], "admin">
-} & Partial<Pick<User, "firstName" | "lastName">> &
+} & Partial<Pick<AuthUser, "email" | "firstName" | "lastName">> &
   Partial<Omit<DriverData, keyof Omit<DriverDVLAData, "drivingLicenceNumber">>>
 
 export const userCreateFields = {
@@ -29,16 +30,17 @@ export const userCreateFields = {
   firstName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role !== "manager"
+    shouldHide: ({ role }) => role === "driver"
   },
   lastName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role !== "manager"
+    shouldHide: ({ role }) => role === "driver"
   },
   email: {
     validate: getEmailError,
-    type: "text"
+    type: "text",
+    shouldHide: ({ role }) => role === "mechanic"
   },
   role: {
     type: "select",
@@ -87,7 +89,7 @@ export const userEditFields = {
   }
 } satisfies FormFieldsSchema<UserEditData>
 
-export type SignInFormData = Pick<User, "email"> & {
+export type SignInFormData = Pick<AuthUser, "email"> & {
   password: string
 }
 

@@ -1,9 +1,5 @@
-import type {
-  CarDoc,
-  CheckDoc,
-  DriverData,
-  User
-} from "../firestore/firestore.model"
+import type { CarDoc, CheckDoc, User } from "../firestore/firestore.model"
+import type { DistributiveOmit, UnionToIntersection } from "../model"
 import type { FormFieldValue } from "../forms/forms.models"
 
 export type DefaultListMetadataValue = Record<
@@ -28,10 +24,11 @@ export type RawDataListItem<
 }
 
 export type RawUserListItem = RawDataListItem<
-  Omit<User, "firstName" | "lastName" | "role" | "uid"> &
-    Partial<Omit<DriverData, "firstName" | "lastName">> & {
-      invitationPending?: boolean
-    }
+  Partial<
+    UnionToIntersection<
+      DistributiveOmit<User, "firstName" | "lastName" | "role" | "uid">
+    >
+  >
 >
 
 export type CheckRawListItem = RawDataListItem<

@@ -112,38 +112,17 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
       userData.drivingLicenceNumber = data.drivingLicenceNumber?.toUpperCase()
     }
 
-    const {
-      user: {
-        firstName,
-        lastName,
-        role,
-        uid,
-        email,
-        isActive,
-        creationTimestamp,
-        ...userMetadata
-      }
-    } = isEdit
+    const { user: responseUser } = isEdit
       ? await updateUser({ ...userData, uid: user!.uid })
       : await createUser(userData)
+
+    const { firstName, lastName, role, uid, ...metadata } = responseUser
 
     const newRawUserListItem: RawUserListItem = {
       title: `${firstName} ${lastName}`,
       subtitle: role,
       id: uid,
-      metadata: {
-        email,
-        isActive,
-        creationTimestamp,
-        invitationPending: true
-      }
-    }
-
-    if (role === "driver") {
-      newRawUserListItem.metadata = {
-        ...newRawUserListItem.metadata,
-        ...userMetadata
-      }
+      metadata: { ...metadata, invitationPending: true }
     }
 
     onSuccess(newRawUserListItem)

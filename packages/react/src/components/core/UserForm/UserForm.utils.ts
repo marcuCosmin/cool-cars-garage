@@ -9,19 +9,12 @@ export const getUserDataFromRawUserListItem = (item?: RawUserListItem) => {
   const { title, subtitle, id, metadata } = item
   const [firstName, lastName] = title.split(" ")
 
-  const userEditData: Required<UserEditData> = {
+  const userEditData: UserEditData = {
     uid: id,
-    email: metadata.email,
     firstName,
     lastName,
     role: subtitle.toLowerCase() as UserEditData["role"],
-    dbsUpdate: metadata.dbsUpdate!,
-    isTaxiDriver: metadata.isTaxiDriver!,
-    badgeNumber: metadata.badgeNumber!,
-    badgeExpirationTimestamp: metadata.badgeExpirationTimestamp!,
-    badgeAuthority: metadata.badgeAuthority!,
-    isPSVDriver: metadata.isPSVDriver!,
-    drivingLicenceNumber: metadata.drivingLicenceNumber!
+    ...metadata
   }
 
   return userEditData

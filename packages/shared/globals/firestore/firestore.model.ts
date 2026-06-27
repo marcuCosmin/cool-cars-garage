@@ -34,17 +34,22 @@ export type DriverData = DriverDVLAData & {
   isPSVDriver: boolean
 }
 
-type AdminProps = {
+type InvitableUserProps = {
+  invitationPending?: true
+}
+
+type AdminProps = InvitableUserProps & {
   role: "admin"
 }
 
-type ManagerProps = {
+type ManagerProps = InvitableUserProps & {
   role: "manager"
 }
 
-type DriverProps = DriverData & {
-  role: "driver"
-}
+type DriverProps = DriverData &
+  InvitableUserProps & {
+    role: "driver"
+  }
 
 type MechanicProps = {
   role: "mechanic"
@@ -54,19 +59,32 @@ type UserBaseProps = {
   firstName: string
   lastName: string
   creationTimestamp: number
-  invitationPending?: true
 }
 
 export type UserDoc = UserBaseProps &
   (DriverProps | ManagerProps | AdminProps | MechanicProps)
 
-export type User = UserDoc & {
+type UserAccountProps = {
   uid: string
   email: string
   isActive: boolean
 }
 
-export type InvitationDoc = Pick<User, "email" | "role" | "uid"> & {
+export type AdminUser = UserBaseProps & AdminProps & UserAccountProps
+
+export type ManagerUser = UserBaseProps & ManagerProps & UserAccountProps
+
+export type DriverUser = UserBaseProps & DriverProps & UserAccountProps
+
+export type MechanicUser = UserBaseProps &
+  MechanicProps &
+  Omit<UserAccountProps, "email">
+
+export type AuthUser = AdminUser | ManagerUser | DriverUser
+
+export type User = AuthUser | MechanicUser
+
+export type InvitationDoc = Pick<AuthUser, "email" | "role" | "uid"> & {
   creationTimestamp: number
   isActive: boolean
 }

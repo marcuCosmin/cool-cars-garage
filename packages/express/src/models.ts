@@ -3,7 +3,7 @@ import type {
   Response as ExpressResponse
 } from "express"
 
-import type { User } from "@/globals/firestore/firestore.model"
+import type { AuthUser } from "@/globals/firestore/firestore.model"
 
 export type UserMetadata = {
   role: "admin" | "user"
@@ -24,7 +24,7 @@ export type Request<
   ReqQuery = ParsedQueryString | undefined,
   Locals extends Record<string, unknown> = Record<string, unknown>
 > = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
-  authorizedUser?: User
+  authorizedUser?: AuthUser
 }
 
 type DefaultResBody = Record<string, unknown>

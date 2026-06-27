@@ -3,10 +3,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getFirestoreDoc } from "@/firebase/firebase.utils"
 import type { User as FirebaseUser } from "firebase/auth"
 
-import type { User } from "@/globals/firestore/firestore.model"
+import type { AuthUser } from "@/globals/firestore/firestore.model"
 
 type UserState = Pick<
-  User,
+  AuthUser,
   "uid" | "email" | "firstName" | "lastName" | "role"
 > & {
   isLoading: boolean

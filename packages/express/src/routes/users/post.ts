@@ -7,6 +7,10 @@ import {
   type UserCreateData
 } from "@/globals/forms/forms.const"
 import type { CreateUserResponse } from "@/globals/requests/requests.model"
+import type {
+  AuthUser,
+  MechanicUser
+} from "@/globals/firestore/firestore.model"
 
 import type { Request, Response } from "@/models"
 
@@ -16,10 +20,11 @@ export const handleUserPostRequest = async (
   req: Request<undefined, CreateUserResponse, Partial<UserCreateData>>,
   res: Response<CreateUserResponse>
 ) => {
-  const { errors, filteredData: userPayloadData } = getFormValidationResult({
-    schema: userCreateFields,
-    data: req.body
-  })
+  const { errors, filteredData: userPayloadData } =
+    await getFormValidationResult({
+      schema: userCreateFields,
+      data: req.body
+    })
 
   if (errors) {
     res.status(400).json({
@@ -31,15 +36,18 @@ export const handleUserPostRequest = async (
   }
 
   const { email, ...remainingUserPayloadData } = userPayloadData
+  const { role } = remainingUserPayloadData
 
-  const emailIsUsed = await isEmailUsed(email)
+  if (role !== "mechanic") {
+    const emailIsUsed = await isEmailUsed(email as string)
 
-  if (emailIsUsed) {
-    res.status(400).json({
-      error: "The provided email is already in use"
-    })
+    if (emailIsUsed) {
+      res.status(400).json({
+        error: "The provided email is already in use"
+      })
 
-    return
+      return
+    }
   }
 
   const userDocData = await getUserDocData(remainingUserPayloadData)
@@ -49,20 +57,28 @@ export const handleUserPostRequest = async (
 
   const uid = createdUserRef.id
 
-  const { role } = userDocData
+  if (role !== "mechanic") {
+    await inviteUser({
+      email: email as string,
+      role,
+      uid
+    })
+  }
 
-  await inviteUser({
-    email,
-    role,
-    uid
-  })
+  if (role === "mechanic") {
+    res.status(200).json({
+      user: { ...userDocData, isActive: true, uid } as MechanicUser
+    })
+
+    return
+  }
 
   res.status(200).json({
     user: {
       ...userDocData,
       isActive: true,
-      email,
-      uid
-    }
+      uid,
+      email: email as string
+    } as AuthUser
   })
 }

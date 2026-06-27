@@ -1,3 +1,5 @@
+import { getFirestoreDocs } from "@/backend/firebase/utils"
+
 import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
 
 type GetFormDataProps<T extends FormData> = {
@@ -18,7 +20,7 @@ const formDataTypes = {
 
 type Errors<T extends FormData> = { [key in keyof T]: string }
 
-export const getFormValidationResult = <T extends FormData>({
+export const getFormValidationResult = async <T extends FormData>({
   schema,
   data
 }: GetFormDataProps<T>) => {
@@ -26,6 +28,8 @@ export const getFormValidationResult = <T extends FormData>({
   const filteredData: T = {} as T
 
   const schemaKeys = Object.keys(schema) as (keyof T)[]
+
+  const dynamicValidations: Promise<void>[] = []
 
   schemaKeys.forEach(key => {
     const fieldSchema = schema[key]
@@ -61,15 +65,31 @@ export const getFormValidationResult = <T extends FormData>({
     if (fieldSchema.type === "select") {
       const { options } = fieldSchema
 
-      if (Array.isArray(options) && !options.some(option => option === value)) {
-        errors[key] = `Invalid option selected for field: ${String(key)}`
+      if (Array.isArray(options)) {
+        if (!options.some(option => option === value)) {
+          errors[key] = `Invalid option selected for field: ${String(key)}`
+          return
+        }
       } else {
-        // TODO: handle request
+        const promise = getFirestoreDocs({
+          collection: options.collectionId,
+          queries: [...(options.filters ?? []), ["__name__", "==", value]]
+        }).then(([doc]) => {
+          if (doc) {
+            return
+          }
+
+          errors[key] = `Invalid option selected for field: ${String(key)}`
+        })
+
+        dynamicValidations.push(promise)
       }
     }
 
     filteredData[key] = value as T[keyof T]
   })
+
+  await Promise.all(dynamicValidations)
 
   if (Object.keys(errors).length) {
     return { errors, filteredData: null }

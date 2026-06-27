@@ -46,6 +46,7 @@ export const ResolveDefectModal = ({
       accept: "image/jpeg,image/png,image/webp,application/pdf"
     },
     resolutionUserId: {
+      label: "Resolution mechanic",
       options: {
         getLabel: ({ firstName, lastName }) => `${firstName} ${lastName}`,
         getValue: ({ id }) => id
