@@ -81,7 +81,8 @@ export const ResolveDefectModal = ({
           ...item,
           status: "resolved",
           resolutionNotes: formData.resolutionNotes,
-          resolutionTimestamp: result.resolutionTimestamp
+          resolutionTimestamp: result.resolutionTimestamp,
+          resolutionUser: result.resolutionUser
         }
 
         if (formData.resolutionFilePath) {

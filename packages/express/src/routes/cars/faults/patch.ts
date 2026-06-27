@@ -1,4 +1,3 @@
-
 import { firestore, storage } from "@/backend/firebase/config"
 import { getFirestoreDoc, getFirestoreDocs } from "@/backend/firebase/utils"
 import { getCurrentTimestamp } from "@/backend/utils/get-current-timestamp"
@@ -37,7 +36,7 @@ export const handleFaultResolve = async (
 ) => {
   const { faultId } = req.params
 
-  const { errors, filteredData } = await getFormValidationResult({
+  const { errors, filteredData, artifacts } = await getFormValidationResult({
     schema: resolveDefectFields,
     data: req.body
   })
@@ -48,6 +47,8 @@ export const handleFaultResolve = async (
   }
 
   const { resolutionUserId, resolutionNotes, resolutionFilePath } = filteredData
+
+  const { firstName, lastName } = artifacts.resolutionUserId
 
   const fileExistsPromise = resolutionFilePath
     ? storage.bucket().file(resolutionFilePath).exists()
@@ -113,6 +114,7 @@ export const handleFaultResolve = async (
 
   res.status(200).json({
     resolutionTimestamp,
+    resolutionUser: { firstName, lastName },
     message: "Fault marked as resolved"
   })
 }

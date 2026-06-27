@@ -1,5 +1,6 @@
 import {
   doc,
+  documentId,
   collection,
   getDoc,
   getDocs,
@@ -10,6 +11,7 @@ import {
   query,
   where,
   updateDoc,
+  type FieldPath,
   type QueryConstraint,
   type Query,
   type CollectionReference,
@@ -33,9 +35,13 @@ import type { SignInFormData } from "@/globals/forms/forms.const"
 import type {
   CollectionsWithCreationTimestamp,
   DocWithID,
+  FaultDoc,
   FirestoreCollectionsMap,
   FirestoreCollectionsNames,
-  FullCheck
+  FullCheck,
+  FullDefect,
+  IncidentDoc,
+  User
 } from "@/globals/firestore/firestore.model"
 import type {
   SearchPayloads,
@@ -77,10 +83,12 @@ export const getFirestoreDoc = async <T extends FirestoreCollectionsNames>({
   }
 }
 
-type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> =
-  SearchPayload<T> & {
-    lastRefValue?: any
-  }
+type GetFirestoreDocsProps<T extends FirestoreCollectionsNames> = SearchPayload<
+  T,
+  FieldPath
+> & {
+  lastRefValue?: any
+}
 
 export function getFirestoreDocs<T extends FirestoreCollectionsNames>(
   props: GetFirestoreDocsProps<T>
@@ -242,6 +250,45 @@ export const getFirestoreCollectionChunks = async <
   return data
 }
 
+const getDefectsUsersIds = (
+  defects: DocWithID<FaultDoc>[] | DocWithID<IncidentDoc>[]
+) => {
+  if (!defects.length) {
+    return []
+  }
+
+  const resolvedDefects = defects.filter(
+    ({ resolutionUserId }) => !!resolutionUserId
+  )
+  const usersIds = resolvedDefects.map(
+    ({ resolutionUserId }) => resolutionUserId as string
+  )
+
+  return usersIds
+}
+
+type GetFullDefectsProps<DefectDoc extends FaultDoc | IncidentDoc> = {
+  defects: DocWithID<DefectDoc>[]
+  usersMap: Record<string, Pick<User, "firstName" | "lastName">>
+}
+const getFullDefects = <DefectDoc extends FaultDoc | IncidentDoc>({
+  defects,
+  usersMap
+}: GetFullDefectsProps<DefectDoc>): DocWithID<FullDefect<DefectDoc>>[] =>
+  defects.map(({ resolutionUserId, ...defect }) => {
+    const fullDefect: DocWithID<FullDefect<DefectDoc>> = { ...defect }
+
+    const resolutionUser = resolutionUserId && usersMap[resolutionUserId]
+
+    if (resolutionUser) {
+      const { firstName, lastName } = resolutionUser
+
+      fullDefect.resolutionUser = { firstName, lastName }
+    }
+
+    return fullDefect
+  })
+
 export const getFullCheck = async (
   checkId: string
 ): Promise<FullCheck | null> => {
@@ -256,30 +303,64 @@ export const getFullCheck = async (
 
   const { driverId, ...check } = checkData
 
-  const user = await getFirestoreDoc({
+  const faultsPromise = check.faultsCount
+    ? getFirestoreDocs({
+        collectionId: "faults",
+        filters: [["checkId", "==", checkId]]
+      })
+    : Promise.resolve([])
+
+  const incidentsPromise = check.incidentsCount
+    ? getFirestoreDocs({
+        collectionId: "incidents",
+        filters: [["checkId", "==", checkId]]
+      })
+    : Promise.resolve([])
+
+  const [faults, incidents] = await Promise.all([
+    faultsPromise,
+    incidentsPromise
+  ])
+
+  const faultsUsersIds = getDefectsUsersIds(faults)
+  const incidentsUsersIds = getDefectsUsersIds(incidents)
+
+  const usersIdsSet = new Set([
+    driverId,
+    ...faultsUsersIds,
+    ...incidentsUsersIds
+  ])
+
+  const users = await getFirestoreDocs({
     collectionId: "users",
-    docId: driverId
+    filters: [[documentId(), "in", [...usersIdsSet]]]
   })
 
-  const faults = await getFirestoreDocs({
-    collectionId: "faults",
-    filters: [["checkId", "==", checkId]]
-  })
+  const usersMap = users.reduce(
+    (acc, user) => {
+      const { id, firstName, lastName } = user
 
-  const incidents = await getFirestoreDocs({
-    collectionId: "incidents",
-    filters: [["checkId", "==", checkId]]
-  })
+      acc[id] = {
+        firstName,
+        lastName
+      }
+
+      return acc
+    },
+    {} as Record<string, Pick<User, "firstName" | "lastName">>
+  )
+
+  const driver = usersMap[driverId]
 
   return {
     ...check,
     driver: {
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
+      firstName: driver?.firstName || "",
+      lastName: driver?.lastName || "",
       id: driverId
     },
     id: checkId,
-    faults,
-    incidents
+    faults: getFullDefects({ defects: faults, usersMap }),
+    incidents: getFullDefects({ defects: incidents, usersMap })
   }
 }

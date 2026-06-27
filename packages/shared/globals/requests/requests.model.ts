@@ -17,30 +17,43 @@ export type SearchQueriesOperators =
   | "array-contains-any"
 
 export type SearchFilter<
-  Doc extends FirestoreCollectionsMap[FirestoreCollectionsNames]
-> = {
-  [DocProp in keyof Doc & string]:
-    | [DocProp, "==" | "!=" | "<" | "<=" | ">" | ">=", Doc[DocProp]]
-    | [DocProp, "in" | "not-in", Doc[DocProp][]]
-    | [
-        DocProp,
-        "array-contains",
-        Doc[DocProp] extends readonly (infer PropItemValue)[]
-          ? PropItemValue
-          : never
-      ]
-    | [
-        DocProp,
-        "array-contains-any",
-        Doc[DocProp] extends readonly (infer PropItemValue)[]
-          ? PropItemValue[]
-          : never
-      ]
-}[keyof Doc & string]
+  Doc extends FirestoreCollectionsMap[FirestoreCollectionsNames],
+  // Lets a caller filter by document id via Firestore's `documentId()` sentinel,
+  // whose type (`FieldPath`) is client-only and can't be imported here. Defaults
+  // to `never`, so these variants stay uninhabited for every other consumer.
+  DocumentIdFieldPath = never
+> =
+  | {
+      [DocProp in keyof Doc & string]:
+        | [DocProp, "==" | "!=" | "<" | "<=" | ">" | ">=", Doc[DocProp]]
+        | [DocProp, "in" | "not-in", Doc[DocProp][]]
+        | [
+            DocProp,
+            "array-contains",
+            Doc[DocProp] extends readonly (infer PropItemValue)[]
+              ? PropItemValue
+              : never
+          ]
+        | [
+            DocProp,
+            "array-contains-any",
+            Doc[DocProp] extends readonly (infer PropItemValue)[]
+              ? PropItemValue[]
+              : never
+          ]
+    }[keyof Doc & string]
+  | [DocumentIdFieldPath, "==" | "!=", string]
+  | [DocumentIdFieldPath, "in" | "not-in", string[]]
 
-export type SearchPayload<CollectionId extends FirestoreCollectionsNames> = {
+export type SearchPayload<
+  CollectionId extends FirestoreCollectionsNames,
+  DocumentIdFieldPath = never
+> = {
   collectionId: CollectionId
-  filters?: SearchFilter<FirestoreCollectionsMap[CollectionId]>[]
+  filters?: SearchFilter<
+    FirestoreCollectionsMap[CollectionId],
+    DocumentIdFieldPath
+  >[]
   cap?: number
   order?: {
     field: keyof FirestoreCollectionsMap[CollectionId] & string
@@ -80,6 +93,7 @@ export type ResolveIncidentParams = {
 
 export type ResolveDefectResponse = {
   resolutionTimestamp: number
+  resolutionUser: Pick<User, "firstName" | "lastName">
   message: string
 }
 

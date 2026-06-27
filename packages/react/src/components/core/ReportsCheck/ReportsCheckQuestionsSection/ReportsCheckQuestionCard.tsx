@@ -16,14 +16,15 @@ import type { ItemMetadata } from "@/components/core/DataView/DataView.model"
 import type {
   CheckAnswer,
   DocWithID,
-  FaultDoc
+  FaultDoc,
+  FullDefect
 } from "@/globals/firestore/firestore.model"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
 
 type ReportsCheckQuestionCardProps = {
   answer: CheckAnswer
-  fault: DocWithID<FaultDoc> | undefined
+  fault: DocWithID<FullDefect<FaultDoc>> | undefined
   checkId: string
 }
 
@@ -36,8 +37,19 @@ export const ReportsCheckQuestionCard = ({
 
   const { label, value } = answer
 
-  // TODO: this is poorly typed
-  const metadataConfig: Record<string, ItemMetadata> = {
+  const { resolutionUser } = fault || {}
+
+  const metadataConfig: Record<
+    keyof Pick<
+      FullDefect<FaultDoc>,
+      | "details"
+      | "resolutionTimestamp"
+      | "resolutionUser"
+      | "resolutionNotes"
+      | "resolutionFileUrl"
+    >,
+    ItemMetadata
+  > = {
     details: {
       type: "text",
       label: "Driver notes",
@@ -47,6 +59,13 @@ export const ReportsCheckQuestionCard = ({
       type: "date",
       label: "Resolution time",
       value: fault?.resolutionTimestamp
+    },
+    resolutionUser: {
+      type: "text",
+      label: "Resolution mechanic",
+      value:
+        resolutionUser &&
+        `${resolutionUser.firstName} ${resolutionUser.lastName}`
     },
     resolutionNotes: {
       type: "text",

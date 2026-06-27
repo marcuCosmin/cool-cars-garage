@@ -1,11 +1,11 @@
 import { getFirestoreDocs } from "@/backend/firebase/utils"
 
 import type { FormData, FormFieldsSchema } from "@/globals/forms/forms.models"
-
-type GetFormDataProps<T extends FormData> = {
-  schema: FormFieldsSchema<T>
-  data: Partial<T>
-}
+import type {
+  DocWithID,
+  FirestoreCollectionsMap,
+  FirestoreCollectionsNames
+} from "@/globals/firestore/firestore.model"
 
 const formDataTypes = {
   text: "string",
@@ -18,16 +18,42 @@ const formDataTypes = {
   select: "string"
 }
 
-type Errors<T extends FormData> = { [key in keyof T]: string }
+type FieldArtifact<FieldConfig> = FieldConfig extends {
+  type: "select"
+  options: { collectionId: infer Collection extends FirestoreCollectionsNames }
+}
+  ? DocWithID<FirestoreCollectionsMap[Collection]>
+  : never
 
-export const getFormValidationResult = async <T extends FormData>({
+type FormValidationArtifacts<
+  Data extends FormData,
+  Schema extends FormFieldsSchema<Data>
+> = {
+  [Key in keyof Schema]: FieldArtifact<Schema[Key]>
+}
+
+type Errors<Data extends FormData> = { [key in keyof Data]: string }
+
+type GetFormDataProps<
+  Data extends FormData,
+  Schema extends FormFieldsSchema<Data>
+> = {
+  schema: Schema
+  data: Partial<Data>
+}
+
+export const getFormValidationResult = async <
+  Data extends FormData,
+  Schema extends FormFieldsSchema<Data>
+>({
   schema,
   data
-}: GetFormDataProps<T>) => {
-  const errors: Errors<T> = {} as Errors<T>
-  const filteredData: T = {} as T
+}: GetFormDataProps<Data, Schema>) => {
+  const errors: Errors<Data> = {} as Errors<Data>
+  const filteredData: Data = {} as Data
+  const artifacts = {} as FormValidationArtifacts<Data, Schema>
 
-  const schemaKeys = Object.keys(schema) as (keyof T)[]
+  const schemaKeys = Object.keys(schema) as (keyof Data)[]
 
   const dynamicValidations: Promise<void>[] = []
 
@@ -75,25 +101,30 @@ export const getFormValidationResult = async <T extends FormData>({
           collection: options.collectionId,
           queries: [...(options.filters ?? []), ["__name__", "==", value]]
         }).then(([doc]) => {
-          if (doc) {
+          if (!doc) {
+            errors[key] = `Invalid option selected for field: ${String(key)}`
             return
           }
 
-          errors[key] = `Invalid option selected for field: ${String(key)}`
+          artifacts[key] = doc as FieldArtifact<Schema[keyof Data]>
         })
 
         dynamicValidations.push(promise)
       }
     }
 
-    filteredData[key] = value as T[keyof T]
+    filteredData[key] = value as Data[keyof Data]
   })
 
   await Promise.all(dynamicValidations)
 
   if (Object.keys(errors).length) {
-    return { errors, filteredData: null }
+    return { errors, filteredData: null, artifacts: null }
   }
 
-  return { errors: null, filteredData }
+  return {
+    errors: null,
+    filteredData,
+    artifacts
+  }
 }

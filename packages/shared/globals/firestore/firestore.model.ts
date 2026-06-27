@@ -120,7 +120,14 @@ export type CheckDoc = {
 
 type ReportsIssueStatus = "pending" | "resolved"
 
-export type FaultDoc = {
+export type DefectResolutionProps = {
+  resolutionTimestamp?: number
+  resolutionUserId?: string
+  resolutionNotes?: string
+  resolutionFileUrl?: string
+}
+
+export type FaultDoc = DefectResolutionProps & {
   question: string
   details: string
   driverId: string
@@ -128,22 +135,14 @@ export type FaultDoc = {
   checkId: string
   creationTimestamp: number
   carId: string
-  resolutionTimestamp?: number
-  resolutionUserId?: string
-  resolutionNotes?: string
-  resolutionFileUrl?: string
 }
 
-export type IncidentDoc = {
+export type IncidentDoc = DefectResolutionProps & {
   description: string
   driverId: string
   creationTimestamp: number
   status: ReportsIssueStatus
   checkId: string
-  resolutionTimestamp?: number
-  resolutionUserId?: string
-  resolutionNotes?: string
-  resolutionFileUrl?: string
 }
 
 export type CarCheckpoints = {
@@ -196,10 +195,17 @@ export type ReportsQuestionsDoc = {
 
 export type ReportsQuestionsSection = keyof ReportsQuestionsDoc
 
+export type FullDefect<DefectDoc extends FaultDoc | IncidentDoc> = Omit<
+  DefectDoc,
+  "resolutionUserId"
+> & {
+  resolutionUser?: Pick<User, "firstName" | "lastName">
+}
+
 export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
   driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
-  faults: DocWithID<FaultDoc>[]
-  incidents: DocWithID<IncidentDoc>[]
+  faults: DocWithID<FullDefect<FaultDoc>>[]
+  incidents: DocWithID<FullDefect<IncidentDoc>>[]
 }
 
 type JobSkipTimestamp =

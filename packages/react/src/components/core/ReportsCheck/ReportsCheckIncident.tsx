@@ -2,6 +2,7 @@ import { PatchCheck, PatchExclamation } from "react-bootstrap-icons"
 
 import type {
   DocWithID,
+  FullDefect,
   IncidentDoc
 } from "@/globals/firestore/firestore.model"
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
@@ -25,7 +26,7 @@ const tooltipContainerClassName = "flex items-center shrink-0 mt-0.5"
 const descriptionContainerClassName = "flex flex-col gap-1 min-w-0"
 const dateClassName = "text-sm font-normal opacity-75"
 
-type ReportsCheckIncidentProps = DocWithID<IncidentDoc> & {
+type ReportsCheckIncidentProps = DocWithID<FullDefect<IncidentDoc>> & {
   checkId: string
 }
 
@@ -34,6 +35,7 @@ export const ReportsCheckIncident = ({
   creationTimestamp,
   status,
   resolutionTimestamp,
+  resolutionUser,
   resolutionNotes,
   resolutionFileUrl,
   description,
@@ -85,11 +87,26 @@ export const ReportsCheckIncident = ({
     )
   }
 
-  const resolutionMetadataConfig: Record<string, ItemMetadata> = {
+  const resolutionMetadataConfig: Record<
+    keyof Pick<
+      FullDefect<IncidentDoc>,
+      | "resolutionTimestamp"
+      | "resolutionUser"
+      | "resolutionNotes"
+      | "resolutionFileUrl"
+    >,
+    ItemMetadata
+  > = {
     resolutionTimestamp: {
       type: "date",
       label: "Resolved at",
       value: resolutionTimestamp
+    },
+    resolutionUser: {
+      type: "text",
+      label: "Resolved by",
+      value:
+        resolutionUser && `${resolutionUser.firstName} ${resolutionUser.lastName}`
     },
     resolutionNotes: {
       type: "text",
