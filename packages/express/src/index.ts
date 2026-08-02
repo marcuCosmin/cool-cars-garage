@@ -5,6 +5,7 @@ import { mailRouter } from "@/routes/mail"
 import { carsRouter } from "@/routes/cars"
 import { filesRouter } from "@/routes/files"
 import { wappWebhook } from "@/routes/wapp-webhook"
+import { exportsRouter } from "@/routes/exports/exports"
 
 import { authorizationMiddleware } from "@/middlewares/authorization-middleware"
 import { errorMiddleware } from "@/middlewares/error-middleware"
@@ -18,6 +19,7 @@ app.use(authorizationMiddleware)
 app.use("/users", usersRouter)
 app.use("/cars", carsRouter)
 app.use("/files", filesRouter)
+app.use("/exports", exportsRouter)
 app.use("/mail", mailRouter)
 app.use("/wapp-webhook", wappWebhook)
 

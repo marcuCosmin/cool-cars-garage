@@ -10,7 +10,9 @@ export const downloadBlob = ({ blob, fileName }: DownloadBlobProps) => {
   linkElement.href = url
   linkElement.download = fileName
 
+  document.body.appendChild(linkElement)
   linkElement.click()
+  linkElement.remove()
 
-  URL.revokeObjectURL(url)
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }

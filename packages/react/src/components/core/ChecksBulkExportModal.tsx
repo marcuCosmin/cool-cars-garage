@@ -1,4 +1,4 @@
-import { exportChecks } from "@/api/api.utils"
+import { exportResource } from "@/api/api.utils"
 
 import { Form } from "@/components/basic/Form/Form"
 
@@ -20,12 +20,20 @@ const formFields = extendFormFields({
 })
 
 export const ChecksBulkExportModal = () => {
-  const action = async (data: ChecksBulkExportData) => {
-    const blob = await exportChecks({ ...data, type: "bulk" })
+  const action = async ({ startTimestamp, endTimestamp }: ChecksBulkExportData) => {
+    const blob = await exportResource({
+      resourceId: "checks",
+      filters: [
+        ["creationTimestamp", ">=", startTimestamp],
+        ["creationTimestamp", "<=", endTimestamp]
+      ]
+    })
+
+    const extension = blob.type === "application/zip" ? "zip" : "pdf"
 
     downloadBlob({
       blob,
-      fileName: `Vehicle Checks ${parseTimestampForDisplay(data.startTimestamp)} - ${parseTimestampForDisplay(data.endTimestamp)}.pdf`
+      fileName: `Vehicle Checks ${parseTimestampForDisplay(startTimestamp)} - ${parseTimestampForDisplay(endTimestamp)}.${extension}`
     })
   }
 

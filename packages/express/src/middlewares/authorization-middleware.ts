@@ -29,7 +29,8 @@ const rolePermissions: Record<"driver" | "manager", RoutePermission[]> = {
     { path: "/cars/checks/exports", methods: ["GET"] },
     { path: "/files", methods: ["POST", "GET"] },
     { path: "/cars/faults/:faultId", methods: ["PATCH"] },
-    { path: "/cars/incidents/:incidentId", methods: ["PATCH"] }
+    { path: "/cars/incidents/:incidentId", methods: ["PATCH"] },
+    { path: "/exports/:resourceId", methods: ["POST"] }
   ]
 }
 

@@ -8,7 +8,7 @@ import type { Request, Response } from "@/models"
 export type FileUploadRequest = Request<
   // The Request is not expecting any params, but Multer's type expects params to be defined
   Record<string, string>,
-  undefined,
+  FileUploadReturnType,
   undefined,
   Partial<FileUploadQuery>
 >

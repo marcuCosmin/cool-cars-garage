@@ -8,17 +8,17 @@ import {
 } from "react-bootstrap-icons"
 
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
+import { formatDuration } from "@/globals/utils/formatDuration"
 import type { FullCheck } from "@/globals/firestore/firestore.model"
 
-// import { exportChecks } from "@/api/api.utils"
+import { exportResource } from "@/api/api.utils"
 
-// import { useAppMutation } from "@/hooks/useAppMutation"
+import { useAppMutation } from "@/hooks/useAppMutation"
 
-// import { Loader } from "@/components/basic/Loader"
-
-// import { downloadBlob } from "@/utils/downloadBlob"
-import { formatDuration } from "@/utils/formatDuration"
 import { mergeClassNames } from "@/utils/mergeClassNames"
+import { downloadBlob } from "@/utils/downloadBlob"
+
+import { Loader } from "@/components/basic/Loader"
 
 import { ReportsCheckQuestionsSection } from "./ReportsCheckQuestionsSection/ReportsCheckQuestionsSection"
 import { ReportsCheckIncident } from "./ReportsCheckIncident"
@@ -104,20 +104,25 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     }
   ]
 
-  // const onExportCheck = async () => {
-  //   const blob = await exportChecks({ checkId: id, type: "individual" })
+  const onExportCheck = async () => {
+    const blob = await exportResource({
+      resourceId: "checks",
+      filters: [["__name__", "==", check.id]]
+    })
 
-  //   downloadBlob({
-  //     blob,
-  //     fileName: `Check Report - ${carId} - ${displayedDate}.pdf`
-  //   })
-  // }
+    const extension = blob.type === "application/zip" ? "zip" : "pdf"
 
-  // const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({
-  //   mutationFn: onExportCheck
-  // })
+    downloadBlob({
+      blob,
+      fileName: `Check Report - ${carId} - ${displayedDate}.${extension}`
+    })
+  }
 
-  // const onExportClick = isExporting ? undefined : handleCheckExport
+  const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({
+    mutationFn: onExportCheck
+  })
+
+  const onExportClick = isExporting ? undefined : handleCheckExport
 
   return (
     <div className="flex flex-col gap-10 items-center w-full pt-10">
@@ -160,7 +165,7 @@ export const ReportsCheck = ({ check }: CheckProps) => {
           )}
         </ul>
 
-        {/* <button
+        <button
           type="button"
           className="flex items-center justify-center h-11 w-38 text-lg mt-3"
           onClick={onExportClick}
@@ -170,7 +175,7 @@ export const ReportsCheck = ({ check }: CheckProps) => {
           ) : (
             "Export as PDF"
           )}
-        </button> */}
+        </button>
       </div>
 
       <div

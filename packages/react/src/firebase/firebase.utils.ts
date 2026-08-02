@@ -41,7 +41,7 @@ import type {
   FullCheck,
   FullDefect,
   IncidentDoc,
-  User
+  SimplifiedUser
 } from "@/globals/firestore/firestore.model"
 import type {
   SearchPayloads,
@@ -257,33 +257,31 @@ const getDefectsUsersIds = (
     return []
   }
 
-  const resolvedDefects = defects.filter(
-    ({ resolutionUserId }) => !!resolutionUserId
+  return defects.flatMap(({ driverId, resolutionUserId }) =>
+    resolutionUserId ? [driverId, resolutionUserId] : [driverId]
   )
-  const usersIds = resolvedDefects.map(
-    ({ resolutionUserId }) => resolutionUserId as string
-  )
-
-  return usersIds
 }
 
 type GetFullDefectsProps<DefectDoc extends FaultDoc | IncidentDoc> = {
   defects: DocWithID<DefectDoc>[]
-  usersMap: Record<string, Pick<User, "firstName" | "lastName">>
+  usersMap: Record<string, Omit<SimplifiedUser, "id">>
 }
 const getFullDefects = <DefectDoc extends FaultDoc | IncidentDoc>({
   defects,
   usersMap
 }: GetFullDefectsProps<DefectDoc>): DocWithID<FullDefect<DefectDoc>>[] =>
-  defects.map(({ resolutionUserId, ...defect }) => {
-    const fullDefect: DocWithID<FullDefect<DefectDoc>> = { ...defect }
+  defects.map(({ resolutionUserId, driverId, ...defect }) => {
+    const fullDefect: DocWithID<FullDefect<DefectDoc>> = {
+      ...defect,
+      driver: { id: driverId, ...usersMap[driverId] }
+    }
 
-    const resolutionUser = resolutionUserId && usersMap[resolutionUserId]
+    const resolutionUser = resolutionUserId
+      ? usersMap[resolutionUserId]
+      : undefined
 
-    if (resolutionUser) {
-      const { firstName, lastName } = resolutionUser
-
-      fullDefect.resolutionUser = { firstName, lastName }
+    if (resolutionUserId && resolutionUser) {
+      fullDefect.resolutionUser = { id: resolutionUserId, ...resolutionUser }
     }
 
     return fullDefect
@@ -347,7 +345,7 @@ export const getFullCheck = async (
 
       return acc
     },
-    {} as Record<string, Pick<User, "firstName" | "lastName">>
+    {} as Record<string, Omit<SimplifiedUser, "id">>
   )
 
   const driver = usersMap[driverId]

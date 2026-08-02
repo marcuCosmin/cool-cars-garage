@@ -1,6 +1,6 @@
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
-import { formatDuration } from "@/utils/formatDuration"
+import { formatDuration } from "@/globals/utils/formatDuration"
 
 import type { PrimitiveMetadata } from "../../DataView.model"
 

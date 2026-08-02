@@ -15,7 +15,9 @@ import type {
   ReiniviteUserPayload,
   FileUploadQuery,
   ResolveFaultParams,
-  ResolveIncidentParams
+  ResolveIncidentParams,
+  ExportableResources,
+  ExportPayload
 } from "@/globals/requests/requests.model"
 
 export const getAllUsers = async () => {
@@ -146,5 +148,19 @@ export const reinviteUser = async (payload: ReiniviteUserPayload) =>
   await executeApiRequest({
     path: "/users/reinvite",
     method: "POST",
+    payload
+  })
+
+type ExportResourceProps<Resource extends ExportableResources> = {
+  resourceId: Resource
+} & ExportPayload<ExportableResources>
+export const exportResource = <Resource extends ExportableResources>({
+  resourceId,
+  ...payload
+}: ExportResourceProps<Resource>) =>
+  executeApiRequest({
+    path: `/exports/${resourceId}`,
+    method: "POST",
+    responseType: "blob",
     payload
   })

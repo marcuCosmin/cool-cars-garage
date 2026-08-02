@@ -15,7 +15,9 @@ import type {
   RegisterUserResponse,
   ResolveDefectResponse,
   FileUploadResponse,
-  FileEntityType
+  FileEntityType,
+  ExportableResources,
+  ExportPayload
 } from "@/globals/requests/requests.model"
 import type { fileUploadFieldName } from "@/globals/requests/requests.const"
 import type { DistributiveOmit } from "@/globals/model"
@@ -110,6 +112,13 @@ type ApiConfig =
   | {
       path: `/files?filePath=${string}`
       method: "GET"
+      responseType: "blob"
+      response: Blob
+    }
+  | {
+      path: `/exports/${ExportableResources}`
+      method: "POST"
+      payload: ExportPayload<ExportableResources>
       responseType: "blob"
       response: Blob
     }

@@ -4,6 +4,7 @@ import type {
   CheckAnswer,
   DocWithID,
   FaultDoc,
+  FullDefect,
   ReportsQuestionsSection
 } from "@/globals/firestore/firestore.model"
 
@@ -12,7 +13,7 @@ import { ReportsCheckQuestionCard } from "./ReportsCheckQuestionCard"
 type ReportsCheckQuestionsSectionProps = {
   section: ReportsQuestionsSection
   answers: CheckAnswer[]
-  faults: DocWithID<FaultDoc>[]
+  faults: DocWithID<FullDefect<FaultDoc>>[]
   checkId: string
 }
 

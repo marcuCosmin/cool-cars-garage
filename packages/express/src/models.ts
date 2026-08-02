@@ -17,17 +17,24 @@ type ParsedQueryString = {
     | (string | ParsedQueryString)[]
 }
 
+type DefaultJSONResponse = Record<string, unknown>
+
+type ResponseBody<ResBody> =
+  | (ResBody extends Record<string, unknown>
+      ? ResBody & { message?: string }
+      : ResBody | { message: string })
+  | { error: string; details?: Record<string, string> }
+
 export type Request<
   Params = Record<string, string> | undefined,
   ResBody = unknown,
   ReqBody = unknown,
   ReqQuery = ParsedQueryString | undefined,
   Locals extends Record<string, unknown> = Record<string, unknown>
-> = ExpressRequest<Params, ResBody, ReqBody, ReqQuery, Locals> & {
+> = ExpressRequest<Params, ResponseBody<ResBody>, ReqBody, ReqQuery, Locals> & {
   authorizedUser?: AuthUser
 }
 
-type DefaultResBody = Record<string, unknown>
-
-export type Response<ResBody extends DefaultResBody = DefaultResBody> =
-  ExpressResponse<ResBody | { error: string; details?: DefaultResBody }>
+export type Response<ResBody = DefaultJSONResponse> = ExpressResponse<
+  ResponseBody<ResBody>
+>

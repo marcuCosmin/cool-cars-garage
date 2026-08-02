@@ -1,11 +1,9 @@
-import { type Request } from "express"
-
 import { getFirestoreDoc } from "@/backend/firebase/utils"
 import { firebaseAuth, firestore } from "@/backend/firebase/config"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 
-import type { Response } from "@/models"
+import type { Request, Response } from "@/models"
 
 import { signUpFormFields, type SignUpData } from "@/globals/forms/forms.const"
 import type { RegisterUserResponse } from "@/globals/requests/requests.model"

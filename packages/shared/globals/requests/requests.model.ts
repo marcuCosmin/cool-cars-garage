@@ -1,4 +1,5 @@
 import type {
+  DefectType,
   FirestoreCollectionsMap,
   FirestoreCollectionsNames,
   User
@@ -18,9 +19,6 @@ export type SearchQueriesOperators =
 
 export type SearchFilter<
   Doc extends FirestoreCollectionsMap[FirestoreCollectionsNames],
-  // Lets a caller filter by document id via Firestore's `documentId()` sentinel,
-  // whose type (`FieldPath`) is client-only and can't be imported here. Defaults
-  // to `never`, so these variants stay uninhabited for every other consumer.
   DocumentIdFieldPath = never
 > =
   | {
@@ -65,10 +63,7 @@ export type SearchPayloads = {
   [CollectionId in FirestoreCollectionsNames]: SearchPayload<CollectionId>
 }[FirestoreCollectionsNames]
 
-export type FileEntityType = Extract<
-  keyof FirestoreCollectionsMap,
-  "faults" | "incidents"
->
+export type FileEntityType = DefectType
 
 export type FileUploadQuery = {
   uploadType: FileEntityType
@@ -125,3 +120,14 @@ export type GetUsersResponse = {
 }
 
 export type UserActiveStateUpdatePayload = Pick<User, "uid" | "isActive">
+
+export type ExportableResources = Extract<FirestoreCollectionsNames, "checks">
+
+export type ExportParams = {
+  resourceId: ExportableResources
+}
+
+export type ExportPayload<Resource extends ExportableResources> = Omit<
+  SearchPayload<Resource, "__name__">,
+  "collectionId"
+>

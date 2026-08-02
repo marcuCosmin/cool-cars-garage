@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import "../../../../../shared/styles/theme.css";
+
+@source "../**/*.ts";
+
+@theme {
+    --color-light-gray: #e5e7eb;
+    --color-gray: #6a7282;
+    --color-dark-gray: #1e2939;
+}
+
+body {
+    @apply text-dark-gray text-sm p-10 font-sans;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    @apply text-primary font-bold;
+}
+
+h1 {
+    @apply text-2xl;
+}
+
+h2 {
+    @apply text-xl mb-3;
+}
+
+.card {
+    @apply border border-light-gray rounded-lg p-4;
+}

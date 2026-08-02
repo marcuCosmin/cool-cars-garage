@@ -195,15 +195,26 @@ export type ReportsQuestionsDoc = {
 
 export type ReportsQuestionsSection = keyof ReportsQuestionsDoc
 
+export type SimplifiedUser = DocWithID<Pick<UserDoc, "firstName" | "lastName">>
+
+export type DefectType = Extract<
+  keyof FirestoreCollectionsMap,
+  "faults" | "incidents"
+>
+
 export type FullDefect<DefectDoc extends FaultDoc | IncidentDoc> = Omit<
   DefectDoc,
-  "resolutionUserId"
+  "driverId" | "resolutionUserId"
 > & {
-  resolutionUser?: Pick<User, "firstName" | "lastName">
+  driver: SimplifiedUser
+  resolutionUser?: SimplifiedUser
 }
 
-export type FullCheck = Omit<DocWithID<CheckDoc>, "driverId"> & {
-  driver: Pick<DocWithID<UserDoc>, "id" | "firstName" | "lastName">
+export type CheckWithDriver = Omit<DocWithID<CheckDoc>, "driverId"> & {
+  driver: SimplifiedUser
+}
+
+export type FullCheck = CheckWithDriver & {
   faults: DocWithID<FullDefect<FaultDoc>>[]
   incidents: DocWithID<FullDefect<IncidentDoc>>[]
 }
