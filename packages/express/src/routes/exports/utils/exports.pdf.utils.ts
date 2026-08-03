@@ -81,11 +81,10 @@ const loadBrowser = async () => {
   }
 
   browser = await launchBrowser({
+    headless: "shell",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
-      "--disable-crash-reporter",
-      "--disable-crashpad",
       "--user-data-dir=/var/www/.chrome-user-data"
     ]
   })
