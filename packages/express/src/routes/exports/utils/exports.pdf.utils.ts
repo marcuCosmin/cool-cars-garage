@@ -80,7 +80,14 @@ const loadBrowser = async () => {
     return browser
   }
 
-  browser = await launchBrowser()
+  browser = await launchBrowser({
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-crash-reporter",
+      "--disable-crashpad"
+    ]
+  })
 
   return browser
 }
@@ -88,19 +95,23 @@ const loadBrowser = async () => {
 const cssPath = path.join(__dirname, "exports.pdf.css")
 const styles = fs.readFileSync(cssPath, "utf-8")
 
-const getExportHTML = (body: RawHtml) => html`
-  <!DOCTYPE html>
-  <html>
+const getExportHTML = (body: RawHtml) =>
+  html` <!DOCTYPE html>
+    <html>
       <head>
-          <meta charset="utf-8" />
-          <style>${raw(styles)}</style>
+        <meta charset="utf-8" />
+        <style>
+          ${raw(styles)}
+        </style>
       </head>
 
       <body>
-          <header class="mb-6 text-center font-semibold">Cool Cars South Coast LTD</header>
-          ${body}
+        <header class="mb-6 text-center font-semibold">
+          Cool Cars South Coast LTD
+        </header>
+        ${body}
       </body>
-  </html>`
+    </html>`
 
 export const generatePDF = async (body: RawHtml) => {
   const browser = await loadBrowser()
