@@ -35,9 +35,11 @@ jobs:
             react:
               - 'packages/react/**'
               - 'packages/shared/globals/**'
-            express:
-              - 'packages/express/**'
-              - 'packages/shared/**'
+              - 'packages/shared/styles/**'
+              express:
+                - 'packages/express/**'
+                - 'packages/shared/**'
+                - 'packages/shared/styles/**'
             jobs:
               - 'packages/jobs/**'
               - 'packages/shared/**'
