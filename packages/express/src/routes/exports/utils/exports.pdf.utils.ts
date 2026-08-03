@@ -85,7 +85,8 @@ const loadBrowser = async () => {
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-crash-reporter",
-      "--disable-crashpad"
+      "--disable-crashpad",
+      "--user-data-dir=/var/www/.chrome-user-data"
     ]
   })
 
