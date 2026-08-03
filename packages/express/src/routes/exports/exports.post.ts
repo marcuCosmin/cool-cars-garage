@@ -8,9 +8,9 @@ import type {
 
 import type { Request, Response } from "@/models"
 
-import { validateExportPayload } from "./utils/exports.utils"
-
 import { getCheckFiles } from "./checks/exports.checks"
+
+import { validateExportPayload } from "./utils/exports.utils"
 
 import type { GetFiles } from "./exports.model"
 
