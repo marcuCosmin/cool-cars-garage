@@ -8,27 +8,12 @@ import type {
 
 import type { Request, Response } from "@/models"
 
-import { getCheckFiles } from "./checks/exports.checks"
+import {
+  isExportableResource,
+  validateExportPayload
+} from "./utils/exports.utils"
 
-import { validateExportPayload } from "./utils/exports.utils"
-
-import type { GetFiles } from "./exports.model"
-
-type ExportsConfig = {
-  [Resource in ExportableResources]: {
-    getFiles: GetFiles<Resource>
-  }
-}
-
-const exportsConfig: ExportsConfig = {
-  checks: {
-    getFiles: getCheckFiles
-  }
-}
-
-const isExportableResource = (
-  resourceId: string
-): resourceId is ExportableResources => resourceId in exportsConfig
+import { exportsConfig } from "./exports.const"
 
 export const handleExport = async (
   req: Request<

@@ -1,9 +1,12 @@
 import path from "path"
 
 import type {
+  ExportableResources,
   ExportParams,
   SearchPayload
 } from "@/globals/requests/requests.model"
+
+import { exportsConfig } from "../exports.const"
 
 export const validateExportPayload = ({
   filters,
@@ -53,3 +56,7 @@ export const getUniqueFilenameGetter = () => {
     return `${filenameBase}-${count}${extension}`
   }
 }
+
+export const isExportableResource = (
+  resourceId: string
+): resourceId is ExportableResources => resourceId in exportsConfig
