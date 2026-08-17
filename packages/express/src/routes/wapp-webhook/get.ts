@@ -9,9 +9,7 @@ export const handleWappWebhookGetRequest = (req: Request, res: Response) => {
     "hub.verify_token": token
   } = req.query
 
-  console.log(`challenge: ${challenge}`)
   if (mode === "subscribe" && token === verifyToken) {
-    console.log(`challenge: ${challenge}`)
     res.status(200).send(challenge)
     return
   }
