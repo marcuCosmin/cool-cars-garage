@@ -15,8 +15,6 @@ import type {
   SimplifiedUser
 } from "@/globals/firestore/firestore.model"
 
-import type { ExportPayload } from "@/globals/requests/requests.model"
-
 import type { GeneratedExportFile } from "../exports.model"
 
 export type CheckFilenameData = Pick<CheckDoc, "carId" | "creationTimestamp">
@@ -69,7 +67,7 @@ const getDefects = async <DefectCollectionId extends DefectType>({
   return defects
 }
 
-const getSimplifiedUsersMap = async (usersIds: string[]) => {
+export const getSimplifiedUsersMap = async (usersIds: string[]) => {
   const uniqueUsersIds = Array.from(new Set(usersIds))
 
   const users = await getFirestoreDocs({
@@ -90,7 +88,7 @@ type GetSimplifiedUserProps = {
   usersMap: Map<string, SimplifiedUser>
   userId: string
 }
-const getSimplifiedUser = ({
+export const getSimplifiedUser = ({
   usersMap,
   userId
 }: GetSimplifiedUserProps): SimplifiedUser =>
@@ -100,7 +98,7 @@ type BuildFullDefectsProps<Defect extends FaultDoc | IncidentDoc> = {
   defects: DocWithID<Defect>[]
   usersMap: Map<string, SimplifiedUser>
 }
-const buildFullDefects = <Defect extends FaultDoc | IncidentDoc>({
+export const buildFullDefects = <Defect extends FaultDoc | IncidentDoc>({
   defects,
   usersMap
 }: BuildFullDefectsProps<Defect>): DocWithID<FullDefect<Defect>>[] =>
@@ -139,40 +137,40 @@ export const buildFullCheck = async (check: DocWithID<CheckDoc>) => {
   return fullCheck
 }
 
-export const getCheckSearchResult = async ({
-  filters,
-  cap,
-  order
-}: ExportPayload<"checks">) => {
-  const checks = await getFirestoreDocs({
-    collection: "checks",
-    queries: filters,
-    limit: cap,
-    orderBy: order
+type GetDefectsByCheckIdsProps<Defect extends FaultDoc | IncidentDoc> = {
+  checkIds: string[]
+  fetchDefects: (
+    filter: ["checkId", "in", string[]]
+  ) => Promise<DocWithID<Defect>[]>
+}
+
+export const getDefectsByCheckIds = async <
+  Defect extends FaultDoc | IncidentDoc
+>({
+  checkIds,
+  fetchDefects
+}: GetDefectsByCheckIdsProps<Defect>): Promise<
+  Map<string, DocWithID<Defect>[]>
+> => {
+  if (!checkIds.length) {
+    return new Map()
+  }
+
+  const defects = await fetchDefects(["checkId", "in", checkIds])
+
+  const defectsByCheckId = new Map<string, DocWithID<Defect>[]>()
+
+  defects.forEach(defect => {
+    const checkDefects = defectsByCheckId.get(defect.checkId)
+
+    if (checkDefects) {
+      checkDefects.push(defect)
+    } else {
+      defectsByCheckId.set(defect.checkId, [defect])
+    }
   })
 
-  if (!checks.length) {
-    return []
-  }
-
-  if (checks.length === 1) {
-    const [check] = checks
-
-    const fullCheck = await buildFullCheck(check)
-
-    return fullCheck
-  }
-
-  const usersMap = await getSimplifiedUsersMap(
-    checks.map(({ driverId }) => driverId)
-  )
-
-  const checksWithDrivers = checks.map(({ driverId, ...check }) => ({
-    ...check,
-    driver: getSimplifiedUser({ usersMap, userId: driverId })
-  }))
-
-  return checksWithDrivers
+  return defectsByCheckId
 }
 
 type GetDefectsAttachmentsDataProps = {

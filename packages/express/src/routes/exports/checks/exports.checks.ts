@@ -2,32 +2,63 @@ import { getUniqueFilenameGetter } from "../utils/exports.utils"
 
 import type { GeneratedExportFile, GetFiles } from "../exports.model"
 
-import { generatePDF } from "../utils/exports.pdf.utils"
+import {
+  generatePDF,
+  PDF_GENERATION_CONCURRENCY_LIMIT
+} from "../utils/exports.pdf.utils"
 
 import {
   buildFullCheck,
+  buildFullDefects,
   getCheckFilename,
-  getCheckSearchResult,
-  getDefectsAttachmentFiles
+  getDefectsAttachmentFiles,
+  getDefectsByCheckIds,
+  getSimplifiedUser,
+  getSimplifiedUsersMap
 } from "./exports.checks.utils"
 
 import {
   renderBulkChecksBody,
   renderIndividualCheckBody
 } from "./exports.checks.pdf"
+import {
+  getChunkedFirestoreDocs,
+  getFirestoreDocs
+} from "@/backend/firebase/utils"
 
-export const getCheckFiles: GetFiles<"checks"> = async ({ payload }) => {
-  const searchResult = await getCheckSearchResult(payload)
+import type {
+  CheckWithDriver,
+  FullCheck
+} from "@/globals/firestore/firestore.model"
 
-  if (!Array.isArray(searchResult)) {
-    const individualCheckHTML = renderIndividualCheckBody(searchResult)
+export const getCheckFiles: GetFiles<"checks"> = async ({
+  filters,
+  cap,
+  order
+}) => {
+  const checksSearchResult = await getFirestoreDocs({
+    collection: "checks",
+    queries: filters,
+    limit: cap,
+    orderBy: order
+  })
+
+  if (!checksSearchResult.length) {
+    return []
+  }
+
+  if (checksSearchResult.length === 1) {
+    const [check] = checksSearchResult
+    const fullCheck = await buildFullCheck(check)
+    const individualCheckHTML = renderIndividualCheckBody(fullCheck)
+
     const buffer = await generatePDF(individualCheckHTML)
 
-    const attachmentFiles = await getDefectsAttachmentFiles(searchResult)
+    const attachmentFiles = await getDefectsAttachmentFiles(fullCheck)
 
     return [
       {
-        filename: getCheckFilename(searchResult),
+        filename: getCheckFilename(fullCheck),
         buffer,
         contentType: "application/pdf"
       },
@@ -35,33 +66,95 @@ export const getCheckFiles: GetFiles<"checks"> = async ({ payload }) => {
     ]
   }
 
-  if (!searchResult.length) {
-    return []
-  }
+  const defectiveChecks = checksSearchResult.filter(
+    ({ incidentsCount, faultsCount }) => incidentsCount || faultsCount
+  )
+  const defectiveChecksIds = defectiveChecks.map(({ id }) => id)
+
+  const [faultsByCheckId, incidentsByCheckId] = await Promise.all([
+    getDefectsByCheckIds({
+      checkIds: defectiveChecksIds,
+      fetchDefects: filter =>
+        getChunkedFirestoreDocs({ collection: "faults", filter })
+    }),
+    getDefectsByCheckIds({
+      checkIds: defectiveChecksIds,
+      fetchDefects: filter =>
+        getChunkedFirestoreDocs({ collection: "incidents", filter })
+    })
+  ])
+
+  const defectsUsersIds = defectiveChecksIds.flatMap(checkId =>
+    [
+      ...(faultsByCheckId.get(checkId) ?? []),
+      ...(incidentsByCheckId.get(checkId) ?? [])
+    ].flatMap(defect =>
+      [defect.driverId, defect.resolutionUserId].filter(
+        (userId): userId is string => !!userId
+      )
+    )
+  )
+
+  const usersMap = await getSimplifiedUsersMap([
+    ...checksSearchResult.map(({ driverId }) => driverId),
+    ...defectsUsersIds
+  ])
+
+  const checksWithDrivers: CheckWithDriver[] = checksSearchResult.map(
+    ({ driverId, ...check }) => ({
+      ...check,
+      driver: getSimplifiedUser({ usersMap, userId: driverId })
+    })
+  )
 
   const files: GeneratedExportFile[] = [
     {
       filename: "checks-summary.pdf",
-      buffer: await generatePDF(renderBulkChecksBody(searchResult)),
+      buffer: await generatePDF(renderBulkChecksBody(checksWithDrivers)),
       contentType: "application/pdf"
     }
   ]
 
-  const defectiveChecks = searchResult.filter(
-    ({ faultsCount, incidentsCount }) => faultsCount || incidentsCount
+  const defectiveFullChecks: FullCheck[] = defectiveChecks.map(
+    ({ driverId, ...check }) => ({
+      ...check,
+      driver: getSimplifiedUser({ usersMap, userId: driverId }),
+      faults: buildFullDefects({
+        defects: faultsByCheckId.get(check.id) ?? [],
+        usersMap
+      }),
+      incidents: buildFullDefects({
+        defects: incidentsByCheckId.get(check.id) ?? [],
+        usersMap
+      })
+    })
   )
 
   const getUniqueFilename = getUniqueFilenameGetter()
 
-  for (const { driver, ...check } of defectiveChecks) {
-    const fullCheck = await buildFullCheck({ ...check, driverId: driver.id })
-    const buffer = await generatePDF(renderIndividualCheckBody(fullCheck))
+  for (
+    let i = 0;
+    i < defectiveFullChecks.length;
+    i += PDF_GENERATION_CONCURRENCY_LIMIT
+  ) {
+    const batch = defectiveFullChecks.slice(
+      i,
+      i + PDF_GENERATION_CONCURRENCY_LIMIT
+    )
 
-    files.push({
-      filename: getUniqueFilename(getCheckFilename(fullCheck)),
-      buffer,
-      contentType: "application/pdf"
-    })
+    const batchFiles = await Promise.all(
+      batch.map(async fullCheck => {
+        const buffer = await generatePDF(renderIndividualCheckBody(fullCheck))
+
+        return {
+          filename: getUniqueFilename(getCheckFilename(fullCheck)),
+          buffer,
+          contentType: "application/pdf"
+        }
+      })
+    )
+
+    files.push(...batchFiles)
   }
 
   return files

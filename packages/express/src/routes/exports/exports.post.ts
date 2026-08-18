@@ -1,4 +1,5 @@
 import { ZipArchive } from "archiver"
+import type { NextFunction } from "express"
 
 import type {
   ExportableResources,
@@ -21,7 +22,8 @@ export const handleExport = async (
     Uint8Array,
     ExportPayload<ExportableResources>
   >,
-  res: Response<Uint8Array>
+  res: Response<Uint8Array>,
+  next: NextFunction
 ) => {
   const { resourceId } = req.params
 
@@ -41,7 +43,7 @@ export const handleExport = async (
     return
   }
 
-  const files = await config.getFiles({ payload })
+  const files = await config.getFiles(payload)
 
   if (!files.length) {
     res.status(404).json({
@@ -65,6 +67,8 @@ export const handleExport = async (
   }
 
   const archive = new ZipArchive()
+
+  archive.on("error", next)
 
   res.set({
     "Content-Type": "application/zip",

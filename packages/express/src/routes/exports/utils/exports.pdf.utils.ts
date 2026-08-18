@@ -3,6 +3,8 @@ import path from "path"
 
 import { launch as launchBrowser, type Browser } from "puppeteer"
 
+export const PDF_GENERATION_CONCURRENCY_LIMIT = 2
+
 const rawMarker = Symbol("rawHtml")
 
 export type RawHtml = { [rawMarker]: string }

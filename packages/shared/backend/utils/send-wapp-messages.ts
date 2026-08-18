@@ -6,6 +6,14 @@ export type MissingCheckTemplate = {
   }
 }
 
+type DriversBadgeExpirationTemplate = {
+  type: "driver_badge_expiration"
+  params: {
+    driver_name: string
+    expiration_date: string
+  }
+}
+
 type CarsCheckpointsTemplate = {
   type: "cars_checkpoints"
   params: {
@@ -64,6 +72,7 @@ type SendWappMessageProps = {
     | OutstandingRecallFailedTemplate
     | BulkOutstandingRecallFailedTemplate
     | CarsCheckpointsTemplate
+    | DriversBadgeExpirationTemplate
   phoneNumber: string
 }
 
@@ -107,37 +116,43 @@ const sendWappMessage = async ({
   phoneNumber,
   template
 }: SendWappMessageProps) => {
-  const bodyComponent = getBodyComponent(template)
-  const urlComponent = getURLComponent(template)
+  try {
+    const bodyComponent = getBodyComponent(template)
+    const urlComponent = getURLComponent(template)
 
-  const response = await fetch(
-    "https://graph.facebook.com/v22.0/832911756563437/messages",
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.WAPP_API_ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        messaging_product: "whatsapp",
-        to: phoneNumber,
-        type: "template",
-        template: {
-          name: template.type,
-          language: {
-            code: "en"
-          },
-          components: [bodyComponent, urlComponent]
-        }
-      })
-    }
-  )
+    const response = await fetch(
+      "https://graph.facebook.com/v22.0/832911756563437/messages",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.WAPP_API_ACCESS_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: phoneNumber,
+          type: "template",
+          template: {
+            name: template.type,
+            language: {
+              code: "en"
+            },
+            components: [bodyComponent, urlComponent]
+          }
+        })
+      }
+    )
 
-  const data = await response.json()
+    const data = await response.json()
 
-  if (!response.ok) {
     console.log(data)
-    throw new Error(data.message)
+
+    if (!response.ok) {
+      console.log(data)
+      throw new Error(data.message)
+    }
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -149,12 +164,21 @@ export const sendWappMessages = async ({
   phoneNumbers,
   template
 }: SendWappMessagesProps) => {
-  const messagesPromises = phoneNumbers.map(phoneNumber =>
-    sendWappMessage({
-      phoneNumber,
-      template
-    })
+  const results = await Promise.allSettled(
+    phoneNumbers.map(phoneNumber =>
+      sendWappMessage({
+        phoneNumber,
+        template
+      })
+    )
   )
 
-  await Promise.all(messagesPromises)
+  results.forEach((result, index) => {
+    if (result.status === "rejected") {
+      console.log(
+        `Failed to send "${template.type}" WhatsApp message to ${phoneNumbers[index]}`,
+        result.reason
+      )
+    }
+  })
 }

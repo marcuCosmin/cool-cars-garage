@@ -9,10 +9,6 @@ export type GeneratedExportFile = {
   contentType: string
 }
 
-export type GetFilesProps<Resource extends ExportableResources> = {
-  payload: ExportPayload<Resource>
-}
-
 export type GetFiles<Resource extends ExportableResources> = (
-  props: GetFilesProps<Resource>
+  payload: ExportPayload<Resource>
 ) => Promise<GeneratedExportFile[]>

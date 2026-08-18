@@ -5,6 +5,8 @@ import {
 } from "firebase-admin/firestore"
 import { type FirebaseError } from "firebase-admin"
 
+import { firestoreDisjunctionsLimit } from "../../globals/firestore/firestore.const"
+
 import type {
   DocWithID,
   FirestoreCollectionsMap,
@@ -181,4 +183,53 @@ export const getNotificationPhoneNumbers = async (notificationType: string) => {
   const phoneNumbers = phoneNumbersDocs.map(doc => doc.value)
 
   return phoneNumbers
+}
+
+type ChunkableSearchFilter<Doc> =
+  | {
+      [DocProp in keyof Doc & string]: [DocProp, "in", Doc[DocProp][]]
+    }[keyof Doc & string]
+  | {
+      [DocProp in keyof Doc & string]: [
+        DocProp,
+        "array-contains-any",
+        Doc[DocProp] extends readonly (infer PropItemValue)[]
+          ? PropItemValue[]
+          : never
+      ]
+    }[keyof Doc & string]
+
+type GetChunkedFirestoreDocsProps<
+  CollectionName extends FirestoreCollectionsNames
+> = {
+  collection: CollectionName
+  filter: ChunkableSearchFilter<FirestoreCollectionsMap[CollectionName]>
+}
+
+export const getChunkedFirestoreDocs = async <
+  CollectionName extends FirestoreCollectionsNames
+>({
+  collection,
+  filter
+}: GetChunkedFirestoreDocsProps<CollectionName>) => {
+  const [field, operator, values] = filter
+
+  const chunks: (typeof values)[] = []
+
+  for (let i = 0; i < values.length; i += firestoreDisjunctionsLimit) {
+    const chunk = values.slice(
+      i,
+      i + firestoreDisjunctionsLimit
+    ) as typeof values
+
+    chunks.push(chunk)
+  }
+
+  const results = await Promise.all(
+    chunks.map(chunk =>
+      getFirestoreDocs({ collection, queries: [[field, operator, chunk]] })
+    )
+  )
+
+  return results.flat()
 }
