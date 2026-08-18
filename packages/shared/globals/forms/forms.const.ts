@@ -30,12 +30,12 @@ export const userCreateFields = {
   firstName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role === "driver"
+    shouldHide: ({ role }) => role === "driver" || !role
   },
   lastName: {
     type: "text",
     validate: getNameError,
-    shouldHide: ({ role }) => role === "driver"
+    shouldHide: ({ role }) => role === "driver" || !role
   },
   email: {
     validate: getEmailError,
