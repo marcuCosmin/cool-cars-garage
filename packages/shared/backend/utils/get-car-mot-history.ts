@@ -35,7 +35,6 @@ type GetCarMotHistoryProps = {
 }
 type GetCarMotHistoryResult = {
   motExpiryTimestamp: number
-  motCompletedTimestamp?: number
   outstandingRecallStatus: "Yes" | "No" | "Unknown" | "Unavailable"
   motStatus?: "PASSED" | "FAILED"
 }
@@ -81,12 +80,6 @@ export const getCarMotHistory = async ({
 
     if (testResult) {
       result.motStatus = testResult
-    }
-
-    if (lastMotTest?.completedDate) {
-      result.motCompletedTimestamp = parseDateToTimestamp(
-        lastMotTest.completedDate
-      )
     }
 
     return result

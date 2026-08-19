@@ -11,8 +11,6 @@ import type { CarDoc } from "@/globals/firestore/firestore.model"
 
 import type { JobScript } from "@/models"
 
-import { getCarMotExpiryTimestamp } from "./motHistory.utils"
-
 const run = async () => {
   try {
     const cars = await getFirestoreDocs({ collection: "cars" })
@@ -46,7 +44,7 @@ const run = async () => {
         `MOT history fetched for car with registration number: ${car.id}`
       )
 
-      const { outstandingRecallStatus, motExpiryTimestamp, motCompletedTimestamp, motStatus } =
+      const { outstandingRecallStatus, motExpiryTimestamp, motStatus } =
         carMotHistory
 
       if (outstandingRecallStatus === "Unavailable") {
@@ -66,11 +64,7 @@ const run = async () => {
         CarDoc,
         "motExpiryTimestamp" | "hasOutstandingRecall" | "motStatus"
       > = {
-        motExpiryTimestamp: getCarMotExpiryTimestamp({
-          council: car.council,
-          motExpiryTimestamp,
-          motCompletedTimestamp
-        }),
+        motExpiryTimestamp,
         hasOutstandingRecall
       }
 
