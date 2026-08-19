@@ -29,3 +29,11 @@ export const getParsedItemMetadataValue = ({
       return null
   }
 }
+
+export const isDateExpired = (value?: number) => {
+  if (!value) {
+    return false
+  }
+
+  return Date.now() > value
+}

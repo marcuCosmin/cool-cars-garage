@@ -19,7 +19,10 @@ import type { DataListItem, ItemMetadata } from "../../DataView.model"
 import { DataViewFileMetadataItem } from "./DataViewFileMetadataItem"
 import { DataViewMetadataItem } from "./DataViewMetadataItem"
 
-import { getParsedItemMetadataValue } from "./DataViewListItemMetadata.utils"
+import {
+  getParsedItemMetadataValue,
+  isDateExpired
+} from "./DataViewListItemMetadata.utils"
 
 const metadataIconsMap = {
   text: InfoCircle,
@@ -142,12 +145,18 @@ export const DataViewListItemMetadata = ({
           )
         }
 
+        const isExpiredDate =
+          props.type === "date" && props.expires && isDateExpired(props.value)
+
         return (
           <DataViewMetadataItem
             key={index}
             Icon={Icon}
             label={label}
             parsedValue={parsedValue}
+            valueClassName={
+              isExpiredDate ? "text-error dark:text-error" : undefined
+            }
           />
         )
       })}

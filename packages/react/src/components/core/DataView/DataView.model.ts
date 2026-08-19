@@ -25,6 +25,7 @@ type ItemDateMetadata = {
   type: "date"
   label: string
   value?: number
+  expires?: boolean
 }
 
 type ItemDurationMetadata = {
@@ -54,13 +55,17 @@ export type PrimitiveMetadata =
   | ItemLinkMetadata
   | ItemFileMetadata
 
+type DistributiveOmit<T, K extends keyof T> = T extends unknown
+  ? Omit<T, K>
+  : never
+
 type ItemListBase = {
   type: "list"
   label: string
 }
 
 type ItemListMetadataConfig = ItemListBase & {
-  fields: Record<string, Omit<PrimitiveMetadata, "value">>
+  fields: Record<string, DistributiveOmit<PrimitiveMetadata, "value">>
 }
 
 export type ItemListMetadata = ItemListBase & {
@@ -68,7 +73,7 @@ export type ItemListMetadata = ItemListBase & {
 }
 
 type ItemMetadataConfig =
-  | Omit<PrimitiveMetadata, "value">
+  | DistributiveOmit<PrimitiveMetadata, "value">
   | ItemListMetadataConfig
 
 export type ItemMetadata = PrimitiveMetadata | ItemListMetadata

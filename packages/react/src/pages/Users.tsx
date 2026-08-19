@@ -46,8 +46,16 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
       type: "list",
       label: "CPCs",
       fields: {
-        lgvExpiryTimestamp: { type: "date", label: "LGV Expiry Date" },
-        pcvExpiryTimestamp: { type: "date", label: "PCV Expiry Date" }
+        lgvExpiryTimestamp: {
+          type: "date",
+          label: "LGV Expiry Date",
+          expires: true
+        },
+        pcvExpiryTimestamp: {
+          type: "date",
+          label: "PCV Expiry Date",
+          expires: true
+        }
       }
     },
     tachoCards: {
@@ -55,7 +63,11 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
       label: "Tacho Cards",
       fields: {
         cardNumber: { type: "text", label: "Card Number" },
-        cardExpiryTimestamp: { type: "date", label: "Card Expiry Date" }
+        cardExpiryTimestamp: {
+          type: "date",
+          label: "Card Expiry Date",
+          expires: true
+        }
       }
     },
     entitlements: {
@@ -65,7 +77,11 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
         categoryCode: { type: "text", label: "Category Code" },
         categoryType: { type: "text", label: "Category Type" },
         activationTimestamp: { type: "date", label: "Activation Date" },
-        expiryTimestamp: { type: "date", label: "Expiry Date" }
+        expiryTimestamp: {
+          type: "date",
+          label: "Expiry Date",
+          expires: true
+        }
       }
     },
     creationTimestamp: { type: "date", label: "Join Date" },
@@ -74,7 +90,11 @@ const usersDataItemsMetadataConfig: DataListItemMetadataConfig<RawUserListItem> 
     isTaxiDriver: { type: "boolean", label: "Is Taxi Driver" },
     badgeAuthority: { type: "text", label: "Badge Authority" },
     badgeNumber: { type: "text", label: "Badge Number" },
-    badgeExpirationTimestamp: { type: "date", label: "Badge Expiration Date" },
+    badgeExpirationTimestamp: {
+      type: "date",
+      label: "Badge Expiration Date",
+      expires: true
+    },
     isActive: { type: "boolean", label: "Is Active" },
     isPSVDriver: { type: "boolean", label: "Is PSV Driver" },
     invitationPending: { type: "boolean", label: "Invitation Pending" }

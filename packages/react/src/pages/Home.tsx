@@ -25,20 +25,46 @@ const carsDataItemsMetadataConfig: DataListItemMetadataConfig<RawCarListItem> =
     isRental: { type: "boolean", label: "Rental" },
     plateNumber: { type: "text", label: "Plate Number" },
     type: { type: "text", label: "Type" },
-    motExpiryTimestamp: { type: "date", label: "MOT Expiry" },
-    roadTaxExpiryTimestamp: { type: "date", label: "Road Tax Expiry" },
-    insuranceExpiryTimestamp: { type: "date", label: "Insurance Expiry" },
-    plateNumberExpiryTimestamp: { type: "date", label: "Plate Number Expiry" },
+    motExpiryTimestamp: {
+      type: "date",
+      label: "MOT Expiry",
+      expires: true
+    },
+    roadTaxExpiryTimestamp: {
+      type: "date",
+      label: "Road Tax Expiry",
+      expires: true
+    },
+    insuranceExpiryTimestamp: {
+      type: "date",
+      label: "Insurance Expiry",
+      expires: true
+    },
+    plateNumberExpiryTimestamp: {
+      type: "date",
+      label: "Plate Number Expiry",
+      expires: true
+    },
     safetyChecksExpiryTimestamp: {
       type: "date",
-      label: "Safety Checks Expiry"
+      label: "Safety Checks Expiry",
+      expires: true
     },
-    tachographExpiryTimestamp: { type: "date", label: "Tachograph Expiry" },
+    tachographExpiryTimestamp: {
+      type: "date",
+      label: "Tachograph Expiry",
+      expires: true
+    },
     wheelChairLiftExpiryTimestamp: {
       type: "date",
-      label: "Wheel Chair Lift Expiry"
+      label: "Wheel Chair Lift Expiry",
+      expires: true
     },
-    cornwallMotExpiryTimestamp: { type: "date", label: "Cornwall MOT Expiry" }
+    cornwallMotExpiryTimestamp: {
+      type: "date",
+      label: "Cornwall MOT Expiry",
+      expires: true
+    }
   }
 
 const fetchItems = async (): Promise<RawCarListItem[]> => {

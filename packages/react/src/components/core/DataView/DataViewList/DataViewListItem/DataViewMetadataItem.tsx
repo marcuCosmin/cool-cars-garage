@@ -20,6 +20,7 @@ type DataViewMetadataItemProps<T extends HTMLElementType> = {
   error?: string
   containerTag?: T
   containerProps?: ComponentPropsWithoutRef<T>
+  valueClassName?: string
 }
 
 export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
@@ -29,7 +30,8 @@ export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
   isLoading,
   error,
   containerTag = "p" as T,
-  containerProps
+  containerProps,
+  valueClassName
 }: DataViewMetadataItemProps<T>) => {
   const getValue = () => {
     if (isLoading) {
@@ -64,7 +66,8 @@ export const DataViewMetadataItem = <T extends HTMLElementType = "p">({
       <span
         className={mergeClassNames(
           "text-black dark:text-white font-normal",
-          error && "font-semibold text-error dark:text-error"
+          error && "font-semibold text-error dark:text-error",
+          !error && valueClassName
         )}
       >
         {getValue()}
