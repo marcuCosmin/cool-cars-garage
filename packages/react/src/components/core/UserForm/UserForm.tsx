@@ -84,11 +84,9 @@ export const UserForm = ({ item, onSuccess }: UserFormProps) => {
     badgeAuthority: {
       label: "Badge Authority",
       options: {
-        PSV: { label: "PSV" },
         Cornwall: { label: "Cornwall" },
         Wolverhampton: { label: "Wolverhampton" },
-        Portsmouth: { label: "Portsmouth" },
-        Other: { label: "Other" }
+        Portsmouth: { label: "Portsmouth" }
       },
       defaultValue: user?.badgeAuthority
     },
