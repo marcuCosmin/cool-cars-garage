@@ -9,7 +9,7 @@ import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDispl
 import type { DocWithID, DriverUser } from "@/globals/firestore/firestore.model"
 
 const badgeTimeBeforeNotificationsStart: Duration = {
-  days: 30
+  months: 3
 }
 
 export const handleExpiredBadgesNotifications = async (
