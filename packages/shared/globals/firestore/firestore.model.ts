@@ -1,4 +1,4 @@
-import type { Council } from "../constants"
+import type { Council, TaxiCouncil } from "../constants"
 
 export type DriverDVLAData = {
   lastName: string
@@ -29,7 +29,7 @@ export type DriverData = DriverDVLAData & {
   dbsUpdate: boolean
   badgeNumber?: string
   badgeExpirationTimestamp?: number
-  badgeAuthority?: Council
+  badgeAuthority?: TaxiCouncil
   isTaxiDriver: boolean
   isPSVDriver: boolean
 }

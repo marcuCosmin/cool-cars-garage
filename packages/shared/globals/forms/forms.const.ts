@@ -1,4 +1,4 @@
-import { councils } from "../constants"
+import { taxiCouncils } from "../constants"
 
 import {
   getDrivingLicenceNumberError,
@@ -56,13 +56,13 @@ export const userCreateFields = {
     shouldHide: ({ role }) => role !== "driver"
   },
   badgeNumber: {
-    type: "number",
+    type: "text",
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   },
   badgeAuthority: {
     type: "select",
-    options: [...councils],
+    options: [...taxiCouncils],
     validate: getRequiredError,
     shouldHide: ({ role, isTaxiDriver }) => role !== "driver" || !isTaxiDriver
   },

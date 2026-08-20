@@ -1,9 +1,6 @@
-export const councils = [
-  "PSV",
-  "Cornwall",
-  "Wolverhampton",
-  "Portsmouth",
-  "Other"
-] as const
+export const taxiCouncils = ["Cornwall", "Wolverhampton", "Portsmouth"] as const
+export type TaxiCouncil = (typeof taxiCouncils)[number]
+
+export const councils = ["PSV", ...taxiCouncils, "Other"] as const
 
 export type Council = (typeof councils)[number]
