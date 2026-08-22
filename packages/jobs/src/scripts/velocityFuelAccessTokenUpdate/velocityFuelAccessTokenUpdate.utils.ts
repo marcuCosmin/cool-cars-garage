@@ -1,3 +1,7 @@
+type VelocityFuelRefreshResponse = {
+  token: string
+}
+
 export const getVelocityFuelAccessToken = async () => {
   try {
     const form = new FormData()
@@ -17,7 +21,7 @@ export const getVelocityFuelAccessToken = async () => {
       throw new Error(`Error ${response.status}: ${text}`)
     }
 
-    const data = await response.json()
+    const data = (await response.json()) as VelocityFuelRefreshResponse
 
     return data.token
   } catch (error) {

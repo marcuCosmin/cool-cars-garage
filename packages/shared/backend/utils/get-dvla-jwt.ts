@@ -1,5 +1,15 @@
 import { getSecretValue } from "./get-secret-value"
 
+type DVLAAuthenticateResponse = {
+  "id-token": string
+}
+
+type DVLAAuthenticateErrorResponse = {
+  status: number
+  title: string
+  detail?: string
+}[]
+
 export const getDVLAJWT = async () => {
   const dvlaApiPassword = await getSecretValue("DVLA_API_PASSWORD")
 
@@ -18,13 +28,18 @@ export const getDVLAJWT = async () => {
     }
   )
 
-  const data = await response.json()
-
   if (!response.ok) {
-    throw new Error(`Failed to get the DVLA JWT, ${JSON.stringify(data)}`)
+    const errorData = await response.json() as DVLAAuthenticateErrorResponse
+
+    const errorMessage = errorData
+      .map(({ title, detail }) => (detail ? `${title}: ${detail}` : title))
+      .join(", ")
+
+    throw new Error(`Failed to get the DVLA JWT, ${errorMessage}`)
   }
 
-  const idToken = data["id-token"] as string | undefined
+  const data = await response.json() as DVLAAuthenticateResponse
+  const idToken = data["id-token"]
 
   if (!idToken) {
     throw new Error("DVLA JWT not found in response")

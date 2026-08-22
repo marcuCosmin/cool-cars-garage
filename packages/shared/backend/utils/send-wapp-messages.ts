@@ -63,6 +63,18 @@ type BulkOutstandingRecallFailedTemplate = {
   }
 }
 
+type WhatsAppErrorResponse = {
+  error: {
+    message: string
+    type: string
+    code: number
+    error_subcode?: number
+    error_user_title?: string
+    error_user_msg?: string
+    fbtrace_id?: string
+  }
+}
+
 type SendWappMessageProps = {
   template:
     | MissingCheckTemplate
@@ -143,13 +155,10 @@ const sendWappMessage = async ({
       }
     )
 
-    const data = await response.json()
-
-    console.log(data)
-
     if (!response.ok) {
-      console.log(data)
-      throw new Error(data.message)
+      const data = (await response.json()) as WhatsAppErrorResponse
+
+      throw new Error(data.error.message)
     }
   } catch (error) {
     console.log(error)

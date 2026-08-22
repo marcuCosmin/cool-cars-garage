@@ -7,10 +7,14 @@ import {
 import { getDVLAJWT } from "@/backend/utils/get-dvla-jwt"
 
 type UpdateDVLAError = {
-  detail: string
+  detail?: string
   title: string
   status: number
 }[]
+
+type NewDVLAApiKeyResponse = {
+  newApiKey: string
+}
 
 export const updateDVLAPassword = async () => {
   console.log("Updating DVLA API password...")
@@ -76,8 +80,6 @@ export const updateDVLAApiKey = async () => {
     }
   )
 
-  const data = await response.json()
-
   if (!response.ok) {
     const errorData = (await response.json()) as UpdateDVLAError
     const details = errorData
@@ -86,6 +88,8 @@ export const updateDVLAApiKey = async () => {
 
     throw new Error(`DVLA API key update failed: ${details}`)
   }
+
+  const data = (await response.json()) as NewDVLAApiKeyResponse
 
   await createNewSecretVersion({
     secretKey: "DVLA_API_KEY",
