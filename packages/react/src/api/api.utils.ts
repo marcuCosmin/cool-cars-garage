@@ -9,7 +9,6 @@ import type {
   ResolveDefectFields
 } from "@/globals/forms/forms.const"
 import type {
-  CarsCheckExportURLQuery,
   DeleteUserQueryParams,
   UserActiveStateUpdatePayload,
   ReiniviteUserPayload,
@@ -98,42 +97,6 @@ export const getFile = (filePath: string) =>
     method: "GET",
     responseType: "blob"
   })
-
-const getExportChecksQueryParams = (payload: CarsCheckExportURLQuery) => {
-  const params = new URLSearchParams()
-
-  params.append("type", payload.type)
-
-  if (payload.type === "individual") {
-    params.append("checkId", payload.checkId)
-
-    return params.toString()
-  }
-
-  if (payload.type === "bulk") {
-    if (payload.startTimestamp) {
-      params.append("startTimestamp", payload.startTimestamp.toString())
-    }
-
-    if (payload.endTimestamp) {
-      params.append("endTimestamp", payload.endTimestamp.toString())
-    }
-  }
-
-  return params.toString()
-}
-
-export const exportChecks = async (payload: CarsCheckExportURLQuery) => {
-  const queryParams = getExportChecksQueryParams(payload)
-
-  const response = await executeApiRequest({
-    path: `/cars/checks/exports?${queryParams}`,
-    method: "GET",
-    responseType: "blob"
-  })
-
-  return response
-}
 
 export const updateUserActiveState = async (
   payload: UserActiveStateUpdatePayload

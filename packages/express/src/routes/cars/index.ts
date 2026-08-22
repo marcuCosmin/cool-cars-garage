@@ -6,7 +6,6 @@ import { handleIncidentSubmission } from "./incidents/post"
 import { handleCheckSubmission } from "./checks/post"
 import { handleFaultResolve } from "./faults/patch"
 import { handleIncidentResolve } from "./incidents/patch"
-import { handleCarChecksExports } from "./checks/exports/get"
 
 export const carsRouter = Router()
 
@@ -41,14 +40,4 @@ carsRouter.patch(
   "/incidents/:incidentId",
   cors({ origin: process.env.ALLOWED_ORIGIN }),
   handleIncidentResolve
-)
-
-carsRouter.options(
-  "/checks/exports",
-  cors({ origin: process.env.ALLOWED_ORIGIN })
-)
-carsRouter.get(
-  "/checks/exports",
-  cors({ origin: process.env.ALLOWED_ORIGIN }),
-  handleCarChecksExports
 )

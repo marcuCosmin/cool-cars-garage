@@ -97,12 +97,6 @@ type ApiConfig =
       response: ResolveDefectResponse
     }
   | {
-      path: `/cars/checks/exports?${string}`
-      method: "GET"
-      responseType: "blob"
-      response: Blob
-    }
-  | {
       path: `/files?uploadType=${FileEntityType}&resourceId=${string}`
       method: "POST"
       payload: { [fileUploadFieldName]: File }

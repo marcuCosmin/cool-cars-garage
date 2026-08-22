@@ -92,17 +92,6 @@ export type ResolveDefectResponse = {
   message: string
 }
 
-export type CarsCheckExportURLQuery =
-  | {
-      checkId: string
-      type: "individual"
-    }
-  | {
-      type: "bulk"
-      startTimestamp: number
-      endTimestamp: number
-    }
-
 export type RegisterUserResponse = {
   authToken: string
 }

@@ -14,7 +14,6 @@ import type {
   AuthUser,
   User
 } from "../firestore/firestore.model"
-import type { CarsCheckExportURLQuery } from "../requests/requests.model"
 
 export type UserCreateData = {
   role: Exclude<User["role"], "admin">
@@ -139,10 +138,10 @@ export const resolveDefectFields = {
   }
 } satisfies FormFieldsSchema<ResolveDefectFields>
 
-export type ChecksBulkExportData = Omit<
-  Extract<CarsCheckExportURLQuery, { type: "bulk" }>,
-  "type"
->
+export type ChecksBulkExportData = {
+  startTimestamp: number
+  endTimestamp: number
+}
 
 export const checksBulkExportFormFields: FormFieldsSchema<ChecksBulkExportData> =
   {
