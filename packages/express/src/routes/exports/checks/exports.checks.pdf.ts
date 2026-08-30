@@ -1,6 +1,7 @@
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 import { formatDuration } from "@/globals/utils/formatDuration"
 import { formatUserName } from "@/globals/utils/formatUserName"
+import { capitalize } from "@/globals/utils/capitalize"
 
 import type {
   CheckAnswer,
@@ -81,7 +82,7 @@ const renderCheckAnswers = ({
   sectionType,
   answers
 }: RenderAnswersSectionProps) => {
-  const label = sectionType === "interior" ? "Interior" : "Exterior"
+  const label = capitalize(sectionType)
 
   return html`
     <section class="card">
@@ -206,13 +207,14 @@ export const renderIndividualCheckBody = ({
   creationTimestamp,
   odoReading,
   carId,
-  interior,
-  exterior,
+  answers,
   faults,
   incidents,
   startTimestamp,
   endTimestamp
 }: FullCheck) => {
+  const answersBySection = Object.groupBy(answers, answer => answer.section)
+  const sections = Object.keys(answersBySection) as ReportsQuestionsSection[]
   const driverName = formatUserName(driver)
   const displayedTimestamp = parseTimestampForDisplay(creationTimestamp)
   const displayedOdoReading = `${odoReading.value} ${odoReading.unit}`
@@ -245,8 +247,12 @@ export const renderIndividualCheckBody = ({
     </section>
 
     <div class="flex flex-col gap-6 mb-6">
-      ${renderCheckAnswers({ sectionType: "interior", answers: interior })}
-      ${renderCheckAnswers({ sectionType: "exterior", answers: exterior })}
+      ${sections.map(section =>
+        renderCheckAnswers({
+          sectionType: section,
+          answers: answersBySection[section] ?? []
+        })
+      )}
     </div>
 
     ${renderDefects({

@@ -9,7 +9,10 @@ import {
 
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 import { formatDuration } from "@/globals/utils/formatDuration"
-import type { FullCheck } from "@/globals/firestore/firestore.model"
+import type {
+  FullCheck,
+  ReportsQuestionsSection
+} from "@/globals/firestore/firestore.model"
 
 import { exportResource } from "@/api/api.utils"
 
@@ -34,8 +37,7 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     id,
     carId,
     creationTimestamp,
-    exterior,
-    interior,
+    answers,
     faults,
     incidents,
     startTimestamp,
@@ -44,6 +46,9 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     odoReading,
     faultsCount
   } = check
+
+  const answersBySection = Object.groupBy(answers, answer => answer.section)
+  const sections = Object.keys(answersBySection) as ReportsQuestionsSection[]
 
   const displayedDate = parseTimestampForDisplay(creationTimestamp)
   const checkDuration =
@@ -204,18 +209,15 @@ export const ReportsCheck = ({ check }: CheckProps) => {
           <h3 className="text-center">Questions</h3>
 
           <div className="flex flex-col items-center lg:items-start lg:grid lg:grid-cols-2 gap-15">
-            <ReportsCheckQuestionsSection
-              section="interior"
-              answers={interior}
-              faults={faults}
-              checkId={id}
-            />
-            <ReportsCheckQuestionsSection
-              section="exterior"
-              answers={exterior}
-              faults={faults}
-              checkId={id}
-            />
+            {sections.map(section => (
+              <ReportsCheckQuestionsSection
+                key={section}
+                section={section}
+                answers={answersBySection[section] ?? []}
+                faults={faults}
+                checkId={id}
+              />
+            ))}
           </div>
         </div>
       </div>

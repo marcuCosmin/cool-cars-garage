@@ -13,6 +13,9 @@ export const reportsQuestionsSectionConfig: Record<
   },
   exterior: {
     title: "Exterior"
+  },
+  driver: {
+    title: "Driver"
   }
 }
 
@@ -21,7 +24,8 @@ export const reportsQuestionsTabsOptions: {
   value: ReportsQuestionsSection
 }[] = [
   { label: reportsQuestionsSectionConfig.interior.title, value: "interior" },
-  { label: reportsQuestionsSectionConfig.exterior.title, value: "exterior" }
+  { label: reportsQuestionsSectionConfig.exterior.title, value: "exterior" },
+  { label: reportsQuestionsSectionConfig.driver.title, value: "driver" }
 ]
 
 export const reportsQuestionsBreakpoint = 850

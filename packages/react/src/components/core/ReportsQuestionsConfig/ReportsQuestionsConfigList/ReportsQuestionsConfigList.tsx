@@ -9,9 +9,7 @@ import {
 
 import { Tooltip } from "@/components/basic/Tooltip"
 import { Tab } from "@/components/basic/Tab"
-import { Loader } from "@/components/basic/Loader"
 
-import { useReportsQuestions } from "./useReportsQuestions"
 import { useDNDList } from "./useDNDList"
 
 import { ReportsQuestionsConfigItem } from "./ReportsQuestionsConfigItem"
@@ -25,41 +23,32 @@ import {
 import type { ReportsQuestionsConfigListProps } from "../ReportsQuestionsConfig.model"
 
 export const ReportsQuestionsConfigList = ({
-  category,
-  initialQuestions,
+  questions,
+  hasChanges,
+  onSectionChange,
+  onItemLabelChange,
+  addItemAtIndex,
+  deleteItem,
+  onSectionReset,
   section,
   isBreakpointActive,
   setActiveSection
 }: ReportsQuestionsConfigListProps) => {
-  const {
-    questions,
-    isSaveLoading,
-    hasChanges,
-    setQuestions,
-    saveQuestions,
-    addItemAtIndex,
-    deleteItem,
-    onItemLabelChange,
-    addItemAtEndClick,
-    onResetClick
-  } = useReportsQuestions({
-    initialQuestions,
-    category,
-    section
-  })
-
   const { sensors, onListDragEnd } = useDNDList({
     items: questions,
-    setItems: setQuestions
+    setItems: questions => onSectionChange({ section, questions })
   })
+
+  const addItemAtEndClick = () =>
+    addItemAtIndex({ section, index: questions.length })
+
+  const onResetClick = () => onSectionReset({ section })
 
   const sectionConfig = reportsQuestionsSectionConfig[section]
 
   return (
     <div className="flex flex-col w-full max-w-3xl relative">
-      {isSaveLoading && <Loader enableOverlay />}
-
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-2">
         <Tooltip
           label="Revert Changes"
           containerTag="button"
@@ -83,15 +72,6 @@ export const ReportsQuestionsConfigList = ({
         ) : (
           <h3 className="text-center">{sectionConfig.title}</h3>
         )}
-
-        <button
-          type="button"
-          className="w-fit px-5 justify-self-end"
-          disabled={!hasChanges}
-          onClick={saveQuestions}
-        >
-          Save
-        </button>
       </div>
 
       <hr className="my-5 w-[90%] mx-auto" />
@@ -108,10 +88,10 @@ export const ReportsQuestionsConfigList = ({
           <ul className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden mb-2">
             {questions.map(({ label, id }, index) => {
               const isLast = index === questions.length - 1
-              const onDelete = () => deleteItem(id)
+              const onDelete = () => deleteItem({ section, id })
               const onLabelChange = (label: string) =>
-                onItemLabelChange({ label, id })
-              const onAdd = () => addItemAtIndex(index)
+                onItemLabelChange({ section, id, label })
+              const onAdd = () => addItemAtIndex({ section, index })
 
               return (
                 <Fragment key={id}>
@@ -130,6 +110,9 @@ export const ReportsQuestionsConfigList = ({
                 </Fragment>
               )
             })}
+            {!questions.length && (
+              <ReportsQuestionsConfigAddButton onClick={addItemAtEndClick} />
+            )}
           </ul>
         </SortableContext>
       </DndContext>

@@ -1,94 +1,87 @@
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
-
-import { getFirestoreDoc } from "@/firebase/firebase.utils"
 
 import { useAppSelector } from "@/redux/redux.config"
 
-import { NotFound } from "@/components/core/NotFound"
 import { Loader } from "@/components/basic/Loader"
 
-import type { ReportsQuestionsDoc } from "@/globals/firestore/firestore.model"
+import type { ReportsQuestionsSection } from "@/globals/firestore/firestore.model"
 
 import { ReportsQuestionsConfigList } from "./ReportsQuestionsConfigList/ReportsQuestionsConfigList"
 
+import { useReportsQuestionsConfig } from "./useReportsQuestionsConfig"
+
 import { reportsQuestionsBreakpoint } from "./ReportsQuestionsConfig.const"
 
-import type { ReportsQuestionsCategory } from "./ReportsQuestionsConfig.model"
+import type {
+  ReportsCategoryConfig,
+  ReportsQuestionsCategory
+} from "./ReportsQuestionsConfig.model"
 
 type ReportsQuestionsConfigProps = {
   category: ReportsQuestionsCategory
+  categoryConfig: ReportsCategoryConfig
 }
 
 export const ReportsQuestionsConfig = ({
-  category
+  category,
+  categoryConfig
 }: ReportsQuestionsConfigProps) => {
   const screenWidth = useAppSelector(({ screen }) => screen.width)
   const [activeSection, setActiveSection] =
-    useState<keyof ReportsQuestionsDoc>("interior")
+    useState<ReportsQuestionsSection>("interior")
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["/reports-questions-config", category],
-    queryFn: async () => {
-      const data = await getFirestoreDoc({
-        collectionId: "reports-config",
-        docId: category
-      })
+  const {
+    questionsBySection,
+    hasChanges,
+    isSaveLoading,
+    saveQuestions,
+    hasSectionChanged,
+    ...questionsSectionsActions
+  } = useReportsQuestionsConfig({ category, categoryConfig })
 
-      if (!data) {
-        return
-      }
-
-      return {
-        interior: data.interior.map(item => ({
-          ...item,
-          id: crypto.randomUUID()
-        })),
-        exterior: data.exterior.map(item => ({
-          ...item,
-          id: crypto.randomUUID()
-        })),
-        id: data.id
-      }
-    }
-  })
-
-  if (isLoading) {
-    return <Loader enableOverlay />
-  }
-
-  if (!data) {
-    return <NotFound />
-  }
+  const isDesktopLayout = screenWidth >= reportsQuestionsBreakpoint
 
   return (
-    <div className="flex flex-col overflow-hidden p-5">
+    <div className="flex flex-col overflow-hidden p-5 gap-5 relative">
+      {isSaveLoading && <Loader enableOverlay />}
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          className="w-fit px-5"
+          disabled={!hasChanges}
+          onClick={saveQuestions}
+        >
+          Save
+        </button>
+      </div>
+
       <div className="flex w-full justify-center gap-20 overflow-hidden">
-        {screenWidth >= reportsQuestionsBreakpoint ? (
-          <>
-            <ReportsQuestionsConfigList
-              category={category}
-              section="interior"
-              isBreakpointActive={false}
-              initialQuestions={data.interior}
-            />
-            <ReportsQuestionsConfigList
-              category={category}
-              section="exterior"
-              isBreakpointActive={false}
-              initialQuestions={data.exterior}
-            />
-          </>
+        {isDesktopLayout ? (
+          Object.keys(questionsBySection).map(section => {
+            const castSection = section as ReportsQuestionsSection
+
+            return (
+              <ReportsQuestionsConfigList
+                key={castSection}
+                section={castSection}
+                isBreakpointActive={false}
+                questions={questionsBySection[castSection] ?? []}
+                hasChanges={hasSectionChanged(castSection)}
+                setActiveSection={setActiveSection}
+                {...questionsSectionsActions}
+              />
+            )
+          })
         ) : (
-          <>
-            <ReportsQuestionsConfigList
-              category={category}
-              section={activeSection}
-              isBreakpointActive={true}
-              setActiveSection={setActiveSection}
-              initialQuestions={data[activeSection]}
-            />
-          </>
+          <ReportsQuestionsConfigList
+            section={activeSection}
+            isBreakpointActive
+            questions={questionsBySection[activeSection] ?? []}
+            hasChanges={hasSectionChanged(activeSection)}
+            setActiveSection={setActiveSection}
+            {...questionsSectionsActions}
+          />
         )}
       </div>
     </div>

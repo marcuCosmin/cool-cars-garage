@@ -16,7 +16,6 @@ import type { CheckDoc, User } from "@/globals/firestore/firestore.model"
 import { createReportsNotification } from "../../utils"
 
 import {
-  getAnswersWithFaults,
   getReqBodyShallowValidationError,
   getDeepReqBodyValidationError
 } from "./utils"
@@ -61,10 +60,10 @@ export const handleCheckSubmission = async (
     return
   }
 
-  const { carId, interior, exterior, odoReading, startTimestamp, endTimestamp } =
+  const { carId, answers, odoReading, startTimestamp, endTimestamp } =
     req.body as Required<ReqBody>
 
-  const answersWithFaults = getAnswersWithFaults({ interior, exterior })
+  const answersWithFaults = answers.filter(answer => answer.value === false)
 
   const checkHasFaults = answersWithFaults.length > 0
 
@@ -73,8 +72,7 @@ export const handleCheckSubmission = async (
   const checkData: CheckDoc = {
     council: car!.council,
     carId,
-    interior,
-    exterior,
+    answers,
     odoReading,
     driverId: authorizedUser.uid,
     creationTimestamp,

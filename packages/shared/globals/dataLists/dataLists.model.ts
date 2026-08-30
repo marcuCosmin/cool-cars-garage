@@ -36,8 +36,7 @@ export type CheckRawListItem = RawDataListItem<
     CheckDoc,
     | "carId"
     | "odoReading"
-    | "interior"
-    | "exterior"
+    | "answers"
     | "driverId"
     | "faultsDetails"
     | "startTimestamp"

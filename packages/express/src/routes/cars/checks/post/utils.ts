@@ -7,27 +7,11 @@ import type {
   CheckAnswer,
   CheckDoc,
   DocWithID,
-  ReportsQuestion
+  ReportsQuestion,
+  ReportsQuestionsSection
 } from "@/globals/firestore/firestore.model"
 
 import type { ReqBody } from "./model"
-
-type GetAnswersWithFaultsProps = {
-  interior: CheckAnswer[]
-  exterior: CheckAnswer[]
-}
-
-export const getAnswersWithFaults = ({
-  interior,
-  exterior
-}: GetAnswersWithFaultsProps) => {
-  const combinedSections = [...interior, ...exterior]
-  const answersWithFaults = combinedSections.filter(
-    answer => answer.value === false
-  )
-
-  return answersWithFaults
-}
 
 const getOdoReadingError = (odoReading?: CheckDoc["odoReading"]) => {
   if (!odoReading) {
@@ -66,7 +50,8 @@ const getFaultDetailsError = (details?: string) => {
 const TEN_MINUTES_MS = 10 * 60 * 1000
 
 const getTimestampsError = (startTimestamp?: number, endTimestamp?: number) => {
-  const startDate = startTimestamp !== undefined ? new Date(startTimestamp) : null
+  const startDate =
+    startTimestamp !== undefined ? new Date(startTimestamp) : null
   const endDate = endTimestamp !== undefined ? new Date(endTimestamp) : null
 
   if (!startDate || isNaN(startDate.getTime())) {
@@ -77,7 +62,8 @@ const getTimestampsError = (startTimestamp?: number, endTimestamp?: number) => {
     return "Invalid end timestamp"
   }
 
-  const { startTimestamp: dayStart, endTimestamp: dayEnd } = getTimestampDayTimeRange()
+  const { startTimestamp: dayStart, endTimestamp: dayEnd } =
+    getTimestampDayTimeRange()
 
   if (startDate.getTime() < dayStart || startDate.getTime() > dayEnd) {
     return "Start timestamp must be within today's range"
@@ -123,8 +109,7 @@ type GetReqBodyShallowValidationErrorProps = ReqBody & {
 export const getReqBodyShallowValidationError = ({
   carId,
   odoReading,
-  interior,
-  exterior,
+  answers,
   driverId,
   startTimestamp,
   endTimestamp
@@ -149,45 +134,46 @@ export const getReqBodyShallowValidationError = ({
     return odoReadingError
   }
 
-  const interiorAnswersError = getAnswersShallowValidationError(interior)
+  const answersError = getAnswersShallowValidationError(answers)
 
-  if (interiorAnswersError) {
-    return `Interior section: ${interiorAnswersError}`
+  if (answersError) {
+    return answersError
   }
-
-  const exteriorAnswersError = getAnswersShallowValidationError(exterior)
-
-  if (exteriorAnswersError) {
-    return `Exterior section: ${exteriorAnswersError}`
-  }
-
 }
 
-const isAnswersSectionValid = (
-  sectionQuestions: ReportsQuestion[],
-  answers?: CheckAnswer[]
-) => {
-  if (!answers) {
-    return false
-  }
+type GetInvalidAnswersSectionProps = {
+  questions: ReportsQuestion[]
+  answers: CheckAnswer[]
+}
 
-  if (sectionQuestions.length !== answers.length) {
-    return false
-  }
+const getInvalidAnswersSection = ({
+  questions,
+  answers
+}: GetInvalidAnswersSectionProps) => {
+  const questionsBySection = Object.groupBy(
+    questions,
+    question => question.section
+  )
+  const answersBySection = Object.groupBy(answers, answer => answer.section)
 
-  for (const index in sectionQuestions) {
-    const answer = answers[index]
+  const sections = Object.keys(questionsBySection) as ReportsQuestionsSection[]
 
-    if (typeof answer.value !== "boolean") {
-      return false
+  return sections.find(section => {
+    const sectionQuestions = questionsBySection[section] ?? []
+    const sectionAnswers = answersBySection[section] ?? []
+
+    if (sectionQuestions.length !== sectionAnswers.length) {
+      return true
     }
 
-    if (sectionQuestions[index].label !== answer.label) {
-      return false
-    }
-  }
+    return sectionQuestions.some((question, index) => {
+      const answer = sectionAnswers[index]
 
-  return true
+      return (
+        typeof answer.value !== "boolean" || question.label !== answer.label
+      )
+    })
+  })
 }
 
 const getQuestionsConfigDoc = ({ isRental, council }: DocWithID<CarDoc>) => {
@@ -211,8 +197,7 @@ type GetReqBodyValidationErrorProps = Omit<
 
 export const getDeepReqBodyValidationError = async ({
   car,
-  interior,
-  exterior,
+  answers,
   driverId
 }: GetReqBodyValidationErrorProps) => {
   if (!car) {
@@ -230,12 +215,13 @@ export const getDeepReqBodyValidationError = async ({
     return "Questions config not found"
   }
 
-  if (!isAnswersSectionValid(questionsConfig.interior, interior)) {
-    return "Invalid answers for interior section"
-  }
+  const invalidSection = getInvalidAnswersSection({
+    questions: questionsConfig.questions,
+    answers
+  })
 
-  if (!isAnswersSectionValid(questionsConfig.exterior, exterior)) {
-    return "Invalid answers for exterior section"
+  if (invalidSection) {
+    return `Invalid answers for ${invalidSection} section`
   }
 
   const { startTimestamp, endTimestamp } = getTimestampDayTimeRange()

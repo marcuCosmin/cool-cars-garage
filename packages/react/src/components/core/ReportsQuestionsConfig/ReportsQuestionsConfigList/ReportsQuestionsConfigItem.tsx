@@ -13,7 +13,9 @@ import type {
 
 import { ReportsQuestionsConfigAddButton } from "./ReportsQuestionsConfigAddButton"
 
-type ReportsQuestionsConfigItemProps = DocWithID<ReportsQuestion> & {
+type ReportsQuestionsConfigItemProps = DocWithID<
+  Omit<ReportsQuestion, "section">
+> & {
   onAdd: () => void
   onDelete: () => void
   onLabelChange: (label: string) => void

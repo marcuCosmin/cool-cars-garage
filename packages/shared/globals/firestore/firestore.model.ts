@@ -91,8 +91,11 @@ export type InvitationDoc = Pick<AuthUser, "email" | "role" | "uid"> & {
 
 export type DocWithID<T> = T & { id: string }
 
+export type ReportsQuestionsSection = "interior" | "exterior" | "driver"
+
 export type CheckAnswer = {
   label: string
+  section: ReportsQuestionsSection
   value: boolean
   details?: string
 }
@@ -110,8 +113,7 @@ export type CheckDoc = {
   endTimestamp: number
   driverId: string
   odoReading: CheckOdoReading
-  interior: CheckAnswer[]
-  exterior: CheckAnswer[]
+  answers: CheckAnswer[]
   faultsCount?: number
   hasUnresolvedFaults?: boolean
   incidentsCount?: number
@@ -186,14 +188,12 @@ export type PhoneNumberDoc = {
 
 export type ReportsQuestion = {
   label: string
+  section: ReportsQuestionsSection
 }
 
 export type ReportsQuestionsDoc = {
-  interior: ReportsQuestion[]
-  exterior: ReportsQuestion[]
+  questions: ReportsQuestion[]
 }
-
-export type ReportsQuestionsSection = keyof ReportsQuestionsDoc
 
 export type SimplifiedUser = DocWithID<Pick<UserDoc, "firstName" | "lastName">>
 

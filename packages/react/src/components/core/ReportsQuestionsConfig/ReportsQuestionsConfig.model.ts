@@ -9,10 +9,39 @@ export type ReportsQuestionsCategory =
   | "non-psv-questions"
   | "rental-questions"
 
+export type PropsWithSection<T extends object = object> = T & {
+  section: ReportsQuestionsSection
+}
+
+export type OnSectionChange = (
+  props: PropsWithSection<{ questions: DocWithID<ReportsQuestion>[] }>
+) => void
+
+export type OnItemLabelChange = (
+  props: PropsWithSection<{ id: string; label: string }>
+) => void
+
+export type AddItemAtIndex = (
+  props: PropsWithSection<{ index: number }>
+) => void
+
+export type DeleteItem = (props: PropsWithSection<{ id: string }>) => void
+
+export type OnSectionReset = (props: PropsWithSection) => void
+
 export type ReportsQuestionsConfigListProps = {
-  category: ReportsQuestionsCategory
-  initialQuestions: DocWithID<ReportsQuestion>[]
+  questions: DocWithID<ReportsQuestion>[]
+  hasChanges: boolean
+  onSectionChange: OnSectionChange
+  onItemLabelChange: OnItemLabelChange
+  addItemAtIndex: AddItemAtIndex
+  deleteItem: DeleteItem
+  onSectionReset: OnSectionReset
   isBreakpointActive: boolean
   section: ReportsQuestionsSection
   setActiveSection?: (section: ReportsQuestionsSection) => void
+}
+
+export type ReportsCategoryConfig = {
+  questions: DocWithID<ReportsQuestion>[]
 }
