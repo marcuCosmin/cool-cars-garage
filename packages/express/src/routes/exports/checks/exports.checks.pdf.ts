@@ -5,6 +5,7 @@ import { capitalize } from "@/globals/utils/capitalize"
 
 import type {
   CheckAnswer,
+  CheckAnswerValue,
   CheckWithDriver,
   FaultDoc,
   FullCheck,
@@ -23,7 +24,8 @@ import {
 const badgeClassNames = {
   error: "bg-error/10 text-error",
   success: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning"
+  warning: "bg-warning/10 text-warning",
+  neutral: "bg-gray/10 text-gray"
 }
 
 type RenderTextWithBadgeProps = {
@@ -74,6 +76,15 @@ const renderMetadata = ({ metadata, className }: RenderMetadataProps) => {
     </ul>`
 }
 
+const answerBadges: Record<
+  `${CheckAnswerValue}`,
+  Pick<RenderTextWithBadgeProps, "badgeStatus" | "badgeLabel">
+> = {
+  true: { badgeStatus: "success", badgeLabel: "Passed" },
+  false: { badgeStatus: "error", badgeLabel: "Failed" },
+  "not-applicable": { badgeStatus: "neutral", badgeLabel: "N/A" }
+}
+
 type RenderAnswersSectionProps = {
   sectionType: ReportsQuestionsSection
   answers: CheckAnswer[]
@@ -92,8 +103,7 @@ const renderCheckAnswers = ({
           renderTextWithBadge({
             tag: "li",
             label,
-            badgeStatus: value ? "success" : "error",
-            badgeLabel: value ? "Passed" : "Failed"
+            ...answerBadges[`${value}`]
           })
         )}
       </ul>

@@ -1,8 +1,10 @@
 import {
   CheckCircle,
+  DashCircle,
   PatchCheck,
   PatchExclamation,
-  XCircle
+  XCircle,
+  type Icon
 } from "react-bootstrap-icons"
 
 import { useModalContext } from "@/contexts/Modal/Modal.context"
@@ -15,12 +17,29 @@ import { DataViewListItemMetadata } from "@/components/core/DataView/DataViewLis
 import type { ItemMetadata } from "@/components/core/DataView/DataView.model"
 import type {
   CheckAnswer,
+  CheckAnswerValue,
   DocWithID,
   FaultDoc,
   FullDefect
 } from "@/globals/firestore/firestore.model"
 
 import { reportsChecksIconsSize } from "../ReportsCheck.const"
+
+type AnswerIconConfig = {
+  Icon: Icon
+  label: string
+  className: string
+}
+
+const answerIcons: Record<`${CheckAnswerValue}`, AnswerIconConfig> = {
+  true: { Icon: CheckCircle, label: "Passed", className: "fill-success" },
+  false: { Icon: XCircle, label: "Failed", className: "fill-error" },
+  "not-applicable": {
+    Icon: DashCircle,
+    label: "N/A",
+    className: "fill-secondary"
+  }
+}
 
 type ReportsCheckQuestionCardProps = {
   answer: CheckAnswer
@@ -36,6 +55,12 @@ export const ReportsCheckQuestionCard = ({
   const { setModalProps } = useModalContext()
 
   const { label, value } = answer
+
+  const {
+    Icon: AnswerIcon,
+    label: answerLabel,
+    className: answerIconClassName
+  } = answerIcons[`${value}`]
 
   const { resolutionUser } = fault || {}
 
@@ -94,17 +119,13 @@ export const ReportsCheckQuestionCard = ({
     <li className="border border-primary rounded-md p-4">
       <div className="flex items-center gap-3 w-full">
         <Tooltip
-          label={value ? "Passed" : "Failed"}
+          label={answerLabel}
           containerProps={{ className: "flex items-center shrink-0" }}
         >
-          {value ? (
-            <CheckCircle
-              size={reportsChecksIconsSize}
-              className="fill-success"
-            />
-          ) : (
-            <XCircle size={reportsChecksIconsSize} className="fill-error" />
-          )}
+          <AnswerIcon
+            size={reportsChecksIconsSize}
+            className={answerIconClassName}
+          />
         </Tooltip>
         <p>{label}</p>
       </div>

@@ -169,9 +169,10 @@ const getInvalidAnswersSection = ({
     return sectionQuestions.some((question, index) => {
       const answer = sectionAnswers[index]
 
-      return (
-        typeof answer.value !== "boolean" || question.label !== answer.label
-      )
+      const isValueValid =
+        typeof answer.value === "boolean" || answer.value === "not-applicable"
+
+      return !isValueValid || question.label !== answer.label
     })
   })
 }

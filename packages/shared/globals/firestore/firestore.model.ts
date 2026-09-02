@@ -93,10 +93,12 @@ export type DocWithID<T> = T & { id: string }
 
 export type ReportsQuestionsSection = "interior" | "exterior" | "driver"
 
+export type CheckAnswerValue = boolean | "not-applicable"
+
 export type CheckAnswer = {
   label: string
   section: ReportsQuestionsSection
-  value: boolean
+  value: CheckAnswerValue
   details?: string
 }
 
