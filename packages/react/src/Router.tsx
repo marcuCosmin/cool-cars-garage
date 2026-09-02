@@ -72,6 +72,7 @@ export const Router = () => {
         <>
           <Route index path="/" element={<Reports />} />
           <Route path="/reports/:checkId" element={<ReportsCheck />} />
+          <Route path="/reports/config" element={<ReportsConfig />} />
         </>
       )
     }

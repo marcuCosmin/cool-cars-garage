@@ -26,7 +26,7 @@ export const navLinks: NavLinkConfig[] = [
       {
         label: "Questions Config",
         href: "/reports/config",
-        permittedRoles: ["admin"],
+        permittedRoles: ["admin", "manager"],
         type: "simple"
       },
       {
