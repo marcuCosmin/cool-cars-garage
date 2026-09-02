@@ -42,6 +42,14 @@ type IncidentSubmittedTemplate = {
   check_id: string
 }
 
+type UnresolvedDefectsTemplate = {
+  type: "unresolved_defects"
+  params: {
+    faults_count: string
+    incidents_count: string
+  }
+}
+
 type OutstandingRecallFoundTemplate = {
   type: "outstanding_recall_found"
   params: {
@@ -80,6 +88,7 @@ type SendWappMessageProps = {
     | MissingCheckTemplate
     | FaultsSubmittedTemplate
     | IncidentSubmittedTemplate
+    | UnresolvedDefectsTemplate
     | OutstandingRecallFoundTemplate
     | OutstandingRecallFailedTemplate
     | BulkOutstandingRecallFailedTemplate
