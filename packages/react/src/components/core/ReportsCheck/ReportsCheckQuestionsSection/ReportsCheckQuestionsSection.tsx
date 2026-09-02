@@ -23,7 +23,7 @@ export const ReportsCheckQuestionsSection = ({
   faults,
   checkId
 }: ReportsCheckQuestionsSectionProps) => (
-  <div className="flex flex-col gap-3 max-w-3xl">
+  <div className="flex flex-col gap-3 w-full max-w-3xl">
     <h4 className="text-primary pl-2 font-bold md:text-xl md:pl-0">
       {capitalize(section)}
     </h4>

@@ -2,6 +2,7 @@ import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDispl
 import { formatDuration } from "@/globals/utils/formatDuration"
 import { formatUserName } from "@/globals/utils/formatUserName"
 import { capitalize } from "@/globals/utils/capitalize"
+import { reportsQuestionsSections } from "@/globals/constants"
 
 import type {
   CheckAnswer,
@@ -224,7 +225,9 @@ export const renderIndividualCheckBody = ({
   endTimestamp
 }: FullCheck) => {
   const answersBySection = Object.groupBy(answers, answer => answer.section)
-  const sections = Object.keys(answersBySection) as ReportsQuestionsSection[]
+  const sections = reportsQuestionsSections.filter(
+    section => answersBySection[section]?.length
+  )
   const driverName = formatUserName(driver)
   const displayedTimestamp = parseTimestampForDisplay(creationTimestamp)
   const displayedOdoReading = `${odoReading.value} ${odoReading.unit}`

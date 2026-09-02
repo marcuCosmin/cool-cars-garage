@@ -9,10 +9,8 @@ import {
 
 import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 import { formatDuration } from "@/globals/utils/formatDuration"
-import type {
-  FullCheck,
-  ReportsQuestionsSection
-} from "@/globals/firestore/firestore.model"
+import { reportsQuestionsSections } from "@/globals/constants"
+import type { FullCheck } from "@/globals/firestore/firestore.model"
 
 import { exportResource } from "@/api/api.utils"
 
@@ -48,7 +46,9 @@ export const ReportsCheck = ({ check }: CheckProps) => {
   } = check
 
   const answersBySection = Object.groupBy(answers, answer => answer.section)
-  const sections = Object.keys(answersBySection) as ReportsQuestionsSection[]
+  const sections = reportsQuestionsSections.filter(
+    section => answersBySection[section]?.length
+  )
 
   const displayedDate = parseTimestampForDisplay(creationTimestamp)
   const checkDuration =

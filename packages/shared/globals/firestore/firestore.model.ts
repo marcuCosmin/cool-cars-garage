@@ -1,4 +1,8 @@
-import type { Council, TaxiCouncil } from "../constants"
+import type {
+  Council,
+  TaxiCouncil,
+  reportsQuestionsSections
+} from "../constants"
 
 export type DriverDVLAData = {
   lastName: string
@@ -91,7 +95,7 @@ export type InvitationDoc = Pick<AuthUser, "email" | "role" | "uid"> & {
 
 export type DocWithID<T> = T & { id: string }
 
-export type ReportsQuestionsSection = "interior" | "exterior" | "driver"
+export type ReportsQuestionsSection = (typeof reportsQuestionsSections)[number]
 
 export type CheckAnswerValue = boolean | "not-applicable"
 
