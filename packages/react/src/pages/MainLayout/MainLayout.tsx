@@ -12,7 +12,7 @@ import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 
 import { MainLayoutNavLink } from "./MainLayoutNavLink"
 
-import { navLinks } from "./MainLayout.const"
+import { navLinksByRole } from "./MainLayout.const"
 
 export const MainLayout = () => {
   const userRole = useAppSelector(({ user }) => user.role)
@@ -20,6 +20,8 @@ export const MainLayout = () => {
     ({ user }) => `${user.firstName} ${user.lastName}`
   )
   const navigate = useNavigate()
+
+  const navLinks = navLinksByRole[userRole]
 
   const { isLoading, mutate: signOutMutation } = useAppMutation({
     mutationFn: signOutUser
@@ -46,7 +48,7 @@ export const MainLayout = () => {
       <nav className="flex justify-between sticky left-0 top-0 p-3 w-full bg-primary font-bold z-[9000]">
         <NavLink className="logo" to="/" end />
 
-        {userRole === "admin" && (
+        {navLinks.length > 0 && (
           <div className="flex gap-5 m-auto">
             {navLinks.map((link, index) => (
               <MainLayoutNavLink key={index} {...link} />

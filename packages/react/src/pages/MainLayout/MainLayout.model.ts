@@ -1,9 +1,6 @@
-import type { User } from "@/globals/firestore/firestore.model"
-
 type SimpleNavLinkConfig = {
   label: string
   href: string
-  permittedRoles: User["role"][]
   type: "simple"
 }
 

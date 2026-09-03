@@ -1,7 +1,5 @@
 import { NavLink, useLocation, type NavLinkRenderProps } from "react-router"
 
-import { useAppSelector } from "@/redux/redux.config"
-
 import { Dropdown } from "@/components/basic/Dropdown/Dropdown"
 import { defaultDropdownCloseClassName } from "@/components/basic/Dropdown/Dropdown.const"
 
@@ -15,14 +13,9 @@ type MainLayoutNavLinkProps = NavLinkConfig & {
 
 export const MainLayoutNavLink = (props: MainLayoutNavLinkProps) => {
   const { pathname } = useLocation()
-  const userRole = useAppSelector(state => state.user.role)
 
   if (props.type === "simple") {
-    const { label, href, permittedRoles, isNested } = props
-
-    if (!permittedRoles.includes(userRole)) {
-      return null
-    }
+    const { label, href, isNested } = props
 
     const getNavLinkClassName = ({ isActive }: NavLinkRenderProps) =>
       mergeClassNames(
