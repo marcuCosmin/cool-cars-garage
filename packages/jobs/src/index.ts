@@ -151,4 +151,4 @@ const checkAndRunJobs = async () => {
   })
 }
 
-nodeCron.schedule("*/1 * * * *", checkAndRunJobs)
+nodeCron.schedule("*/5 * * * *", checkAndRunJobs)
