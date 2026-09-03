@@ -10,6 +10,8 @@ import type {
   ReportsQuestionsSection
 } from "@/globals/firestore/firestore.model"
 
+import { reportsQuestionsTabsOptions } from "./ReportsQuestionsConfig.const"
+
 import type {
   AddItemAtIndex,
   DeleteItem,
@@ -71,10 +73,11 @@ export const useReportsQuestionsConfig = ({
     section,
     questions: sectionQuestions
   }) => {
-    setQuestions([
-      ...questions.filter(question => question.section !== section),
-      ...sectionQuestions
-    ])
+    setQuestions(
+      reportsQuestionsTabsOptions.flatMap(({ value }) =>
+        value === section ? sectionQuestions : (questionsBySection[value] ?? [])
+      )
+    )
   }
 
   const onItemLabelChange: OnItemLabelChange = ({ section, id, label }) => {

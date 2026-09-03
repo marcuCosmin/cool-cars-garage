@@ -10,7 +10,10 @@ import { ReportsQuestionsConfigList } from "./ReportsQuestionsConfigList/Reports
 
 import { useReportsQuestionsConfig } from "./useReportsQuestionsConfig"
 
-import { reportsQuestionsBreakpoint } from "./ReportsQuestionsConfig.const"
+import {
+  reportsQuestionsBreakpoint,
+  reportsQuestionsTabsOptions
+} from "./ReportsQuestionsConfig.const"
 
 import type {
   ReportsCategoryConfig,
@@ -58,21 +61,17 @@ export const ReportsQuestionsConfig = ({
 
       <div className="flex w-full justify-center gap-20 overflow-hidden">
         {isDesktopLayout ? (
-          Object.keys(questionsBySection).map(section => {
-            const castSection = section as ReportsQuestionsSection
-
-            return (
-              <ReportsQuestionsConfigList
-                key={castSection}
-                section={castSection}
-                isBreakpointActive={false}
-                questions={questionsBySection[castSection] ?? []}
-                hasChanges={hasSectionChanged(castSection)}
-                setActiveSection={setActiveSection}
-                {...questionsSectionsActions}
-              />
-            )
-          })
+          reportsQuestionsTabsOptions.map(({ value }) => (
+            <ReportsQuestionsConfigList
+              key={value}
+              section={value}
+              isBreakpointActive={false}
+              questions={questionsBySection[value] ?? []}
+              hasChanges={hasSectionChanged(value)}
+              setActiveSection={setActiveSection}
+              {...questionsSectionsActions}
+            />
+          ))
         ) : (
           <ReportsQuestionsConfigList
             section={activeSection}
