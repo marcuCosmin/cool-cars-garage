@@ -9,7 +9,6 @@ import {
   checksBulkExportFormFields,
   type ChecksBulkExportData
 } from "@/globals/forms/forms.const"
-import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
 const formFields = extendFormFields({
   fieldsSchema: checksBulkExportFormFields,
@@ -21,7 +20,7 @@ const formFields = extendFormFields({
 
 export const ChecksBulkExportModal = () => {
   const action = async ({ startTimestamp, endTimestamp }: ChecksBulkExportData) => {
-    const blob = await exportResource({
+    const file = await exportResource({
       resourceId: "checks",
       filters: [
         ["creationTimestamp", ">=", startTimestamp],
@@ -29,12 +28,7 @@ export const ChecksBulkExportModal = () => {
       ]
     })
 
-    const extension = blob.type === "application/zip" ? "zip" : "pdf"
-
-    downloadBlob({
-      blob,
-      fileName: `Vehicle Checks ${parseTimestampForDisplay(startTimestamp)} - ${parseTimestampForDisplay(endTimestamp)}.${extension}`
-    })
+    downloadBlob(file)
   }
 
   return (

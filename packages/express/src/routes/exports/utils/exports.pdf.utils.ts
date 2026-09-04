@@ -1,9 +1,10 @@
 import fs from "fs"
 import path from "path"
 
-import { launch as launchBrowser, type Browser } from "puppeteer"
+import { launch as launchPuppeteerBrowser, type Browser } from "puppeteer"
 
-export const PDF_GENERATION_CONCURRENCY_LIMIT = 2
+const PDF_GENERATION_CONCURRENCY_LIMIT = 2
+const BROWSER_IDLE_TIMEOUT_MS = 60 * 1000
 
 const rawMarker = Symbol("rawHtml")
 
@@ -75,23 +76,101 @@ export const html = (
     )
   )
 
-let browser: Browser | null = null
+let browserPromise: Promise<Browser> | null = null
+let activeBrowser: Browser | null = null
+let idleBrowserTimeout: NodeJS.Timeout | null = null
 
-const loadBrowser = async () => {
-  if (browser?.connected) {
-    return browser
-  }
-
-  browser = await launchBrowser({
+const launchBrowser = async () => {
+  const browser = await launchPuppeteerBrowser({
     headless: "shell",
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
-      "--user-data-dir=/var/www/.chrome-user-data"
+      "--disable-dev-shm-usage"
     ]
   })
 
+  activeBrowser = browser
+
+  browser.once("disconnected", () => {
+    if (activeBrowser !== browser) {
+      return
+    }
+
+    browserPromise = null
+    activeBrowser = null
+  })
+
   return browser
+}
+
+const loadBrowser = async () => {
+  if (!browserPromise) {
+    browserPromise = launchBrowser()
+  }
+
+  try {
+    return await browserPromise
+  } catch (error) {
+    browserPromise = null
+
+    throw error
+  }
+}
+
+const closeIdleBrowser = () => {
+  const idleBrowser = activeBrowser
+
+  idleBrowserTimeout = null
+  browserPromise = null
+  activeBrowser = null
+
+  idleBrowser?.close().catch(closeError => console.log(closeError))
+}
+
+const scheduleIdleBrowserClose = () => {
+  idleBrowserTimeout = setTimeout(closeIdleBrowser, BROWSER_IDLE_TIMEOUT_MS)
+
+  idleBrowserTimeout.unref()
+}
+
+const cancelIdleBrowserClose = () => {
+  if (!idleBrowserTimeout) {
+    return
+  }
+
+  clearTimeout(idleBrowserTimeout)
+
+  idleBrowserTimeout = null
+}
+
+let activeGenerations = 0
+const pendingGenerations: (() => void)[] = []
+
+const acquireGenerationSlot = async () => {
+  if (activeGenerations < PDF_GENERATION_CONCURRENCY_LIMIT) {
+    activeGenerations++
+
+    return
+  }
+
+  await new Promise<void>(resolve => pendingGenerations.push(resolve))
+}
+
+const releaseGenerationSlot = () => {
+  const startNextGeneration = pendingGenerations.shift()
+
+  if (startNextGeneration) {
+    startNextGeneration()
+
+    return
+  }
+
+  activeGenerations--
+
+  if (!activeGenerations) {
+    scheduleIdleBrowserClose()
+  }
 }
 
 const cssPath = path.join(__dirname, "exports.pdf.css")
@@ -115,9 +194,12 @@ const getExportHTML = (body: RawHtml) =>
       </body>
     </html>`
 
-export const generatePDF = async (body: RawHtml) => {
-  const browser = await loadBrowser()
+type RenderPDFProps = {
+  browser: Browser
+  body: RawHtml
+}
 
+const renderPDF = async ({ browser, body }: RenderPDFProps) => {
   const page = await browser.newPage()
 
   try {
@@ -136,6 +218,22 @@ export const generatePDF = async (body: RawHtml) => {
 
     return await page.pdf({ format: "A4", printBackground: true })
   } finally {
-    await page.close()
+    await page.close().catch(closeError => console.log(closeError))
+  }
+}
+
+export const generatePDF = async (body: RawHtml) => {
+  cancelIdleBrowserClose()
+
+  await acquireGenerationSlot()
+
+  try {
+    const browser = await loadBrowser()
+
+    const pdf = await renderPDF({ browser, body })
+
+    return pdf
+  } finally {
+    releaseGenerationSlot()
   }
 }

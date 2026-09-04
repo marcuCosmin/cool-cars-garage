@@ -1,5 +1,3 @@
-import path from "path"
-
 import type {
   ExportableResources,
   ExportParams,
@@ -38,24 +36,22 @@ export const validateExportPayload = ({
   }
 }
 
-export const getUniqueFilenameGetter = () => {
-  const filenameCounts = new Map<string, number>()
-
-  return (filename: string) => {
-    const count = (filenameCounts.get(filename) ?? 0) + 1
-
-    filenameCounts.set(filename, count)
-
-    if (count === 1) {
-      return filename
-    }
-
-    const extension = path.extname(filename)
-    const filenameBase = filename.slice(0, filename.length - extension.length)
-
-    return `${filenameBase}-${count}${extension}`
-  }
+type GetContentDispositionProps = {
+  disposition: "inline" | "attachment"
+  filename: string
 }
+
+const encodeExtValue = (value: string) =>
+  encodeURIComponent(value).replace(
+    /[!'()*]/g,
+    character => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+  )
+
+export const getContentDisposition = ({
+  disposition,
+  filename
+}: GetContentDispositionProps) =>
+  `${disposition}; filename*=UTF-8''${encodeExtValue(filename)}`
 
 export const isExportableResource = (
   resourceId: string

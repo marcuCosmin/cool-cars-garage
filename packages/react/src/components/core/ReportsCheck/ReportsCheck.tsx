@@ -110,17 +110,12 @@ export const ReportsCheck = ({ check }: CheckProps) => {
   ]
 
   const onExportCheck = async () => {
-    const blob = await exportResource({
+    const file = await exportResource({
       resourceId: "checks",
       filters: [["__name__", "==", check.id]]
     })
 
-    const extension = blob.type === "application/zip" ? "zip" : "pdf"
-
-    downloadBlob({
-      blob,
-      fileName: `Check Report - ${carId} - ${displayedDate}.${extension}`
-    })
+    downloadBlob(file)
   }
 
   const { isLoading: isExporting, mutate: handleCheckExport } = useAppMutation({

@@ -25,7 +25,7 @@ export const DataViewFileMetadataItem = ({
   } = useQuery({
     queryKey: ["/files", value],
     queryFn: async () => {
-      const blob = await getFile(value)
+      const { blob } = await getFile(value)
 
       return URL.createObjectURL(blob)
     }

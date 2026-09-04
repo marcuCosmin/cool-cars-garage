@@ -5,6 +5,7 @@ import { getFirestoreDocs } from "@/backend/firebase/utils"
 
 import type {
   CheckDoc,
+  CheckWithDriver,
   DefectType,
   DocWithID,
   FaultDoc,
@@ -17,13 +18,17 @@ import type {
 
 import type { GeneratedExportFile } from "../exports.model"
 
-export type CheckFilenameData = Pick<CheckDoc, "carId" | "creationTimestamp">
+export type CheckFilenameData = Pick<
+  CheckWithDriver,
+  "carId" | "creationTimestamp" | "driver"
+>
 
 export const getCheckFilenameBase = ({
   carId,
-  creationTimestamp
+  creationTimestamp,
+  driver: { firstName, lastName }
 }: CheckFilenameData) =>
-  `check-${carId}-${new Date(creationTimestamp).toISOString().slice(0, 10)}`
+  `check-${carId}-${firstName}-${lastName}-${new Date(creationTimestamp).toISOString().slice(0, 10)}`
 
 type GetDefectAttachmentFilenameProps = {
   check: CheckFilenameData
@@ -191,6 +196,7 @@ const getDefectsAttachmentsData = ({
 export const getDefectsAttachmentFiles = async ({
   carId,
   creationTimestamp,
+  driver,
   faults,
   incidents
 }: FullCheck): Promise<GeneratedExportFile[]> => {
@@ -223,7 +229,7 @@ export const getDefectsAttachmentFiles = async ({
 
       return {
         filename: getDefectAttachmentFilename({
-          check: { carId, creationTimestamp },
+          check: { carId, creationTimestamp, driver },
           type,
           defectNumber,
           resolutionFileUrl

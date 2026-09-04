@@ -1,11 +1,6 @@
-import { getUniqueFilenameGetter } from "../utils/exports.utils"
-
 import type { GeneratedExportFile, GetFiles } from "../exports.model"
 
-import {
-  generatePDF,
-  PDF_GENERATION_CONCURRENCY_LIMIT
-} from "../utils/exports.pdf.utils"
+import { generatePDF } from "../utils/exports.pdf.utils"
 
 import {
   buildFullCheck,
@@ -130,32 +125,15 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
     })
   )
 
-  const getUniqueFilename = getUniqueFilenameGetter()
+  const defectiveChecksFiles = await Promise.all(
+    defectiveFullChecks.map(async fullCheck => ({
+      filename: getCheckFilename(fullCheck),
+      buffer: await generatePDF(renderIndividualCheckBody(fullCheck)),
+      contentType: "application/pdf"
+    }))
+  )
 
-  for (
-    let i = 0;
-    i < defectiveFullChecks.length;
-    i += PDF_GENERATION_CONCURRENCY_LIMIT
-  ) {
-    const batch = defectiveFullChecks.slice(
-      i,
-      i + PDF_GENERATION_CONCURRENCY_LIMIT
-    )
-
-    const batchFiles = await Promise.all(
-      batch.map(async fullCheck => {
-        const buffer = await generatePDF(renderIndividualCheckBody(fullCheck))
-
-        return {
-          filename: getUniqueFilename(getCheckFilename(fullCheck)),
-          buffer,
-          contentType: "application/pdf"
-        }
-      })
-    )
-
-    files.push(...batchFiles)
-  }
+  files.push(...defectiveChecksFiles)
 
   return files
 }

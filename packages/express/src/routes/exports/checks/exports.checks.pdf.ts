@@ -271,12 +271,12 @@ export const renderIndividualCheckBody = ({
     ${renderDefects({
       type: "faults",
       defects: faults,
-      check: { carId, creationTimestamp }
+      check: { carId, creationTimestamp, driver }
     })}
     ${renderDefects({
       type: "incidents",
       defects: incidents,
-      check: { carId, creationTimestamp }
+      check: { carId, creationTimestamp, driver }
     })}
   `
 }

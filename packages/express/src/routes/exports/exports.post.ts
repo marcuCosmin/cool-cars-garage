@@ -10,6 +10,7 @@ import type {
 import type { Request, Response } from "@/models"
 
 import {
+  getContentDisposition,
   isExportableResource,
   validateExportPayload
 } from "./utils/exports.utils"
@@ -58,7 +59,10 @@ export const handleExport = async (
 
     res.set({
       "Content-Type": file.contentType,
-      "Content-Disposition": `inline; filename="${file.filename}"`,
+      "Content-Disposition": getContentDisposition({
+        disposition: "inline",
+        filename: file.filename
+      }),
       "Content-Length": file.buffer.length
     })
 
@@ -72,14 +76,21 @@ export const handleExport = async (
 
   res.set({
     "Content-Type": "application/zip",
-    "Content-Disposition": `attachment; filename="${resourceId}-export.zip"`
+    "Content-Disposition": getContentDisposition({
+      disposition: "attachment",
+      filename: `${resourceId}-export.zip`
+    })
   })
 
   archive.pipe(res)
 
-  files.forEach(({ filename, buffer }) => {
-    archive.append(Buffer.from(buffer), { name: filename })
-  })
+  files.forEach(
+    ({ filename, buffer: { buffer: arrayBuffer, byteOffset, byteLength } }) => {
+      archive.append(Buffer.from(arrayBuffer, byteOffset, byteLength), {
+        name: filename
+      })
+    }
+  )
 
   await archive.finalize()
 }

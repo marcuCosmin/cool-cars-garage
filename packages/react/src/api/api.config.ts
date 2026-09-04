@@ -32,6 +32,11 @@ type ApiDataResponse = {
   message: string
 }
 
+type BlobResponse = {
+  blob: Blob
+  fileName: string
+}
+
 type AuthTokenResponse = {
   authToken: string
 }
@@ -107,14 +112,14 @@ type ApiConfig =
       path: `/files?filePath=${string}`
       method: "GET"
       responseType: "blob"
-      response: Blob
+      response: BlobResponse
     }
   | {
       path: `/exports/${ExportableResources}`
       method: "POST"
       payload: ExportPayload<ExportableResources>
       responseType: "blob"
-      response: Blob
+      response: BlobResponse
     }
 
 type ExecuteApiRequestProps = DistributiveOmit<ApiConfig, "response">
@@ -169,6 +174,14 @@ const getRequestOptions = async (request: ExecuteApiRequestProps) => {
   }
 }
 
+const getResponseFileName = (response: Response) => {
+  const encodedFileName = response.headers
+    .get("Content-Disposition")
+    ?.match(/filename\*=UTF-8''(.+)/)?.[1]
+
+  return encodedFileName ? decodeURIComponent(encodedFileName) : "download"
+}
+
 export const executeApiRequest = async <P extends ExecuteApiRequestProps>(
   props: P
 ): Promise<ApiResponse<P>> => {
@@ -182,7 +195,9 @@ export const executeApiRequest = async <P extends ExecuteApiRequestProps>(
   }
 
   if ("responseType" in props && props.responseType === "blob") {
-    return (await response.blob()) as ApiResponse<P>
+    const blob = await response.blob()
+
+    return { blob, fileName: getResponseFileName(response) } as ApiResponse<P>
   }
 
   return (await response.json()) as ApiResponse<P>
