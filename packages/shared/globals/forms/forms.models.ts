@@ -1,12 +1,21 @@
 import type { SearchPayloads } from "../requests/requests.model"
 
 export type FormFieldValue = string | number | boolean
-export type FormFieldValidator = (value?: FormFieldValue) => string
 
 export type FormData = Record<string, FormFieldValue>
 
+type FormFieldValidatorProps<T extends FormData> = {
+  value?: FormFieldValue
+  formData: Partial<T>
+}
+
+export type FormFieldValidator<T extends FormData = FormData> = ({
+  value,
+  formData
+}: FormFieldValidatorProps<T>) => string
+
 type FormFieldsCommonProps<T extends FormData> = {
-  validate?: FormFieldValidator
+  validate?: FormFieldValidator<T>
   shouldHide?: (formFields: Partial<T>) => boolean
   isOptional?: (data: Partial<T>) => boolean
 }

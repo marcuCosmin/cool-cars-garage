@@ -21,6 +21,7 @@ type FormFieldProps<T extends FormData> = Omit<
   onErrorChange: (name: string, error?: string) => void
   onPendingPromiseChange: (name: string, hasPendingPromise: boolean) => void
   optional?: boolean
+  formData: Partial<T>
 }
 
 export const FormField = <T extends FormData>({
@@ -34,6 +35,7 @@ export const FormField = <T extends FormData>({
   onPendingPromiseChange,
   validate,
   optional,
+  formData,
   label,
   ...props
 }: FormFieldProps<T>) => {
@@ -42,7 +44,7 @@ export const FormField = <T extends FormData>({
       return
     }
 
-    const errorMessage = validate(value)
+    const errorMessage = validate({ value, formData })
     onErrorChange(name, errorMessage)
   }
 

@@ -123,6 +123,7 @@ export const Form = <T extends FormData>({
           return (
             <FormField
               {...remainingProps}
+              formData={fieldsValues}
               optional={optional}
               name={name}
               key={name}

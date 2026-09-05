@@ -42,7 +42,7 @@ export const getFormFieldsValidationResult = <T extends FormData>(
     const { validate, isOptional } = fieldProps
 
     const shouldValidate = isOptional?.(formData) ? !!value : true
-    const error = shouldValidate ? validate?.(value) : undefined
+    const error = shouldValidate ? validate?.({ value, formData }) : undefined
 
     if (error) {
       hasValidationError = true

@@ -1,8 +1,8 @@
 import { validate as validateEmail } from "email-validator"
 
-import type { FormFieldValue, FormFieldValidator } from "./forms.models"
+import type { FormData, FormFieldValidator } from "./forms.models"
 
-type CreateValidator = {
+type CreateValidator<T extends FormData> = {
   min?: number
   max?: number
   required?: boolean
@@ -10,12 +10,18 @@ type CreateValidator = {
     pattern: RegExp
     error: string
   }
-  customValidation?: FormFieldValidator
+  customValidation?: FormFieldValidator<T>
 }
 
 const createValidator =
-  ({ min, max, required, regex, customValidation }: CreateValidator) =>
-  (value?: FormFieldValue) => {
+  <T extends FormData = FormData>({
+    min,
+    max,
+    required,
+    regex,
+    customValidation
+  }: CreateValidator<T>): FormFieldValidator<T> =>
+  ({ value, formData }) => {
     if (typeof value === "string") {
       value = value.trim()
     }
@@ -49,7 +55,7 @@ const createValidator =
     }
 
     if (customValidation) {
-      return customValidation(value)
+      return customValidation({ value, formData })
     }
 
     return ""
@@ -61,7 +67,7 @@ export const getRequiredError = createValidator({
 
 export const getEmailError = createValidator({
   required: true,
-  customValidation: (value = "") => {
+  customValidation: ({ value = "" }) => {
     if (typeof value !== "string") {
       value = value.toString()
     }

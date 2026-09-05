@@ -80,7 +80,7 @@ export const getFormValidationResult = async <
     }
 
     if (validate) {
-      const error = validate(value)
+      const error = validate({ value, formData: data })
 
       if (error) {
         errors[key] = error
