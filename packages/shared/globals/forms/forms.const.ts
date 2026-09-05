@@ -3,11 +3,12 @@ import { taxiCouncils } from "../constants"
 import {
   getDrivingLicenceNumberError,
   getEmailError,
+  getExportPeriodError,
   getNameError,
   getRequiredError
 } from "./forms.utils"
 
-import type { FormFieldsSchema } from "./forms.models"
+import type { ChecksBulkExportData, FormFieldsSchema } from "./forms.models"
 import type {
   DriverDVLAData,
   DriverData,
@@ -138,11 +139,6 @@ export const resolveDefectFields = {
   }
 } satisfies FormFieldsSchema<ResolveDefectFields>
 
-export type ChecksBulkExportData = {
-  startTimestamp: number
-  endTimestamp: number
-}
-
 export const checksBulkExportFormFields: FormFieldsSchema<ChecksBulkExportData> =
   {
     startTimestamp: {
@@ -151,6 +147,6 @@ export const checksBulkExportFormFields: FormFieldsSchema<ChecksBulkExportData> 
     },
     endTimestamp: {
       type: "date",
-      validate: getRequiredError
+      validate: getExportPeriodError
     }
   }

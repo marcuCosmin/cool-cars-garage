@@ -1,5 +1,9 @@
 import path from "path"
 
+import { checksBulkExportFormFields } from "@/globals/forms/forms.const"
+
+import { getFormValidationResult } from "@/utils/get-form-validation-result"
+
 import { storage } from "@/backend/firebase/config"
 import { getFirestoreDocs } from "@/backend/firebase/utils"
 
@@ -16,12 +20,55 @@ import type {
   SimplifiedUser
 } from "@/globals/firestore/firestore.model"
 
+import type { ExportPayload } from "@/globals/requests/requests.model"
+
 import type { GeneratedExportFile } from "../exports.model"
 
 export type CheckFilenameData = Pick<
   CheckWithDriver,
   "carId" | "creationTimestamp" | "driver"
 >
+
+type GetTimestampFilterValueProps = {
+  filters: ExportPayload<"checks">["filters"]
+  operator: ">=" | "<="
+}
+
+const getTimestampFilterValue = ({
+  filters,
+  operator
+}: GetTimestampFilterValueProps) => {
+  const timestampFilter = filters?.find(
+    ([field, filterOperator]) =>
+      field === "creationTimestamp" && filterOperator === operator
+  )
+
+  const timestamp = timestampFilter?.[2]
+
+  return typeof timestamp === "number" ? timestamp : undefined
+}
+
+export const getChecksExtraValidationError = async ({
+  filters
+}: ExportPayload<"checks">) => {
+  const isSingleCheckExport = filters?.some(([field]) => field === "__name__")
+
+  if (isSingleCheckExport) {
+    return
+  }
+
+  const { errors } = await getFormValidationResult({
+    schema: checksBulkExportFormFields,
+    data: {
+      startTimestamp: getTimestampFilterValue({ filters, operator: ">=" }),
+      endTimestamp: getTimestampFilterValue({ filters, operator: "<=" })
+    }
+  })
+
+  const [error] = Object.values(errors ?? {})
+
+  return error
+}
 
 export const getCheckFilenameBase = ({
   carId,

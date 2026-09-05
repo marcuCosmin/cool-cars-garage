@@ -44,6 +44,13 @@ export const handleExport = async (
     return
   }
 
+  const extraValidationError = await config.getExtraValidationError?.(payload)
+
+  if (extraValidationError) {
+    res.status(400).json({ error: extraValidationError })
+    return
+  }
+
   const files = await config.getFiles(payload)
 
   if (!files.length) {

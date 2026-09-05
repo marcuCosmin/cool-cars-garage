@@ -1,6 +1,10 @@
 import { validate as validateEmail } from "email-validator"
 
-import type { FormData, FormFieldValidator } from "./forms.models"
+import type {
+  ChecksBulkExportData,
+  FormData,
+  FormFieldValidator
+} from "./forms.models"
 
 type CreateValidator<T extends FormData> = {
   min?: number
@@ -102,6 +106,27 @@ export const getPhoneNumberError = createValidator({
     pattern:
       /^(?:\+44\s?7\d{8}|\+44\s?\d{2,4}\s?\d{3,4}\s?\d{3,4}|7\d{8}|\d{2,4}\s?\d{3,4}\s?\d{3,4})$/,
     error: "Invalid phone number"
+  }
+})
+
+const maxExportPeriodYears = 2
+
+export const getExportPeriodError = createValidator<ChecksBulkExportData>({
+  required: true,
+  customValidation: ({ value, formData: { startTimestamp } }) => {
+    const periodError = `Select a period of at most ${maxExportPeriodYears} years`
+
+    if (!startTimestamp || typeof value !== "number") {
+      return periodError
+    }
+
+    const firstExcludedDate = new Date(startTimestamp)
+    firstExcludedDate.setFullYear(
+      firstExcludedDate.getFullYear() + maxExportPeriodYears
+    )
+    firstExcludedDate.setDate(firstExcludedDate.getDate() + 1)
+
+    return value >= firstExcludedDate.getTime() ? periodError : ""
   }
 })
 

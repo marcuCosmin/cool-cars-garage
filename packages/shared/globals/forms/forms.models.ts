@@ -52,3 +52,8 @@ export type FormFieldsSchema<T extends FormData> = {
     | FormInputProps<T>
     | FormFileProps<T>
 }
+
+export type ChecksBulkExportData = {
+  startTimestamp: number
+  endTimestamp: number
+}
