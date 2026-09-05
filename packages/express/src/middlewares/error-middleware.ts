@@ -1,12 +1,28 @@
 import { type Request, type Response, type NextFunction } from "express"
 
+import type { Error } from "@/models"
+
 export const errorMiddleware = (
   error: Error,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(error)
+  const loggableError = error.shouldForwardToClient ? error.cause : error
 
-  res.status(500).json({ error: error.message || "Internal Server Error" })
+  if (loggableError) {
+    console.log(loggableError)
+  }
+
+  if (res.headersSent) {
+    next(error)
+    return
+  }
+
+  if (error.shouldForwardToClient) {
+    res.status(500).json({ error: error.message })
+    return
+  }
+
+  res.status(500).json({ error: "Something went wrong, please try again" })
 }

@@ -5,6 +5,8 @@ import type {
 
 import type { AuthUser } from "@/globals/firestore/firestore.model"
 
+export type Error = globalThis.Error & { shouldForwardToClient?: boolean }
+
 export type UserMetadata = {
   role: "admin" | "user"
 }
