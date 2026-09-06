@@ -1,6 +1,7 @@
 import type {
   ExportableResources,
   ExportParams,
+  ExportWarnings,
   SearchPayload
 } from "@/globals/requests/requests.model"
 
@@ -56,3 +57,21 @@ export const getContentDisposition = ({
 export const isExportableResource = (
   resourceId: string
 ): resourceId is ExportableResources => resourceId in exportsConfig
+
+const maxExportWarningsLength = 3500
+
+export const encodeExportWarnings = (warnings: ExportWarnings) => {
+  const encodeWarnings = (failedReports: string[]) =>
+    encodeURIComponent(JSON.stringify({ ...warnings, failedReports }))
+
+  const failedReports = [...warnings.failedReports]
+
+  while (
+    failedReports.length &&
+    encodeWarnings(failedReports).length > maxExportWarningsLength
+  ) {
+    failedReports.pop()
+  }
+
+  return encodeWarnings(failedReports)
+}

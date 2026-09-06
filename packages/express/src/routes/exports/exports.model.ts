@@ -1,6 +1,7 @@
 import type {
   ExportableResources,
-  ExportPayload
+  ExportPayload,
+  ExportWarnings
 } from "@/globals/requests/requests.model"
 
 export type GeneratedExportFile = {
@@ -9,6 +10,11 @@ export type GeneratedExportFile = {
   contentType: string
 }
 
+export type ExportResult = {
+  files: GeneratedExportFile[]
+  warnings?: ExportWarnings
+}
+
 export type GetFiles<Resource extends ExportableResources> = (
   payload: ExportPayload<Resource>
-) => Promise<GeneratedExportFile[]>
+) => Promise<ExportResult>

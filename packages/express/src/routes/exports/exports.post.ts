@@ -7,9 +7,12 @@ import type {
   ExportPayload
 } from "@/globals/requests/requests.model"
 
+import { exportWarningsHeader } from "@/globals/requests/requests.const"
+
 import type { Request, Response } from "@/models"
 
 import {
+  encodeExportWarnings,
   getContentDisposition,
   isExportableResource,
   validateExportPayload
@@ -51,7 +54,11 @@ export const handleExport = async (
     return
   }
 
-  const files = await config.getFiles(payload)
+  const { files, warnings } = await config.getFiles(payload)
+
+  if (warnings) {
+    res.set(exportWarningsHeader, encodeExportWarnings(warnings))
+  }
 
   if (!files.length) {
     res.status(404).json({

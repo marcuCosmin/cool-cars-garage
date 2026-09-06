@@ -1,6 +1,8 @@
 import fs from "fs"
 import path from "path"
 
+import { handleError } from "@/utils/handle-error"
+
 import { launch as launchPuppeteerBrowser, type Browser } from "puppeteer"
 
 const PDF_GENERATION_CONCURRENCY_LIMIT = 2
@@ -222,7 +224,12 @@ const renderPDF = async ({ browser, body }: RenderPDFProps) => {
   }
 }
 
-export const generatePDF = async (body: RawHtml) => {
+type GeneratePDFProps = {
+  body: RawHtml
+  errorMessage?: string
+}
+
+export const generatePDF = async ({ body, errorMessage }: GeneratePDFProps) => {
   cancelIdleBrowserClose()
 
   await acquireGenerationSlot()
@@ -233,6 +240,12 @@ export const generatePDF = async (body: RawHtml) => {
     const pdf = await renderPDF({ browser, body })
 
     return pdf
+  } catch (cause) {
+    return handleError({
+      message: errorMessage,
+      shouldForwardToClient: !!errorMessage,
+      cause
+    })
   } finally {
     releaseGenerationSlot()
   }

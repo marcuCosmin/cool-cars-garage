@@ -39,26 +39,30 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
   })
 
   if (!checksSearchResult.length) {
-    return []
+    return { files: [] }
   }
 
   if (checksSearchResult.length === 1) {
     const [check] = checksSearchResult
     const fullCheck = await buildFullCheck(check)
-    const individualCheckHTML = renderIndividualCheckBody(fullCheck)
 
-    const buffer = await generatePDF(individualCheckHTML)
+    const buffer = await generatePDF({
+      body: renderIndividualCheckBody(fullCheck),
+      errorMessage: "Could not generate the report, please try again"
+    })
 
     const attachmentFiles = await getDefectsAttachmentFiles(fullCheck)
 
-    return [
-      {
-        filename: getCheckFilename(fullCheck),
-        buffer,
-        contentType: "application/pdf"
-      },
-      ...attachmentFiles
-    ]
+    return {
+      files: [
+        {
+          filename: getCheckFilename(fullCheck),
+          buffer,
+          contentType: "application/pdf"
+        },
+        ...attachmentFiles
+      ]
+    }
   }
 
   const defectiveChecks = checksSearchResult.filter(
@@ -102,10 +106,15 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
     })
   )
 
+  const summaryBuffer = await generatePDF({
+    body: renderBulkChecksBody(checksWithDrivers),
+    errorMessage: "Could not generate the export summary, please try again"
+  })
+
   const files: GeneratedExportFile[] = [
     {
       filename: "checks-summary.pdf",
-      buffer: await generatePDF(renderBulkChecksBody(checksWithDrivers)),
+      buffer: summaryBuffer,
       contentType: "application/pdf"
     }
   ]
@@ -125,15 +134,44 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
     })
   )
 
-  const defectiveChecksFiles = await Promise.all(
-    defectiveFullChecks.map(async fullCheck => ({
-      filename: getCheckFilename(fullCheck),
-      buffer: await generatePDF(renderIndividualCheckBody(fullCheck)),
-      contentType: "application/pdf"
-    }))
+  const generatedReports = await Promise.all(
+    defectiveFullChecks.map(async fullCheck => {
+      try {
+        return {
+          fullCheck,
+          file: {
+            filename: getCheckFilename(fullCheck),
+            buffer: await generatePDF({
+              body: renderIndividualCheckBody(fullCheck)
+            }),
+            contentType: "application/pdf"
+          }
+        }
+      } catch (error) {
+        console.log(error)
+
+        return { fullCheck, file: null }
+      }
+    })
   )
 
-  files.push(...defectiveChecksFiles)
+  files.push(
+    ...generatedReports.flatMap(({ file }) => (file ? [file] : []))
+  )
 
-  return files
+  const failedReportsFilenames = generatedReports.flatMap(({ fullCheck, file }) =>
+    file ? [] : [getCheckFilename(fullCheck)]
+  )
+
+  if (!failedReportsFilenames.length) {
+    return { files }
+  }
+
+  return {
+    files,
+    warnings: {
+      failedReports: failedReportsFilenames,
+      failedReportsCount: failedReportsFilenames.length
+    }
+  }
 }

@@ -3,6 +3,7 @@ import path from "path"
 import { checksBulkExportFormFields } from "@/globals/forms/forms.const"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
+import { handleError } from "@/utils/handle-error"
 
 import { storage } from "@/backend/firebase/config"
 import { getFirestoreDocs } from "@/backend/firebase/utils"
@@ -287,9 +288,17 @@ export const getDefectsAttachmentFiles = async ({
     }
   )
 
-  const attachmentFiles = await Promise.all(attachmentsPromises)
+  try {
+    const attachmentFiles = await Promise.all(attachmentsPromises)
 
-  return attachmentFiles.flatMap(file => (file ? [file] : []))
+    return attachmentFiles.flatMap(file => (file ? [file] : []))
+  } catch (cause) {
+    return handleError({
+      message: "Could not download the attachments, please try again",
+      shouldForwardToClient: true,
+      cause
+    })
+  }
 }
 
 export const getCheckFilename = (check: CheckFilenameData) =>

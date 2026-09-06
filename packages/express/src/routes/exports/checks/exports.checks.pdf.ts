@@ -330,3 +330,4 @@ export const renderBulkChecksBody = (checks: CheckWithDriver[]) => {
       </tbody>
     </table>`
 }
+

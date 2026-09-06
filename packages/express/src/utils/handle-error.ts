@@ -1,5 +1,5 @@
 type HandleErrorProps = {
-  message: string
+  message?: string
   shouldForwardToClient?: boolean
   cause?: unknown
 }
@@ -9,5 +9,9 @@ export const handleError = ({
   shouldForwardToClient = false,
   cause
 }: HandleErrorProps) => {
+  if (!message) {
+    throw cause
+  }
+
   throw Object.assign(new Error(message, { cause }), { shouldForwardToClient })
 }

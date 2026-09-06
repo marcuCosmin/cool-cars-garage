@@ -1,5 +1,7 @@
 import { firebaseAuth } from "@/firebase/firebase.config"
 
+import { exportWarningsHeader } from "@/globals/requests/requests.const"
+
 import type {
   UserCreateData,
   SignUpData,
@@ -17,7 +19,8 @@ import type {
   FileUploadResponse,
   FileEntityType,
   ExportableResources,
-  ExportPayload
+  ExportPayload,
+  ExportWarnings
 } from "@/globals/requests/requests.model"
 import type { fileUploadFieldName } from "@/globals/requests/requests.const"
 import type { DistributiveOmit } from "@/globals/model"
@@ -35,6 +38,10 @@ type ApiDataResponse = {
 type BlobResponse = {
   blob: Blob
   fileName: string
+}
+
+type ExportResponse = BlobResponse & {
+  warnings?: Partial<ExportWarnings>
 }
 
 type AuthTokenResponse = {
@@ -119,7 +126,7 @@ type ApiConfig =
       method: "POST"
       payload: ExportPayload<ExportableResources>
       responseType: "blob"
-      response: BlobResponse
+      response: ExportResponse
     }
 
 type ExecuteApiRequestProps = DistributiveOmit<ApiConfig, "response">
@@ -174,7 +181,34 @@ const getRequestOptions = async (request: ExecuteApiRequestProps) => {
   }
 }
 
-const getResponseFileName = (response: Response) => {
+const getExportWarnings = (
+  response: Response
+): Partial<ExportWarnings> | undefined => {
+  const encodedWarnings = response.headers.get(exportWarningsHeader)
+
+  if (!encodedWarnings) {
+    return
+  }
+
+  try {
+    const { failedReports, failedReportsCount } = JSON.parse(
+      decodeURIComponent(encodedWarnings)
+    ) as Partial<ExportWarnings>
+
+    if (
+      !Array.isArray(failedReports) ||
+      typeof failedReportsCount !== "number"
+    ) {
+      return {}
+    }
+
+    return { failedReports, failedReportsCount }
+  } catch {
+    return {}
+  }
+}
+
+const getExportFileName = (response: Response) => {
   const encodedFileName = response.headers
     .get("Content-Disposition")
     ?.match(/filename\*=UTF-8''(.+)/)?.[1]
@@ -195,9 +229,18 @@ export const executeApiRequest = async <P extends ExecuteApiRequestProps>(
   }
 
   if ("responseType" in props && props.responseType === "blob") {
-    const blob = await response.blob()
+    const blobResponse: ExportResponse = {
+      blob: await response.blob(),
+      fileName: getExportFileName(response)
+    }
 
-    return { blob, fileName: getResponseFileName(response) } as ApiResponse<P>
+    const warnings = getExportWarnings(response)
+
+    if (warnings) {
+      blobResponse.warnings = warnings
+    }
+
+    return blobResponse as ApiResponse<P>
   }
 
   return (await response.json()) as ApiResponse<P>

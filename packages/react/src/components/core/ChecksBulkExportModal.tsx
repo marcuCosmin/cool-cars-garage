@@ -1,5 +1,7 @@
 import { exportResource } from "@/api/api.utils"
 
+import { showToast } from "@/utils/showToast"
+
 import { Form } from "@/components/basic/Form/Form"
 
 import { extendFormFields } from "@/utils/extendFormFields"
@@ -17,7 +19,10 @@ const formFields = extendFormFields({
 })
 
 export const ChecksBulkExportModal = () => {
-  const action = async ({ startTimestamp, endTimestamp }: ChecksBulkExportData) => {
+  const action = async ({
+    startTimestamp,
+    endTimestamp
+  }: ChecksBulkExportData) => {
     const file = await exportResource({
       resourceId: "checks",
       filters: [
@@ -27,6 +32,18 @@ export const ChecksBulkExportModal = () => {
     })
 
     downloadBlob(file)
+
+    if (file.warnings) {
+      const { failedReports, failedReportsCount } = file.warnings
+
+      showToast({
+        type: "warning",
+        message: failedReportsCount
+          ? `Bulk export completed with errors: ${failedReportsCount} report${failedReportsCount === 1 ? "" : "s"} could not be generated`
+          : "Bulk export completed with errors",
+        details: failedReports
+      })
+    }
   }
 
   return (

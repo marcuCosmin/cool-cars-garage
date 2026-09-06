@@ -17,6 +17,11 @@ export type SearchQueriesOperators =
   | "not-in"
   | "array-contains-any"
 
+export type ExportWarnings = {
+  failedReports: string[]
+  failedReportsCount: number
+}
+
 export type SearchFilter<
   Doc extends FirestoreCollectionsMap[FirestoreCollectionsNames],
   DocumentIdFieldPath = never
