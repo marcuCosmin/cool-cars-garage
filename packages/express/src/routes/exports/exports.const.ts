@@ -1,15 +1,16 @@
-import { getCheckFiles } from "./checks/exports.checks"
+import { getCheckFiles, getChecksArchiveName } from "./checks/exports.checks"
 import { getChecksExtraValidationError } from "./checks/exports.checks.utils"
 
 import type {
   ExportableResources,
   ExportPayload
 } from "@/globals/requests/requests.model"
-import type { GetFiles } from "./exports.model"
+import type { GetArchiveName, GetFiles } from "./exports.model"
 
 type ExportsConfig = {
   [Resource in ExportableResources]: {
     getFiles: GetFiles<Resource>
+    getArchiveName: GetArchiveName<Resource>
     getExtraValidationError?: (
       payload: ExportPayload<Resource>
     ) => Promise<string | undefined>
@@ -19,6 +20,7 @@ type ExportsConfig = {
 export const exportsConfig: ExportsConfig = {
   checks: {
     getFiles: getCheckFiles,
+    getArchiveName: getChecksArchiveName,
     getExtraValidationError: getChecksExtraValidationError
   }
 }

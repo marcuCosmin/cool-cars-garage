@@ -92,7 +92,7 @@ export const handleExport = async (
     "Content-Type": "application/zip",
     "Content-Disposition": getContentDisposition({
       disposition: "attachment",
-      filename: `${resourceId}-export.zip`
+      filename: `${config.getArchiveName({ payload, files })}.zip`
     })
   })
 

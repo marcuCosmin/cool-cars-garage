@@ -18,3 +18,12 @@ export type ExportResult = {
 export type GetFiles<Resource extends ExportableResources> = (
   payload: ExportPayload<Resource>
 ) => Promise<ExportResult>
+
+type GetArchiveNameProps<Resource extends ExportableResources> = {
+  payload: ExportPayload<Resource>
+  files: GeneratedExportFile[]
+}
+
+export type GetArchiveName<Resource extends ExportableResources> = (
+  props: GetArchiveNameProps<Resource>
+) => string

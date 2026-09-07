@@ -49,6 +49,22 @@ const getTimestampFilterValue = ({
   return typeof timestamp === "number" ? timestamp : undefined
 }
 
+const getFilenameDate = (timestamp: number) =>
+  new Date(timestamp).toISOString().slice(0, 10)
+
+export const getChecksRangeName = (
+  filters: ExportPayload<"checks">["filters"]
+) => {
+  const startTimestamp = getTimestampFilterValue({ filters, operator: ">=" })
+  const endTimestamp = getTimestampFilterValue({ filters, operator: "<=" })
+
+  if (!startTimestamp || !endTimestamp) {
+    return "reports"
+  }
+
+  return `reports_${getFilenameDate(startTimestamp)}_${getFilenameDate(endTimestamp)}`
+}
+
 export const getChecksExtraValidationError = async ({
   filters
 }: ExportPayload<"checks">) => {
@@ -76,7 +92,7 @@ export const getCheckFilenameBase = ({
   creationTimestamp,
   driver: { firstName, lastName }
 }: CheckFilenameData) =>
-  `check-${carId}-${firstName}-${lastName}-${new Date(creationTimestamp).toISOString().slice(0, 10)}`
+  `check-${carId}-${firstName}-${lastName}-${getFilenameDate(creationTimestamp)}`
 
 type GetDefectAttachmentFilenameProps = {
   check: CheckFilenameData

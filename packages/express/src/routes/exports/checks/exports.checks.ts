@@ -1,4 +1,10 @@
-import type { GeneratedExportFile, GetFiles } from "../exports.model"
+import path from "path"
+
+import type {
+  GeneratedExportFile,
+  GetArchiveName,
+  GetFiles
+} from "../exports.model"
 
 import { generatePDF } from "../utils/exports.pdf.utils"
 
@@ -6,6 +12,7 @@ import {
   buildFullCheck,
   buildFullDefects,
   getCheckFilename,
+  getChecksRangeName,
   getDefectsAttachmentFiles,
   getDefectsByCheckIds,
   getSimplifiedUser,
@@ -113,7 +120,7 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
 
   const files: GeneratedExportFile[] = [
     {
-      filename: "checks-summary.pdf",
+      filename: `${getChecksRangeName(filters)}.pdf`,
       buffer: summaryBuffer,
       contentType: "application/pdf"
     }
@@ -174,4 +181,19 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
       failedReportsCount: failedReportsFilenames.length
     }
   }
+}
+
+export const getChecksArchiveName: GetArchiveName<"checks"> = ({
+  payload: { filters },
+  files
+}) => {
+  const isSingleCheckExport = filters?.some(([field]) => field === "__name__")
+
+  if (isSingleCheckExport) {
+    const [{ filename }] = files
+
+    return path.parse(filename).name
+  }
+
+  return getChecksRangeName(filters)
 }
