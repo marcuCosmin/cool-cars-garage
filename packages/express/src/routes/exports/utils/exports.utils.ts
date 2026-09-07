@@ -44,7 +44,7 @@ type GetContentDispositionProps = {
 
 const encodeExtValue = (value: string) =>
   encodeURIComponent(value).replace(
-    /[!'()*]/g,
+    /['()*]/g,
     character => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
   )
 
