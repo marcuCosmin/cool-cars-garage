@@ -226,21 +226,32 @@ const renderPDF = async ({ browser, body }: RenderPDFProps) => {
 
 type GeneratePDFProps = {
   body: RawHtml
+  signal: AbortSignal
   errorMessage?: string
 }
 
-export const generatePDF = async ({ body, errorMessage }: GeneratePDFProps) => {
+export const generatePDF = async ({
+  body,
+  signal,
+  errorMessage
+}: GeneratePDFProps) => {
   cancelIdleBrowserClose()
 
   await acquireGenerationSlot()
 
   try {
+    signal.throwIfAborted()
+
     const browser = await loadBrowser()
 
     const pdf = await renderPDF({ browser, body })
 
     return pdf
   } catch (cause) {
+    if (signal.aborted) {
+      throw cause
+    }
+
     return handleError({
       message: errorMessage,
       shouldForwardToClient: !!errorMessage,

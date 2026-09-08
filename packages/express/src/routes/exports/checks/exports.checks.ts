@@ -34,9 +34,8 @@ import type {
 } from "@/globals/firestore/firestore.model"
 
 export const getCheckFiles: GetFiles<"checks"> = async ({
-  filters,
-  cap,
-  order
+  payload: { filters, cap, order },
+  signal
 }) => {
   const checksSearchResult = await getFirestoreDocs({
     collection: "checks",
@@ -55,6 +54,7 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
 
     const buffer = await generatePDF({
       body: renderIndividualCheckBody(fullCheck),
+      signal,
       errorMessage: "Could not generate the report, please try again"
     })
 
@@ -115,6 +115,7 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
 
   const summaryBuffer = await generatePDF({
     body: renderBulkChecksBody(checksWithDrivers),
+    signal,
     errorMessage: "Could not generate the export summary, please try again"
   })
 
@@ -149,13 +150,16 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
           file: {
             filename: getCheckFilename(fullCheck),
             buffer: await generatePDF({
-              body: renderIndividualCheckBody(fullCheck)
+              body: renderIndividualCheckBody(fullCheck),
+              signal
             }),
             contentType: "application/pdf"
           }
         }
       } catch (error) {
-        console.log(error)
+        if (!signal.aborted) {
+          console.log(error)
+        }
 
         return { fullCheck, file: null }
       }

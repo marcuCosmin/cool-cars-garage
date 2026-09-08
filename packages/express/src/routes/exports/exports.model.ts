@@ -15,8 +15,13 @@ export type ExportResult = {
   warnings?: ExportWarnings
 }
 
-export type GetFiles<Resource extends ExportableResources> = (
+type GetFilesProps<Resource extends ExportableResources> = {
   payload: ExportPayload<Resource>
+  signal: AbortSignal
+}
+
+export type GetFiles<Resource extends ExportableResources> = (
+  props: GetFilesProps<Resource>
 ) => Promise<ExportResult>
 
 type GetArchiveNameProps<Resource extends ExportableResources> = {

@@ -11,12 +11,16 @@ import { exportWarningsHeader } from "@/globals/requests/requests.const"
 
 import type { Request, Response } from "@/models"
 
+import { createClientAbortSignal } from "@/utils/create-client-abort-signal"
+
 import {
   encodeExportWarnings,
   getContentDisposition,
   isExportableResource,
   validateExportPayload
 } from "./utils/exports.utils"
+
+import type { ExportResult } from "./exports.model"
 
 import { exportsConfig } from "./exports.const"
 
@@ -54,7 +58,25 @@ export const handleExport = async (
     return
   }
 
-  const { files, warnings } = await config.getFiles(payload)
+  const signal = createClientAbortSignal(res)
+
+  let exportResult: ExportResult
+
+  try {
+    exportResult = await config.getFiles({ payload, signal })
+  } catch (error) {
+    if (signal.aborted) {
+      return
+    }
+
+    throw error
+  }
+
+  if (signal.aborted) {
+    return
+  }
+
+  const { files, warnings } = exportResult
 
   if (warnings) {
     res.set(exportWarningsHeader, encodeExportWarnings(warnings))
