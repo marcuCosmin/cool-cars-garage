@@ -1,6 +1,12 @@
 import path from "path"
 
+import { fileTypeFromBuffer } from "file-type"
+
+import { defectTypeLabels } from "@/globals/firestore/firestore.const"
 import { checksBulkExportFormFields } from "@/globals/forms/forms.const"
+
+import { formatUserName } from "@/globals/utils/formatUserName"
+import { parseTimestampForDisplay } from "@/globals/utils/parseTimestampForDisplay"
 
 import { getFormValidationResult } from "@/utils/get-form-validation-result"
 import { handleError } from "@/utils/handle-error"
@@ -90,9 +96,16 @@ export const getChecksExtraValidationError = async ({
 export const getCheckFilenameBase = ({
   carId,
   creationTimestamp,
-  driver: { firstName, lastName }
-}: CheckFilenameData) =>
-  `check-${carId}-${firstName}-${lastName}-${getFilenameDate(creationTimestamp)}`
+  driver
+}: CheckFilenameData) => {
+  const driverName = formatUserName(driver)
+  const parsedTimestamp = parseTimestampForDisplay({
+    timestamp: creationTimestamp,
+    includeTime: false
+  })
+
+  return `Check ${carId} ${driverName} ${parsedTimestamp}`
+}
 
 type GetDefectAttachmentFilenameProps = {
   check: CheckFilenameData
@@ -107,7 +120,7 @@ export const getDefectAttachmentFilename = ({
   defectNumber,
   resolutionFileUrl
 }: GetDefectAttachmentFilenameProps) =>
-  `${getCheckFilenameBase(check)}-${type}-${defectNumber}${path.extname(resolutionFileUrl)}`
+  `${getCheckFilenameBase(check)} - ${defectTypeLabels[type].singular} ${defectNumber}${path.extname(resolutionFileUrl)}`
 
 type GetDefectsProps<DefectCollectionId extends DefectType> = {
   check: DocWithID<CheckDoc>
@@ -144,8 +157,6 @@ export const getSimplifiedUsersMap = async (usersIds: string[]) => {
     ids: uniqueUsersIds
   })
 
-  // Firestore resolves missing docs to a snapshot holding only an id, so those
-  // are dropped here and resolved through the fallback on lookup instead
   return new Map<string, SimplifiedUser>(
     users.flatMap(({ id, firstName, lastName }) =>
       firstName && lastName ? [[id, { id, firstName, lastName }] as const] : []
@@ -257,13 +268,20 @@ const getDefectsAttachmentsData = ({
       : []
   )
 
-export const getDefectsAttachmentFiles = async ({
-  carId,
-  creationTimestamp,
-  driver,
-  faults,
-  incidents
-}: FullCheck): Promise<GeneratedExportFile[]> => {
+type GetDefectsAttachmentsProps = {
+  fullCheck: FullCheck
+  signal: AbortSignal
+}
+
+type DefectAttachmentResult = {
+  filename: string
+  file: GeneratedExportFile | null
+}
+
+export const getDefectsAttachmentResults = ({
+  fullCheck: { carId, creationTimestamp, driver, faults, incidents },
+  signal
+}: GetDefectsAttachmentsProps): Promise<DefectAttachmentResult[]> => {
   const faultsAttachmentsData = getDefectsAttachmentsData({
     defects: faults,
     type: "faults"
@@ -278,43 +296,57 @@ export const getDefectsAttachmentFiles = async ({
     ...incidentsAttachmentsData
   ]
 
-  const attachmentsPromises = attachmentsData.map(
-    async ({ type, defectNumber, resolutionFileUrl }) => {
-      const file = storage.bucket().file(resolutionFileUrl)
+  return Promise.all(
+    attachmentsData.map(async ({ type, defectNumber, resolutionFileUrl }) => {
+      const filename = getDefectAttachmentFilename({
+        check: { carId, creationTimestamp, driver },
+        type,
+        defectNumber,
+        resolutionFileUrl
+      })
 
-      const [exists] = await file.exists()
+      try {
+        signal.throwIfAborted()
 
-      if (!exists) {
-        return null
+        const [buffer] = await storage
+          .bucket()
+          .file(resolutionFileUrl)
+          .download()
+
+        const fileType = await fileTypeFromBuffer(buffer)
+
+        return {
+          filename,
+          file: {
+            filename,
+            buffer,
+            contentType: fileType?.mime ?? "application/octet-stream"
+          }
+        }
+      } catch (error) {
+        if (!signal.aborted) {
+          console.log(error)
+        }
+
+        return { filename, file: null }
       }
-
-      const [metadata] = await file.getMetadata()
-      const [buffer] = await file.download()
-
-      return {
-        filename: getDefectAttachmentFilename({
-          check: { carId, creationTimestamp, driver },
-          type,
-          defectNumber,
-          resolutionFileUrl
-        }),
-        buffer,
-        contentType: metadata.contentType || "application/octet-stream"
-      }
-    }
+    })
   )
+}
 
-  try {
-    const attachmentFiles = await Promise.all(attachmentsPromises)
+export const getDefectsAttachmentFiles = async (
+  props: GetDefectsAttachmentsProps
+): Promise<GeneratedExportFile[]> => {
+  const attachmentResults = await getDefectsAttachmentResults(props)
 
-    return attachmentFiles.flatMap(file => (file ? [file] : []))
-  } catch (cause) {
+  if (attachmentResults.some(({ file }) => !file)) {
     return handleError({
       message: "Could not download the attachments, please try again",
-      shouldForwardToClient: true,
-      cause
+      shouldForwardToClient: true
     })
   }
+
+  return attachmentResults.flatMap(({ file }) => (file ? [file] : []))
 }
 
 export const getCheckFilename = (check: CheckFilenameData) =>

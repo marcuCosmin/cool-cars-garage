@@ -18,6 +18,14 @@ const formFields = extendFormFields({
   }
 })
 
+type GetFailedLabelProps = {
+  count: number | undefined
+  noun: string
+}
+
+const getFailedLabel = ({ count, noun }: GetFailedLabelProps) =>
+  count ? `${count} ${noun}${count === 1 ? "" : "s"}` : undefined
+
 export const ChecksBulkExportModal = () => {
   const action = async ({
     startTimestamp,
@@ -34,14 +42,24 @@ export const ChecksBulkExportModal = () => {
     downloadBlob(file)
 
     if (file.warnings) {
-      const { failedReports, failedReportsCount } = file.warnings
+      const {
+        failedReports,
+        failedReportsCount,
+        failedAttachments,
+        failedAttachmentsCount
+      } = file.warnings
+
+      const failedLabels = [
+        getFailedLabel({ count: failedReportsCount, noun: "report" }),
+        getFailedLabel({ count: failedAttachmentsCount, noun: "attachment" })
+      ].filter(label => !!label)
 
       showToast({
         type: "warning",
-        message: failedReportsCount
-          ? `Bulk export completed with errors: ${failedReportsCount} report${failedReportsCount === 1 ? "" : "s"} could not be generated`
+        message: failedLabels.length
+          ? `Bulk export completed with errors: ${failedLabels.join(" and ")} could not be included`
           : "Bulk export completed with errors",
-        details: failedReports
+        details: [...(failedReports ?? []), ...(failedAttachments ?? [])]
       })
     }
   }

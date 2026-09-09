@@ -20,6 +20,8 @@ export type SearchQueriesOperators =
 export type ExportWarnings = {
   failedReports: string[]
   failedReportsCount: number
+  failedAttachments: string[]
+  failedAttachmentsCount: number
 }
 
 export type SearchFilter<

@@ -191,18 +191,28 @@ const getExportWarnings = (
   }
 
   try {
-    const { failedReports, failedReportsCount } = JSON.parse(
-      decodeURIComponent(encodedWarnings)
-    ) as Partial<ExportWarnings>
+    const {
+      failedReports,
+      failedReportsCount,
+      failedAttachments,
+      failedAttachmentsCount
+    } = JSON.parse(decodeURIComponent(encodedWarnings)) as Partial<ExportWarnings>
 
     if (
       !Array.isArray(failedReports) ||
-      typeof failedReportsCount !== "number"
+      typeof failedReportsCount !== "number" ||
+      !Array.isArray(failedAttachments) ||
+      typeof failedAttachmentsCount !== "number"
     ) {
       return {}
     }
 
-    return { failedReports, failedReportsCount }
+    return {
+      failedReports,
+      failedReportsCount,
+      failedAttachments,
+      failedAttachmentsCount
+    }
   } catch {
     return {}
   }

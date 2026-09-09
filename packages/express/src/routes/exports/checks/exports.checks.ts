@@ -1,6 +1,7 @@
 import path from "path"
 
 import type {
+  ExportResult,
   GeneratedExportFile,
   GetArchiveName,
   GetFiles
@@ -14,6 +15,7 @@ import {
   getCheckFilename,
   getChecksRangeName,
   getDefectsAttachmentFiles,
+  getDefectsAttachmentResults,
   getDefectsByCheckIds,
   getSimplifiedUser,
   getSimplifiedUsersMap
@@ -29,50 +31,60 @@ import {
 } from "@/backend/firebase/utils"
 
 import type {
+  CheckDoc,
   CheckWithDriver,
+  DocWithID,
   FullCheck
 } from "@/globals/firestore/firestore.model"
 
-export const getCheckFiles: GetFiles<"checks"> = async ({
-  payload: { filters, cap, order },
+import type { ExportPayload } from "@/globals/requests/requests.model"
+
+type GetIndividualCheckFilesProps = {
+  check: DocWithID<CheckDoc>
+  signal: AbortSignal
+}
+
+const getIndividualCheckFiles = async ({
+  check,
   signal
-}) => {
-  const checksSearchResult = await getFirestoreDocs({
-    collection: "checks",
-    queries: filters,
-    limit: cap,
-    orderBy: order
+}: GetIndividualCheckFilesProps): Promise<ExportResult> => {
+  const fullCheck = await buildFullCheck(check)
+
+  const buffer = await generatePDF({
+    body: renderIndividualCheckBody(fullCheck),
+    signal,
+    errorMessage: "Could not generate the report, please try again"
   })
 
-  if (!checksSearchResult.length) {
-    return { files: [] }
+  const attachmentFiles = await getDefectsAttachmentFiles({
+    fullCheck,
+    signal
+  })
+
+  return {
+    files: [
+      {
+        filename: getCheckFilename(fullCheck),
+        buffer,
+        contentType: "application/pdf"
+      },
+      ...attachmentFiles
+    ]
   }
+}
 
-  if (checksSearchResult.length === 1) {
-    const [check] = checksSearchResult
-    const fullCheck = await buildFullCheck(check)
+type GetBulkChecksFilesProps = {
+  checks: DocWithID<CheckDoc>[]
+  filters: ExportPayload<"checks">["filters"]
+  signal: AbortSignal
+}
 
-    const buffer = await generatePDF({
-      body: renderIndividualCheckBody(fullCheck),
-      signal,
-      errorMessage: "Could not generate the report, please try again"
-    })
-
-    const attachmentFiles = await getDefectsAttachmentFiles(fullCheck)
-
-    return {
-      files: [
-        {
-          filename: getCheckFilename(fullCheck),
-          buffer,
-          contentType: "application/pdf"
-        },
-        ...attachmentFiles
-      ]
-    }
-  }
-
-  const defectiveChecks = checksSearchResult.filter(
+const getBulkChecksFiles = async ({
+  checks,
+  filters,
+  signal
+}: GetBulkChecksFilesProps): Promise<ExportResult> => {
+  const defectiveChecks = checks.filter(
     ({ incidentsCount, faultsCount }) => incidentsCount || faultsCount
   )
   const defectiveChecksIds = defectiveChecks.map(({ id }) => id)
@@ -102,11 +114,11 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
   )
 
   const usersMap = await getSimplifiedUsersMap([
-    ...checksSearchResult.map(({ driverId }) => driverId),
+    ...checks.map(({ driverId }) => driverId),
     ...defectsUsersIds
   ])
 
-  const checksWithDrivers: CheckWithDriver[] = checksSearchResult.map(
+  const checksWithDrivers: CheckWithDriver[] = checks.map(
     ({ driverId, ...check }) => ({
       ...check,
       driver: getSimplifiedUser({ usersMap, userId: driverId })
@@ -166,15 +178,27 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
     })
   )
 
-  files.push(
-    ...generatedReports.flatMap(({ file }) => (file ? [file] : []))
+  files.push(...generatedReports.flatMap(({ file }) => (file ? [file] : [])))
+
+  const attachmentResults = (
+    await Promise.all(
+      defectiveFullChecks.map(fullCheck =>
+        getDefectsAttachmentResults({ fullCheck, signal })
+      )
+    )
+  ).flat()
+
+  files.push(...attachmentResults.flatMap(({ file }) => (file ? [file] : [])))
+
+  const failedReportsFilenames = generatedReports.flatMap(
+    ({ fullCheck, file }) => (file ? [] : [getCheckFilename(fullCheck)])
   )
 
-  const failedReportsFilenames = generatedReports.flatMap(({ fullCheck, file }) =>
-    file ? [] : [getCheckFilename(fullCheck)]
+  const failedAttachmentsFilenames = attachmentResults.flatMap(
+    ({ filename, file }) => (file ? [] : [filename])
   )
 
-  if (!failedReportsFilenames.length) {
+  if (!failedReportsFilenames.length && !failedAttachmentsFilenames.length) {
     return { files }
   }
 
@@ -182,9 +206,35 @@ export const getCheckFiles: GetFiles<"checks"> = async ({
     files,
     warnings: {
       failedReports: failedReportsFilenames,
-      failedReportsCount: failedReportsFilenames.length
+      failedReportsCount: failedReportsFilenames.length,
+      failedAttachments: failedAttachmentsFilenames,
+      failedAttachmentsCount: failedAttachmentsFilenames.length
     }
   }
+}
+
+export const getCheckFiles: GetFiles<"checks"> = async ({
+  payload: { filters, cap, order },
+  signal
+}) => {
+  const checks = await getFirestoreDocs({
+    collection: "checks",
+    queries: filters,
+    limit: cap,
+    orderBy: order
+  })
+
+  if (!checks.length) {
+    return { files: [] }
+  }
+
+  if (checks.length === 1) {
+    const [check] = checks
+
+    return getIndividualCheckFiles({ check, signal })
+  }
+
+  return getBulkChecksFiles({ checks, filters, signal })
 }
 
 export const getChecksArchiveName: GetArchiveName<"checks"> = ({

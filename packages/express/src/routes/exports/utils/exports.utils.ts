@@ -60,18 +60,36 @@ export const isExportableResource = (
 
 const maxExportWarningsLength = 3500
 
+type EncodeWarningsProps = Pick<
+  ExportWarnings,
+  "failedReports" | "failedAttachments"
+>
+
 export const encodeExportWarnings = (warnings: ExportWarnings) => {
-  const encodeWarnings = (failedReports: string[]) =>
-    encodeURIComponent(JSON.stringify({ ...warnings, failedReports }))
+  const encodeWarnings = ({
+    failedReports,
+    failedAttachments
+  }: EncodeWarningsProps) =>
+    encodeURIComponent(
+      JSON.stringify({ ...warnings, failedReports, failedAttachments })
+    )
 
   const failedReports = [...warnings.failedReports]
+  const failedAttachments = [...warnings.failedAttachments]
 
   while (
-    failedReports.length &&
-    encodeWarnings(failedReports).length > maxExportWarningsLength
+    (failedReports.length || failedAttachments.length) &&
+    encodeWarnings({ failedReports, failedAttachments }).length >
+      maxExportWarningsLength
   ) {
+    if (failedAttachments.length) {
+      failedAttachments.pop()
+
+      continue
+    }
+
     failedReports.pop()
   }
 
-  return encodeWarnings(failedReports)
+  return encodeWarnings({ failedReports, failedAttachments })
 }

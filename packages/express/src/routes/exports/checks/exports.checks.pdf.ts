@@ -3,6 +3,7 @@ import { formatDuration } from "@/globals/utils/formatDuration"
 import { formatUserName } from "@/globals/utils/formatUserName"
 import { capitalize } from "@/globals/utils/capitalize"
 import { reportsQuestionsSections } from "@/globals/constants"
+import { defectTypeLabels } from "@/globals/firestore/firestore.const"
 
 import type {
   CheckAnswer,
@@ -129,8 +130,7 @@ const renderDefects = ({ type, defects, check }: RenderDefectsProps) => {
   }
 
   const isFaultsSection = type === "faults"
-  const title = isFaultsSection ? "Faults" : "Incidents"
-  const attachmentType = isFaultsSection ? "faults" : "incidents"
+  const title = defectTypeLabels[type].plural
 
   const defectsData = isFaultsSection
     ? defects.map(({ question, details, ...defect }, index) => ({
@@ -183,7 +183,7 @@ const renderDefects = ({ type, defects, check }: RenderDefectsProps) => {
               !!resolutionFileUrl && {
                 value: getDefectAttachmentFilename({
                   check,
-                  type: attachmentType,
+                  type,
                   defectNumber: index,
                   resolutionFileUrl
                 }),
