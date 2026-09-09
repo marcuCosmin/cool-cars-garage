@@ -43,7 +43,9 @@ export const ReportsCheckIncident = ({
 }: ReportsCheckIncidentProps) => {
   const { setModalProps } = useModalContext()
 
-  const displayedDate = parseTimestampForDisplay(creationTimestamp)
+  const displayedDate = parseTimestampForDisplay({
+    timestamp: creationTimestamp
+  })
   const tooltipLabel = capitalize(status)
 
   const onResolveClick = () =>

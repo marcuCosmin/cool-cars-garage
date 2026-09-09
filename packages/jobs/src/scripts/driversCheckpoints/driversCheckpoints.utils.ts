@@ -58,9 +58,9 @@ export const handleExpiredBadgesNotifications = async (
         type: "driver_badge_expiration",
         params: {
           driver_name: formatUserName({ firstName, lastName }),
-          expiration_date: parseTimestampForDisplay(
-            badgeExpirationTimestamp as number
-          )
+          expiration_date: parseTimestampForDisplay({
+            timestamp: badgeExpirationTimestamp as number
+          })
         }
       },
       phoneNumbers

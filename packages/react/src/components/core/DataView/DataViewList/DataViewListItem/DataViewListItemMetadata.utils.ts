@@ -18,7 +18,7 @@ export const getParsedItemMetadataValue = ({
     case "boolean":
       return value ? "Yes" : "No"
     case "date":
-      return parseTimestampForDisplay(value)
+      return parseTimestampForDisplay({ timestamp: value })
     case "duration":
       return formatDuration(value)
     case "link":

@@ -173,7 +173,7 @@ const renderDefects = ({ type, defects, check }: RenderDefectsProps) => {
                 label: "Resolved by"
               },
               !!resolutionTimestamp && {
-                value: parseTimestampForDisplay(resolutionTimestamp),
+                value: parseTimestampForDisplay({ timestamp: resolutionTimestamp }),
                 label: "Resolved at"
               },
               !!resolutionNotes && {
@@ -229,7 +229,9 @@ export const renderIndividualCheckBody = ({
     section => answersBySection[section]?.length
   )
   const driverName = formatUserName(driver)
-  const displayedTimestamp = parseTimestampForDisplay(creationTimestamp)
+  const displayedTimestamp = parseTimestampForDisplay({
+    timestamp: creationTimestamp
+  })
   const displayedOdoReading = `${odoReading.value} ${odoReading.unit}`
   const defectsCount = faults.length + incidents.length
 
@@ -287,7 +289,7 @@ export const renderBulkChecksBody = (checks: CheckWithDriver[]) => {
       <td class="py-2 px-3 font-semibold text-gray-800">${check.carId}</td>
       <td class="py-2 px-3 text-gray-700">${formatUserName(check.driver)}</td>
       <td class="py-2 px-3 text-gray-700">
-        ${parseTimestampForDisplay(check.creationTimestamp)}
+        ${parseTimestampForDisplay({ timestamp: check.creationTimestamp })}
       </td>
       <td class="py-2 px-3 text-gray-700">
         ${check.odoReading.value} ${check.odoReading.unit}

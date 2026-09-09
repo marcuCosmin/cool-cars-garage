@@ -50,7 +50,9 @@ export const ReportsCheck = ({ check }: CheckProps) => {
     section => answersBySection[section]?.length
   )
 
-  const displayedDate = parseTimestampForDisplay(creationTimestamp)
+  const displayedDate = parseTimestampForDisplay({
+    timestamp: creationTimestamp
+  })
   const checkDuration =
     endTimestamp && startTimestamp ? endTimestamp - startTimestamp : undefined
   const unresolvedFaultsCount = faults?.filter(
