@@ -55,9 +55,6 @@ const getTimestampFilterValue = ({
   return typeof timestamp === "number" ? timestamp : undefined
 }
 
-const getFilenameDate = (timestamp: number) =>
-  new Date(timestamp).toISOString().slice(0, 10)
-
 export const getChecksRangeName = (
   filters: ExportPayload<"checks">["filters"]
 ) => {
@@ -65,10 +62,16 @@ export const getChecksRangeName = (
   const endTimestamp = getTimestampFilterValue({ filters, operator: "<=" })
 
   if (!startTimestamp || !endTimestamp) {
-    return "reports"
+    return "Reports"
   }
 
-  return `reports_${getFilenameDate(startTimestamp)}_${getFilenameDate(endTimestamp)}`
+  const displayedRange = [startTimestamp, endTimestamp]
+    .map(timestamp =>
+      parseTimestampForDisplay({ timestamp, includeTime: false })
+    )
+    .join(" - ")
+
+  return `Reports ${displayedRange}`
 }
 
 export const getChecksExtraValidationError = async ({
