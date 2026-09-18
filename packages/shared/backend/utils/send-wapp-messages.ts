@@ -33,6 +33,15 @@ type FaultsSubmittedTemplate = {
   check_id: string
 }
 
+type BlockedChecksTemplate = {
+  type: "blocked_checks"
+  params: {
+    driver_name: string
+    blocking_faults_count: string
+  }
+  check_id: string
+}
+
 type IncidentSubmittedTemplate = {
   type: "incident_reported"
   params: {
@@ -87,6 +96,7 @@ type SendWappMessageProps = {
   template:
     | MissingCheckTemplate
     | FaultsSubmittedTemplate
+    | BlockedChecksTemplate
     | IncidentSubmittedTemplate
     | UnresolvedDefectsTemplate
     | OutstandingRecallFoundTemplate
@@ -112,11 +122,24 @@ const getBodyComponent = (template: SendWappMessageProps["template"]) => {
   }
 }
 
+type URLComponentTemplate = Extract<
+  SendWappMessageProps["template"],
+  { check_id: string }
+>
+
+const urlComponentTemplateTypes: SendWappMessageProps["template"]["type"][] = [
+  "faults_reported",
+  "incident_reported",
+  "blocked_checks"
+]
+
+const hasURLComponent = (
+  template: SendWappMessageProps["template"]
+): template is URLComponentTemplate =>
+  urlComponentTemplateTypes.includes(template.type)
+
 const getURLComponent = (template: SendWappMessageProps["template"]) => {
-  if (
-    template.type !== "faults_reported" &&
-    template.type !== "incident_reported"
-  ) {
+  if (!hasURLComponent(template)) {
     return null
   }
 

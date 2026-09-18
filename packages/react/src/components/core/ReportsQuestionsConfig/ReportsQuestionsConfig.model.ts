@@ -21,6 +21,10 @@ export type OnItemLabelChange = (
   props: PropsWithSection<{ id: string; label: string }>
 ) => void
 
+export type OnItemBlockingChange = (
+  props: PropsWithSection<{ id: string; isBlocking: boolean }>
+) => void
+
 export type AddItemAtIndex = (
   props: PropsWithSection<{ index: number }>
 ) => void
@@ -34,6 +38,7 @@ export type ReportsQuestionsConfigListProps = {
   hasChanges: boolean
   onSectionChange: OnSectionChange
   onItemLabelChange: OnItemLabelChange
+  onItemBlockingChange: OnItemBlockingChange
   addItemAtIndex: AddItemAtIndex
   deleteItem: DeleteItem
   onSectionReset: OnSectionReset

@@ -27,6 +27,7 @@ export const ReportsQuestionsConfigList = ({
   hasChanges,
   onSectionChange,
   onItemLabelChange,
+  onItemBlockingChange,
   addItemAtIndex,
   deleteItem,
   onSectionReset,
@@ -86,11 +87,13 @@ export const ReportsQuestionsConfigList = ({
           strategy={verticalListSortingStrategy}
         >
           <ul className="flex flex-col gap-2 overflow-y-auto overflow-x-hidden mb-2">
-            {questions.map(({ label, id }, index) => {
+            {questions.map(({ label, id, isBlocking }, index) => {
               const isLast = index === questions.length - 1
               const onDelete = () => deleteItem({ section, id })
               const onLabelChange = (label: string) =>
                 onItemLabelChange({ section, id, label })
+              const onBlockingChange = (isBlocking: boolean) =>
+                onItemBlockingChange({ section, id, isBlocking })
               const onAdd = () => addItemAtIndex({ section, index })
 
               return (
@@ -98,8 +101,10 @@ export const ReportsQuestionsConfigList = ({
                   <ReportsQuestionsConfigItem
                     id={id}
                     label={label}
+                    isBlocking={isBlocking}
                     onDelete={onDelete}
                     onLabelChange={onLabelChange}
+                    onBlockingChange={onBlockingChange}
                     onAdd={onAdd}
                   />
                   {isLast && (

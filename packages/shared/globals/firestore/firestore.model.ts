@@ -104,6 +104,7 @@ export type CheckAnswer = {
   section: ReportsQuestionsSection
   value: CheckAnswerValue
   details?: string
+  isBlocking?: boolean
 }
 
 type CheckOdoReading = {
@@ -143,6 +144,7 @@ export type FaultDoc = DefectResolutionProps & {
   checkId: string
   creationTimestamp: number
   carId: string
+  isBlocking?: boolean
 }
 
 export type IncidentDoc = DefectResolutionProps & {
@@ -195,6 +197,7 @@ export type PhoneNumberDoc = {
 export type ReportsQuestion = {
   label: string
   section: ReportsQuestionsSection
+  isBlocking?: boolean
 }
 
 export type ReportsQuestionsDoc = {

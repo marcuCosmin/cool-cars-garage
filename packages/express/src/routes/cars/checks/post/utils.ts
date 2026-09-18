@@ -172,7 +172,11 @@ const getInvalidAnswersSection = ({
       const isValueValid =
         typeof answer.value === "boolean" || answer.value === "not-applicable"
 
-      return !isValueValid || question.label !== answer.label
+      return (
+        !isValueValid ||
+        question.label !== answer.label ||
+        question.isBlocking !== answer.isBlocking
+      )
     })
   })
 }

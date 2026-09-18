@@ -1,7 +1,12 @@
 import { useState } from "react"
 import { CSS } from "@dnd-kit/utilities"
 import { useSortable } from "@dnd-kit/sortable"
-import { GripHorizontal, Trash3Fill } from "react-bootstrap-icons"
+import {
+  GripHorizontal,
+  SignStop,
+  SignStopFill,
+  Trash3Fill
+} from "react-bootstrap-icons"
 
 import { Input } from "@/components/basic/Input"
 import { Tooltip } from "@/components/basic/Tooltip"
@@ -19,14 +24,17 @@ type ReportsQuestionsConfigItemProps = DocWithID<
   onAdd: () => void
   onDelete: () => void
   onLabelChange: (label: string) => void
+  onBlockingChange: (isBlocking: boolean) => void
 }
 
 export const ReportsQuestionsConfigItem = ({
   id,
   label,
+  isBlocking,
   onAdd,
   onDelete,
-  onLabelChange
+  onLabelChange,
+  onBlockingChange
 }: ReportsQuestionsConfigItemProps) => {
   const [questionLabel, setQuestionLabel] = useState(label)
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -39,6 +47,7 @@ export const ReportsQuestionsConfigItem = ({
 
   const onInputChange = (label = "") => setQuestionLabel(label)
   const onInputBlur = () => onLabelChange(questionLabel)
+  const onBlockingClick = () => onBlockingChange(!isBlocking)
 
   return (
     <div
@@ -62,16 +71,29 @@ export const ReportsQuestionsConfigItem = ({
             <GripHorizontal size={25} data-movable-handle />
           </Tooltip>
 
-          <Tooltip
-            label="Delete item"
-            containerTag="button"
-            containerProps={{
-              className: "p-1 bg-transparent",
-              onClick: onDelete
-            }}
-          >
-            <Trash3Fill size={20} />
-          </Tooltip>
+          <div className="flex items-center gap-2">
+            <Tooltip
+              label={isBlocking ? "Unmark as blocking" : "Mark as blocking"}
+              containerTag="button"
+              containerProps={{
+                className: "p-1 bg-transparent",
+                onClick: onBlockingClick
+              }}
+            >
+              {isBlocking ? <SignStopFill size={20} /> : <SignStop size={20} />}
+            </Tooltip>
+
+            <Tooltip
+              label="Delete item"
+              containerTag="button"
+              containerProps={{
+                className: "p-1 bg-transparent",
+                onClick: onDelete
+              }}
+            >
+              <Trash3Fill size={20} />
+            </Tooltip>
+          </div>
         </div>
 
         <Input

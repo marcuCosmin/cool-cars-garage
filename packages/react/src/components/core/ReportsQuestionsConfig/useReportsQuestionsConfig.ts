@@ -15,6 +15,7 @@ import { reportsQuestionsTabsOptions } from "./ReportsQuestionsConfig.const"
 import type {
   AddItemAtIndex,
   DeleteItem,
+  OnItemBlockingChange,
   OnItemLabelChange,
   OnSectionChange,
   OnSectionReset,
@@ -41,10 +42,15 @@ export const useReportsQuestionsConfig = ({
         collectionId: "reports-config",
         docId: category,
         data: {
-          questions: questions.map(({ label, section }) => ({
-            label,
-            section
-          }))
+          questions: questions.map(({ label, section, isBlocking }) => {
+            const question: ReportsQuestion = { label, section }
+
+            if (isBlocking) {
+              question.isBlocking = true
+            }
+
+            return question
+          })
         }
       })
 
@@ -54,11 +60,15 @@ export const useReportsQuestionsConfig = ({
 
   const hasChanges =
     categoryConfig.questions.length !== questions.length ||
-    questions.some(
-      (question, index) =>
-        question.label !== categoryConfig.questions[index]?.label ||
-        question.section !== categoryConfig.questions[index]?.section
-    )
+    questions.some(({ label, section, isBlocking }, index) => {
+      const initialQuestion = categoryConfig.questions[index]
+
+      return (
+        label !== initialQuestion?.label ||
+        section !== initialQuestion?.section ||
+        !!isBlocking !== !!initialQuestion?.isBlocking
+      )
+    })
 
   const questionsBySection = Object.groupBy(
     questions,
@@ -85,6 +95,19 @@ export const useReportsQuestionsConfig = ({
       section,
       questions: (questionsBySection[section] ?? []).map(question =>
         question.id === id ? { ...question, label } : question
+      )
+    })
+  }
+
+  const onItemBlockingChange: OnItemBlockingChange = ({
+    section,
+    id,
+    isBlocking
+  }) => {
+    onSectionChange({
+      section,
+      questions: (questionsBySection[section] ?? []).map(question =>
+        question.id === id ? { ...question, isBlocking } : question
       )
     })
   }
@@ -123,9 +146,14 @@ export const useReportsQuestionsConfig = ({
 
     return (
       sectionQuestions.length !== sectionInitialQuestions.length ||
-      sectionQuestions.some(
-        ({ label }, index) => label !== sectionInitialQuestions[index]?.label
-      )
+      sectionQuestions.some(({ label, isBlocking }, index) => {
+        const initialQuestion = sectionInitialQuestions[index]
+
+        return (
+          label !== initialQuestion?.label ||
+          !!isBlocking !== !!initialQuestion?.isBlocking
+        )
+      })
     )
   }
 
@@ -136,6 +164,7 @@ export const useReportsQuestionsConfig = ({
     saveQuestions,
     onSectionChange,
     onItemLabelChange,
+    onItemBlockingChange,
     addItemAtIndex,
     deleteItem,
     onSectionReset,

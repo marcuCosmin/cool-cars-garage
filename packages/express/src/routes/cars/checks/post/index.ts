@@ -11,7 +11,12 @@ import { sendWappMessages } from "@/backend/utils/send-wapp-messages"
 
 import type { Request } from "@/models"
 
-import type { CheckDoc, User } from "@/globals/firestore/firestore.model"
+import type {
+  CheckDoc,
+  FaultDoc,
+  User
+} from "@/globals/firestore/firestore.model"
+import { formatUserName } from "@/globals/utils/formatUserName"
 
 import { createReportsNotification } from "../../utils"
 
@@ -63,7 +68,15 @@ export const handleCheckSubmission = async (
   const { carId, answers, odoReading, startTimestamp, endTimestamp } =
     req.body as Required<ReqBody>
 
-  const answersWithFaults = answers.filter(answer => answer.value === false)
+  const answersWithFaults = answers.filter(({ value }) => value === false)
+
+  const blockingFaults = answersWithFaults.filter(
+    ({ isBlocking }) => isBlocking
+  )
+
+  const blockingFaultsCount = blockingFaults.length
+
+  const nonBlockingFaultsCount = answersWithFaults.length - blockingFaultsCount
 
   const checkHasFaults = answersWithFaults.length > 0
 
@@ -94,15 +107,19 @@ export const handleCheckSubmission = async (
     const faultsBatch = firestore.batch()
     const faultsRef = firestore.collection("faults")
 
-    answersWithFaults.forEach(answer => {
-      const fault = {
-        question: answer.label,
-        details: answer.details,
+    answersWithFaults.forEach(({ label, details, isBlocking }) => {
+      const fault: FaultDoc = {
+        question: label,
+        details: details as string,
         driverId: authorizedUser.uid,
         status: "pending",
         checkId: createdCheck.id,
         creationTimestamp,
         carId
+      }
+
+      if (isBlocking) {
+        fault.isBlocking = isBlocking
       }
 
       const faultRef = faultsRef.doc()
@@ -137,7 +154,27 @@ export const handleCheckSubmission = async (
       type: "fault",
       bulkCount: faultsIds.length
     })
+  }
 
+  const driverName = formatUserName(authorizedUser)
+
+  if (blockingFaultsCount) {
+    const phoneNumbers = await getNotificationPhoneNumbers("blocked-checks")
+
+    await sendWappMessages({
+      phoneNumbers,
+      template: {
+        type: "blocked_checks",
+        params: {
+          driver_name: driverName,
+          blocking_faults_count: blockingFaultsCount.toString()
+        },
+        check_id: createdCheck.id
+      }
+    })
+  }
+
+  if (nonBlockingFaultsCount) {
     const phoneNumbers = await getNotificationPhoneNumbers("faults-reported")
 
     await sendWappMessages({
@@ -145,9 +182,9 @@ export const handleCheckSubmission = async (
       template: {
         type: "faults_reported",
         params: {
-          driver_name: `${authorizedUser.firstName} ${authorizedUser.lastName}`,
+          driver_name: driverName,
           car_reg_number: carId,
-          faults_count: faultsIds.length.toString()
+          faults_count: nonBlockingFaultsCount.toString()
         },
         check_id: createdCheck.id
       }
