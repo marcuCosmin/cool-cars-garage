@@ -34,10 +34,11 @@ type FaultsSubmittedTemplate = {
 }
 
 type BlockedChecksTemplate = {
-  type: "blocked_checks"
+  type: "blocking_faults_reported"
   params: {
     driver_name: string
-    blocking_faults_count: string
+    faults_count: string
+    car_reg_number: string
   }
   check_id: string
 }
@@ -130,7 +131,7 @@ type URLComponentTemplate = Extract<
 const urlComponentTemplateTypes: SendWappMessageProps["template"]["type"][] = [
   "faults_reported",
   "incident_reported",
-  "blocked_checks"
+  "blocking_faults_reported"
 ]
 
 const hasURLComponent = (

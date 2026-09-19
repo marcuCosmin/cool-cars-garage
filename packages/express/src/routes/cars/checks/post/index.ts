@@ -164,10 +164,11 @@ export const handleCheckSubmission = async (
     await sendWappMessages({
       phoneNumbers,
       template: {
-        type: "blocked_checks",
+        type: "blocking_faults_reported",
         params: {
           driver_name: driverName,
-          blocking_faults_count: blockingFaultsCount.toString()
+          car_reg_number: carId,
+          faults_count: blockingFaultsCount.toString()
         },
         check_id: createdCheck.id
       }
